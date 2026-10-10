@@ -2,7 +2,7 @@ package com.example.calisthenicsapp.CoreComponents;
 
 public class Exercise {
     public Exercise(String name, String instructions, boolean isTimed,
-                    Integer secIndex, Integer repsIndex, double met, String animationFile) {
+                    int secIndex, int repsIndex, double met, String animationFile) {
         this.name = name;
         this.instructions = instructions;
         this.isTimed = isTimed;
@@ -20,13 +20,13 @@ public class Exercise {
     public boolean isTimed() {
         return this.isTimed;
     }
-    public Integer getDefaultSeconds() {
+    public int getDefaultSeconds() {
         return this.secIndex;
     }
-    public Integer getDefaultReps() {
+    public int getDefaultReps() {
         return this.repsIndex;
     }
-    public Double getMet() {
+    public double getMet() {
         return this.met;
     }
     public String getAnimationFile() {
@@ -35,9 +35,9 @@ public class Exercise {
     private String name;
     private String instructions;
     private boolean isTimed;
-    private Integer secIndex;
-    private Integer repsIndex;
-    private Double met;
+    private int secIndex;
+    private int repsIndex;
+    private double met;
     private String animationFile;
 
 }

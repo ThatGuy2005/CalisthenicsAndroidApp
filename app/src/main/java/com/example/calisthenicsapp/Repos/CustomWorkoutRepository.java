@@ -1,0 +1,74 @@
+package com.example.calisthenicsapp.Repos;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class CustomWorkoutRepository implements Repository<CustomWorkout> {
+    private final SQLiteDatabase db;
+
+    public CustomWorkoutRepository(SQLiteDatabase db) { this.db = db; }
+
+    @Override
+    public boolean insert(CustomWorkout w) {
+        ContentValues cv = new ContentValues();
+        cv.put("Name", w.getName());
+        cv.put("Username", w.getUsername());
+        try {
+            long id = db.insertOrThrow("CustomWorkout", null, cv);
+            if (id == -1) return false;
+            w.setId(id);                                // caller now has the id
+            return true;
+        } catch (SQLiteConstraintException e) {
+            return false;                               // duplicate (Username, Name) or unknown user
+        }
+    }
+
+    @Override
+    public boolean update(CustomWorkout w) {            // rename
+        ContentValues cv = new ContentValues();
+        cv.put("Name", w.getName());
+        return Repository.updateDB(db, "CustomWorkout", cv,
+                "Id = ?", String.valueOf(w.getId()));
+    }
+
+    @Override
+    public boolean delete(CustomWorkout w) {            // its exercise rows cascade
+        return Repository.deleteDB(db, "CustomWorkout",
+                "Id = ?", String.valueOf(w.getId()));
+    }
+
+    @Override
+    public List<CustomWorkout> getAll() {
+        return query(null, null);
+    }
+
+    public List<CustomWorkout> getByUsername(String username) {
+        return query("Username = ?", new String[]{username});
+    }
+
+    public CustomWorkout getOne(long id) {
+        List<CustomWorkout> r = query("Id = ?", new String[]{String.valueOf(id)});
+        return r.isEmpty() ? null : r.get(0);
+    }
+
+    private List<CustomWorkout> query(String where, String[] args) {
+        List<CustomWorkout> list = new ArrayList<>();
+        try (Cursor c = db.query("CustomWorkout", null, where, args,
+                null, null, "Name ASC")) {
+            while (c.moveToNext()) {
+                list.add(new CustomWorkout(
+                        c.getLong(c.getColumnIndexOrThrow("Id")),
+                        c.getString(c.getColumnIndexOrThrow("Name")),
+                        c.getString(c.getColumnIndexOrThrow("Username"))));
+            }
+        }
+        return list;
+    }
+}
