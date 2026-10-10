@@ -24,17 +24,17 @@ public interface Repository<T> {
     }
 
     static boolean updateDB(SQLiteDatabase db, String table, ContentValues cv,
-                                  String where, String key) {
+                            String where, String... args) {
         try {
-            return db.update(table, cv, where, new String[]{key}) > 0;
+            return db.update(table, cv, where, args) > 0;
         } catch (SQLiteConstraintException e) {
             return false;
         }
     }
 
-    static boolean deleteDB(SQLiteDatabase db, String table, String where, String key) {
+    static boolean deleteDB(SQLiteDatabase db, String table, String where, String... args) {
         try {
-            return db.delete(table, where, new String[]{key}) > 0;
+            return db.delete(table, where, args) > 0;
         } catch (SQLiteConstraintException e) {
             return false; // e.g. exercise still referenced (RESTRICT)
         }
