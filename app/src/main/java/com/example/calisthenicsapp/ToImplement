@@ -1,0 +1,9 @@
+//-----------------------------------------------------
+The animations can be found on:
+https://yuhonas.github.io/free-exercise-db/
+//-----------------------------------------------------
+/** Calculation for the calories burnt.
+     * double kcal(double met, double weightKg, double seconds) {
+     *     return met * weightKg * (seconds / 3600.0);
+     * }*/
+//-----------------------------------------------------
