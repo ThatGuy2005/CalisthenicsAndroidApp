@@ -1,8 +1,8 @@
 package com.example.calisthenicsapp.CoreComponents;
 
 public class User {
-    public User(String username, String email, String passwordHash, double height,
-                double weight, String gender, String mode) {
+    public User(String username, String email, String passwordHash, Double height,
+                Double weight, String gender, String mode) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
