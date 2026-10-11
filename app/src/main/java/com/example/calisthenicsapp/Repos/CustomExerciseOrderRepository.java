@@ -2,11 +2,9 @@ package com.example.calisthenicsapp.Repos;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.example.calisthenicsapp.CoreComponents.CustomExerciseOrderEntry;
-import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +19,12 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
         return Repository.insertDB(db, "CustomExerciseOrder", toContentValues(e));
     }
 
+    /** The row is identified by (CustomWorkoutId, Position); everything else is updated. */
     @Override
     public boolean update(CustomExerciseOrderEntry e) {
-        ContentValues cv = new ContentValues();
-        cv.put("ExerciseName", e.getExerciseName());
+        ContentValues cv = toContentValues(e);
+        cv.remove("CustomWorkoutId");
+        cv.remove("Position");
         return Repository.updateDB(db, "CustomExerciseOrder", cv,
                 "CustomWorkoutId = ? AND Position = ?",
                 String.valueOf(e.getCustomWorkoutId()), String.valueOf(e.getPosition()));
@@ -71,7 +71,11 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
                 list.add(new CustomExerciseOrderEntry(
                         c.getLong(c.getColumnIndexOrThrow("CustomWorkoutId")),
                         c.getString(c.getColumnIndexOrThrow("ExerciseName")),
-                        c.getInt(c.getColumnIndexOrThrow("Position"))));
+                        c.getInt(c.getColumnIndexOrThrow("Position")),
+                        c.getInt(c.getColumnIndexOrThrow("Sets")),
+                        Repository.intOrNull(c, "Reps"),        // NULL = use the exercise default
+                        Repository.intOrNull(c, "Seconds"),     // NULL = use the exercise default
+                        c.getInt(c.getColumnIndexOrThrow("RestSeconds"))));
             }
         }
         return list;
@@ -82,6 +86,12 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
         cv.put("CustomWorkoutId", e.getCustomWorkoutId());
         cv.put("ExerciseName", e.getExerciseName());
         cv.put("Position", e.getPosition());
+        // Sets and RestSeconds are NOT NULL: leave them out when null so the DB default
+        // (3 sets, 60 s) applies. An explicit NULL would be rejected.
+        if (e.getSets() != null) cv.put("Sets", e.getSets());
+        Repository.putIntOrNull(cv, "Reps", e.getReps());
+        Repository.putIntOrNull(cv, "Seconds", e.getSeconds());
+        if (e.getRestSeconds() != null) cv.put("RestSeconds", e.getRestSeconds());
         return cv;
     }
 }

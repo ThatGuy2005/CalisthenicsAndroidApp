@@ -1,0 +1,224 @@
+===============================================================================
+CALISTHENICS WORKOUT APP - SOFTWARE REQUIREMENTS SPECIFICATION
+===============================================================================
+
+Platform:     Android (Android Studio, Java)
+Local data:   SQLite
+Project type: University project (team of two: front end / back end & database)
+Version:      1.0 (draft)
+
+-------------------------------------------------------------------------------
+1. INTRODUCTION
+-------------------------------------------------------------------------------
+
+1.1 Purpose
+This document describes what the Calisthenics Workout App must do. It defines
+the functional and non-functional requirements that guide design,
+implementation and testing.
+
+1.2 Scope
+The app helps users train with bodyweight (calisthenics) exercises. Users
+create an account, follow premade exercises and workouts, build their own
+workouts, track their training history (time and estimated calories burned),
+and schedule workouts in their calendar with an email reminder.
+
+1.3 Definitions
+- Exercise:        A single movement (e.g. push-up, pull-up) with instructions
+                   and an animation.
+- Workout:         An ordered list of exercises with sets/repetitions or
+                   durations.
+- Premade workout: A workout supplied with the app, not editable by users.
+- Custom workout:  A workout created and owned by a user.
+- Workout log:     A record of a completed workout session.
+
+1.4 User roles
+- User:  Registers, logs in, trains, creates custom workouts, views logs and
+         schedules workouts.
+- Admin: Has all User rights, and can manage the premade exercises and
+         workouts.
+
+-------------------------------------------------------------------------------
+2. FUNCTIONAL REQUIREMENTS
+-------------------------------------------------------------------------------
+
+2.1 Authentication and accounts
+FR-1.1  The system shall allow a new user to sign up with a unique username,
+        an email address and a password.
+FR-1.2  The system shall collect optional profile data at sign-up: height,
+        weight and gender. Weight is used to estimate calories burned.
+FR-1.3  The system shall reject sign-up if the username or email is already
+        in use, the email format is invalid, or the password is too weak
+        (minimum 8 characters).
+FR-1.4  The system shall allow a registered user to log in with username and
+        password.
+FR-1.5  The system shall display a clear error message on failed login
+        without revealing whether the username or the password was wrong.
+FR-1.6  The system shall allow a logged-in user to log out.
+FR-1.7  The system shall allow a user to view and edit their profile (email,
+        height, weight, gender, password).
+FR-1.8  The system shall record the account creation date and the last
+        update date for each user.
+
+2.2 Password security (hashing)
+FR-2.1  Passwords shall NEVER be stored in plain text. Only a salted hash of
+        the password shall be stored in the database.
+FR-2.2  A strong, purpose-built password hashing algorithm shall be used
+        (bcrypt, PBKDF2 or Argon2). Fast general-purpose hashes such as
+        plain MD5 or SHA-1 are not acceptable.
+FR-2.3  Each password shall be hashed with a unique, randomly generated
+        salt.
+FR-2.4  At login, the system shall hash the entered password with the
+        stored salt and compare it to the stored hash, using a constant-time
+        comparison.
+FR-2.5  Passwords and hashes shall never be written to logs or shown in the
+        user interface.
+
+2.3 Exercises
+FR-3.1  The app shall include a library of premade exercises.
+FR-3.2  Each exercise shall have: a name, a text description with
+        step-by-step instructions, an animation demonstrating correct form,
+        a target muscle group, and a difficulty level.
+FR-3.3  The user shall be able to browse the exercise list and open an
+        exercise's detail screen.
+FR-3.4  The user shall be able to search or filter exercises by name, muscle
+        group and difficulty.
+FR-3.5  The animation shall play on the exercise detail screen and during
+        the workout.
+
+2.4 Workouts
+FR-4.1  The app shall include a set of premade workouts (e.g. beginner,
+        intermediate, advanced, or by muscle group).
+FR-4.2  Each workout shall list its exercises in order, with the number of
+        sets and repetitions or the duration for each, and the rest time
+        between them.
+FR-4.3  Premade workouts shall be read-only for regular users.
+FR-4.4  The user shall be able to create a custom workout by choosing a name
+        and adding exercises from the library.
+FR-4.5  The user shall be able to set the order, sets, repetitions or
+        duration, and rest time for each exercise in a custom workout.
+FR-4.6  The user shall be able to edit and delete their own custom workouts,
+        and shall not be able to see or modify other users' custom workouts.
+FR-4.7  The user shall be able to start any workout and be guided through
+        its exercises (current exercise, instructions, animation, timer, and
+        next exercise).
+FR-4.8  The user shall be able to pause, resume, skip or cancel a workout in
+        progress.
+
+2.4.1 Administration (Admin role)
+FR-4.9  An Admin shall be able to add, edit and delete premade exercises and
+        premade workouts.
+
+2.5 Workout log and statistics
+FR-5.1  When a workout is completed, the system shall automatically save a
+        log entry containing: the workout, the date and time, the total
+        duration, and the estimated calories burned.
+FR-5.2  The estimated calories burned shall be computed from the workout
+        duration, the exercise intensity and the user's body weight.
+FR-5.3  The user shall be able to view a history of all their past workouts,
+        sorted from newest to oldest.
+FR-5.5  The system shall show summary statistics, such as total workouts,
+        total training time and total calories burned over a selected
+        period (week, month, all time).
+FR-5.6  The user shall be able to delete their own log entries.
+
+2.6 Scheduling and email
+FR-6.1  The user shall be able to schedule a workout for a chosen date and
+        time.
+FR-6.2  The system shall add the scheduled workout as an event in the
+        device's calendar app.
+FR-6.3  The user shall be able to send the scheduled workout to their email
+        address, including the workout name, date, time and list of
+        exercises (optionally as a calendar invitation file, .ics).
+FR-6.4  The user shall be able to view, edit and cancel scheduled workouts.
+FR-6.5  The system shall ask for the required calendar permission and
+        handle a denied permission gracefully.
+
+-------------------------------------------------------------------------------
+3. DATA REQUIREMENTS
+-------------------------------------------------------------------------------
+
+DR-1  Data shall be stored locally in an SQLite database.
+DR-2  The database shall contain at least the following entities:
+      - Users:          username (unique), email, password hash and salt,
+                        height, weight, gender, role (Admin or User),
+                        created date, updated date
+      - Exercise:       name, description/instructions, animation reference,
+                        muscle group, difficulty
+      - Workout:        name, description, type (premade or custom),
+                        owner (for custom workouts)
+      - ExerciseOrder:  links exercises to a workout with order, sets,
+                        repetitions/duration and rest time
+      - Workout log:    user, workout, date and time, duration, calories
+      - Schedule:       user, workout, planned date and time
+DR-3  Dates and times shall be stored as Unix epoch timestamps.
+DR-4  The database shall enforce data integrity with primary keys, foreign
+      keys and unique constraints.
+DR-5  The database shall use triggers to automatically update the "updated"
+      timestamp when a record is modified.
+DR-6  All database queries shall use parameterized statements to prevent SQL
+      injection.
+DR-7  Premade exercises and workouts shall be loaded into the database when
+      the app is first installed.
+
+-------------------------------------------------------------------------------
+4. NON-FUNCTIONAL REQUIREMENTS
+-------------------------------------------------------------------------------
+
+4.1 Security
+NFR-1  Passwords shall be hashed and salted (see section 2.2).
+NFR-2  All user input shall be validated before it is processed or stored.
+NFR-3  A user shall only be able to access their own personal data.
+
+4.2 Usability
+NFR-4  The interface shall be simple and consistent, and usable by a person
+       with no training.
+NFR-5  Common actions (start a workout, view the log) shall take at most
+       three taps from the main screen.
+NFR-6  Error messages shall be clear and understandable.
+
+4.3 Performance
+NFR-7  Screens shall load in under 2 seconds on a typical device.
+NFR-8  Animations shall play smoothly, without noticeable stutter.
+NFR-9  Database operations shall run off the main (UI) thread so that the
+       interface stays responsive.
+
+4.4 Reliability
+NFR-10 Workout data shall not be lost if the app is closed or crashes during
+       use (logs shall be saved as soon as a workout is finished).
+NFR-11 The app shall handle missing permissions or no internet access
+       without crashing. Only email sending requires a connection.
+
+4.5 Compatibility and maintainability
+NFR-12 The app shall run on Android devices from a defined minimum API level
+       (to be decided by the team).
+NFR-13 The code shall be organized in separate layers (user interface,
+       business logic, database access) with a dedicated database manager
+       class, so that the front end and back end can be developed
+       independently.
+NFR-14 The code shall be documented and follow consistent naming conventions.
+
+-------------------------------------------------------------------------------
+5. CONSTRAINTS AND ASSUMPTIONS
+-------------------------------------------------------------------------------
+
+- The app is developed in Java using Android Studio.
+- The project is developed by two people within a fixed university deadline.
+- Calorie values are estimates for fitness tracking, not medical data.
+- Email sending relies on an installed email app on the device or on an
+  internet connection.
+- Online accounts and cloud synchronization are out of scope; all data is
+  stored on the device.
+
+-------------------------------------------------------------------------------
+6. OUT OF SCOPE (POSSIBLE FUTURE WORK)
+-------------------------------------------------------------------------------
+
+- Cloud backup and synchronization between devices
+- Social features (sharing workouts, leaderboards)
+- Wearable device integration
+- Nutrition tracking
+- Push notification reminders
+
+===============================================================================
+END OF DOCUMENT
+===============================================================================

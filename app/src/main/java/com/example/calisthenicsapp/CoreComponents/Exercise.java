@@ -1,15 +1,22 @@
 package com.example.calisthenicsapp.CoreComponents;
 
 public class Exercise {
+    /**
+     * defaultSeconds is used when isTimed is true, defaultReps when it is false.
+     * The other one is null (the database column is NULL).
+     */
     public Exercise(String name, String instructions, boolean isTimed,
-                    int secIndex, int repsIndex, double met, String animationFile) {
+                    Integer defaultSeconds, Integer defaultReps, double met,
+                    String animationFile, String muscleGroup, String difficulty) {
         this.name = name;
         this.instructions = instructions;
         this.isTimed = isTimed;
-        this.secIndex = secIndex;
-        this.repsIndex = repsIndex;
+        this.defaultSeconds = defaultSeconds;
+        this.defaultReps = defaultReps;
         this.met = met;
         this.animationFile = animationFile;
+        this.muscleGroup = muscleGroup;
+        this.difficulty = difficulty;
     }
     public String getName() {
         return this.name;
@@ -20,11 +27,11 @@ public class Exercise {
     public boolean isTimed() {
         return this.isTimed;
     }
-    public int getDefaultSeconds() {
-        return this.secIndex;
+    public Integer getDefaultSeconds() {
+        return this.defaultSeconds;
     }
-    public int getDefaultReps() {
-        return this.repsIndex;
+    public Integer getDefaultReps() {
+        return this.defaultReps;
     }
     public double getMet() {
         return this.met;
@@ -32,12 +39,20 @@ public class Exercise {
     public String getAnimationFile() {
         return this.animationFile;
     }
+    public String getMuscleGroup() {
+        return this.muscleGroup;
+    }
+    /** "Beginner", "Intermediate", "Advanced", or null. */
+    public String getDifficulty() {
+        return this.difficulty;
+    }
     private String name;
     private String instructions;
     private boolean isTimed;
-    private int secIndex;
-    private int repsIndex;
+    private Integer defaultSeconds;
+    private Integer defaultReps;
     private double met;
     private String animationFile;
-
+    private String muscleGroup;
+    private String difficulty;
 }
