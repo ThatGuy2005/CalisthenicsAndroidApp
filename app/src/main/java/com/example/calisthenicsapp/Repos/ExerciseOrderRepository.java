@@ -68,7 +68,11 @@ public class ExerciseOrderRepository implements Repository<ExerciseOrderEntry> {
                 list.add(new ExerciseOrderEntry(
                         c.getString(c.getColumnIndexOrThrow("WorkoutName")),
                         c.getString(c.getColumnIndexOrThrow("ExerciseName")),
-                        c.getInt(c.getColumnIndexOrThrow("Position"))));
+                        c.getInt(c.getColumnIndexOrThrow("Position")),
+                        c.getInt(c.getColumnIndexOrThrow("Sets")),
+                        c.getInt(c.getColumnIndexOrThrow("Reps")),
+                        c.getInt(c.getColumnIndexOrThrow("Seconds")),
+                        c.getInt(c.getColumnIndexOrThrow("RestSeconds"))));
             }
         }
         return list;
@@ -79,6 +83,10 @@ public class ExerciseOrderRepository implements Repository<ExerciseOrderEntry> {
         cv.put("WorkoutName", e.getWorkoutName());
         cv.put("ExerciseName", e.getExerciseName());
         cv.put("Position", e.getPosition());
+        cv.put("Sets", e.getSets());
+        cv.put("Reps", e.getReps());
+        cv.put("Seconds", e.getSeconds());
+        cv.put("RestSeconds", e.getRestSeconds());
         return cv;
     }
 }

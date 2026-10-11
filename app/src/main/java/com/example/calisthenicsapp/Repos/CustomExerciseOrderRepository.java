@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.example.calisthenicsapp.CoreComponents.CustomExerciseOrderEntry;
-import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,11 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
                 list.add(new CustomExerciseOrderEntry(
                         c.getLong(c.getColumnIndexOrThrow("CustomWorkoutId")),
                         c.getString(c.getColumnIndexOrThrow("ExerciseName")),
-                        c.getInt(c.getColumnIndexOrThrow("Position"))));
+                        c.getInt(c.getColumnIndexOrThrow("Position")),
+                        c.getInt(c.getColumnIndexOrThrow("Sets")),
+                        c.getInt(c.getColumnIndexOrThrow("Reps")),
+                        c.getInt(c.getColumnIndexOrThrow("Seconds")),
+                        c.getInt(c.getColumnIndexOrThrow("RestSeconds"))));
             }
         }
         return list;
@@ -82,6 +86,10 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
         cv.put("CustomWorkoutId", e.getCustomWorkoutId());
         cv.put("ExerciseName", e.getExerciseName());
         cv.put("Position", e.getPosition());
+        cv.put("Sets", e.getSets());
+        cv.put("Reps", e.getReps());
+        cv.put("Seconds", e.getSeconds());
+        cv.put("RestSeconds", e.getRestSeconds());
         return cv;
     }
 }

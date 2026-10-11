@@ -1,10 +1,16 @@
 package com.example.calisthenicsapp.CoreComponents;
 
 public class CustomExerciseOrderEntry {
-    public CustomExerciseOrderEntry(long customWorkoutId, String exerciseName, int position) {
+    public CustomExerciseOrderEntry(long customWorkoutId, String exerciseName, int position,
+                                    Integer sets, Integer reps, Integer seconds,
+                                    Integer restSeconds) {
         this.customWorkoutId = customWorkoutId;
         this.exerciseName = exerciseName;
         this.position = position;
+        this.sets = sets;
+        this.reps = reps;
+        this.seconds = seconds;
+        this.restSeconds = restSeconds;
     }
     public long getCustomWorkoutId() {
         return this.customWorkoutId;
@@ -15,7 +21,25 @@ public class CustomExerciseOrderEntry {
     public int getPosition() {
         return  this.position;
     }
+    public Integer getSets() {
+        return this.sets;
+    }
+
+    public Integer getReps() {
+        return this.reps;
+    }
+    public Integer getSeconds() {
+        return this.seconds;
+    }
+    public Integer getRestSeconds() {
+        return this.restSeconds;
+    }
     private long customWorkoutId;
     private String exerciseName;
     private int position;
+
+    private Integer sets;
+    private Integer reps;
+    private Integer seconds;
+    private Integer restSeconds;
 }
