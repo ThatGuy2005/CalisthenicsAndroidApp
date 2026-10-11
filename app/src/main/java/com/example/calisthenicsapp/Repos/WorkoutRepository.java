@@ -18,12 +18,15 @@ public class WorkoutRepository implements Repository<Workout> {
     public boolean insert(Workout w) {
         ContentValues cv = new ContentValues();
         cv.put("Name", w.getName());
+        cv.put("Level", w.getLevel());
         return Repository.insertDB(db, "Workout", cv);
     }
 
     @Override
     public boolean update(Workout w) {
-        throw new UnsupportedOperationException("Use rename(oldName, newName)");
+        ContentValues cv = new ContentValues();
+        cv.put("Level", w.getLevel());
+        return Repository.updateDB(db, "Workout", cv, "Name = ?", w.getName());
     }
 
     public boolean rename(String oldName, String newName) {
@@ -41,9 +44,11 @@ public class WorkoutRepository implements Repository<Workout> {
     @Override
     public List<Workout> getAll() {
         List<Workout> list = new ArrayList<>();
-        try (Cursor c = db.query("Workout", null, null, null, null, null, "Name ASC")) {
+        try (Cursor c = db.query("Workout", null, null, null,
+                null, null, "Name ASC")) {
             while (c.moveToNext())
-                list.add(new Workout(c.getString(c.getColumnIndexOrThrow("Name"))));
+                list.add(new Workout(c.getString(c.getColumnIndexOrThrow("Name")),
+                        c.getString(c.getColumnIndexOrThrow("Level"))));
         }
         return list;
     }
@@ -52,7 +57,8 @@ public class WorkoutRepository implements Repository<Workout> {
         try (Cursor c = db.query("Workout", null, "Name = ?",
                 new String[]{name}, null, null, null)) {
             return c.moveToFirst()
-                    ? new Workout(c.getString(c.getColumnIndexOrThrow("Name"))) : null;
+                    ? new Workout(c.getString(c.getColumnIndexOrThrow("Name")),
+                    c.getString(c.getColumnIndexOrThrow("Level"))) : null;
         }
     }
 }
