@@ -19,10 +19,12 @@ public class ExerciseOrderRepository implements Repository<ExerciseOrderEntry> {
         return Repository.insertDB(db, "ExerciseOrder", toContentValues(e));
     }
 
+    /** The row is identified by (WorkoutName, Position); everything else is updated. */
     @Override
     public boolean update(ExerciseOrderEntry e) {
-        ContentValues cv = new ContentValues();
-        cv.put("ExerciseName", e.getExerciseName());
+        ContentValues cv = toContentValues(e);
+        cv.remove("WorkoutName");
+        cv.remove("Position");
         return Repository.updateDB(db, "ExerciseOrder", cv,
                 "WorkoutName = ? AND Position = ?",
                 e.getWorkoutName(), String.valueOf(e.getPosition()));
@@ -70,8 +72,8 @@ public class ExerciseOrderRepository implements Repository<ExerciseOrderEntry> {
                         c.getString(c.getColumnIndexOrThrow("ExerciseName")),
                         c.getInt(c.getColumnIndexOrThrow("Position")),
                         c.getInt(c.getColumnIndexOrThrow("Sets")),
-                        c.getInt(c.getColumnIndexOrThrow("Reps")),
-                        c.getInt(c.getColumnIndexOrThrow("Seconds")),
+                        Repository.intOrNull(c, "Reps"),        // NULL = use the exercise default
+                        Repository.intOrNull(c, "Seconds"),     // NULL = use the exercise default
                         c.getInt(c.getColumnIndexOrThrow("RestSeconds"))));
             }
         }
@@ -83,10 +85,12 @@ public class ExerciseOrderRepository implements Repository<ExerciseOrderEntry> {
         cv.put("WorkoutName", e.getWorkoutName());
         cv.put("ExerciseName", e.getExerciseName());
         cv.put("Position", e.getPosition());
-        cv.put("Sets", e.getSets());
-        cv.put("Reps", e.getReps());
-        cv.put("Seconds", e.getSeconds());
-        cv.put("RestSeconds", e.getRestSeconds());
+        // Sets and RestSeconds are NOT NULL: leave them out when null so the DB default
+        // (3 sets, 60 s) applies. An explicit NULL would be rejected.
+        if (e.getSets() != null) cv.put("Sets", e.getSets());
+        Repository.putIntOrNull(cv, "Reps", e.getReps());
+        Repository.putIntOrNull(cv, "Seconds", e.getSeconds());
+        if (e.getRestSeconds() != null) cv.put("RestSeconds", e.getRestSeconds());
         return cv;
     }
 }

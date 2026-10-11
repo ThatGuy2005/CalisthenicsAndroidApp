@@ -51,23 +51,26 @@ public class ExerciseRepository implements Repository<Exercise> {
         cv.put("Name", e.getName());
         cv.put("Instructions", e.getInstructions());
         cv.put("IsTimed", e.isTimed() ? 1 : 0);
-        cv.put("DefaultSeconds", e.getDefaultSeconds());
-        cv.put("DefaultReps", e.getDefaultReps());
+        // NULL, not 0: the schema has CHECK (DefaultSeconds > 0) and CHECK (DefaultReps > 0)
+        Repository.putIntOrNull(cv, "DefaultSeconds", e.getDefaultSeconds());
+        Repository.putIntOrNull(cv, "DefaultReps", e.getDefaultReps());
         cv.put("Met", e.getMet());
         cv.put("AnimationFile", e.getAnimationFile());
+        cv.put("MuscleGroup", e.getMuscleGroup());
+        cv.put("Difficulty", e.getDifficulty());
         return cv;
     }
 
     private Exercise fromCursor(Cursor c) {
-        int secIdx  = c.getColumnIndexOrThrow("DefaultSeconds");
-        int repsIdx = c.getColumnIndexOrThrow("DefaultReps");
         return new Exercise(
                 c.getString(c.getColumnIndexOrThrow("Name")),
                 c.getString(c.getColumnIndexOrThrow("Instructions")),
                 c.getInt(c.getColumnIndexOrThrow("IsTimed")) == 1,
-                c.isNull(secIdx)  ? null : c.getInt(secIdx),
-                c.isNull(repsIdx) ? null : c.getInt(repsIdx),
+                Repository.intOrNull(c, "DefaultSeconds"),
+                Repository.intOrNull(c, "DefaultReps"),
                 c.getDouble(c.getColumnIndexOrThrow("Met")),
-                c.getString(c.getColumnIndexOrThrow("AnimationFile")));
+                c.getString(c.getColumnIndexOrThrow("AnimationFile")),
+                c.getString(c.getColumnIndexOrThrow("MuscleGroup")),
+                c.getString(c.getColumnIndexOrThrow("Difficulty")));
     }
 }
