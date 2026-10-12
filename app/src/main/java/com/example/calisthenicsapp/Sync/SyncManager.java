@@ -2,6 +2,8 @@ package com.example.calisthenicsapp.Sync;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.example.calisthenicsapp.CoreComponents.CustomExerciseOrderEntry;
 import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
@@ -23,7 +25,10 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.MetadataChanges;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,15 +43,27 @@ import java.util.concurrent.Executors;
  * Listener order matters: the profile document is mirrored into Users, and only then are the
  * three per-user collections subscribed to, because CustomWorkout, WorkoutLog and
  * ScheduledWorkout all foreign-key to Users(Uid).
+ *
+ * Threading: listener state (syncedUid, registrations) is changed only on the main thread.
+ * SQLite work runs on dbExecutor, and each queued task first checks that its uid is still the
+ * synced one, so events queued before a sign-out or user switch never touch the new session.
  */
 public class SyncManager {
 
     private final Context appContext;
     private final SessionManager sessionManager = new SessionManager();
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    private String syncedUid;
+    private volatile String syncedUid;
     private boolean childListenersAttached;
+
+    /**
+     * Schedules whose custom workout has not been mirrored yet (the two collections' snapshots
+     * arrive in any order, and the foreign key would reject them). Keyed by schedule id, flushed
+     * when that custom workout arrives. Only touched on dbExecutor.
+     */
+    private final Map<String, ScheduledWorkout> pendingSchedules = new HashMap<>();
 
     private ListenerRegistration profileRegistration;
     private ListenerRegistration customWorkoutsRegistration;
@@ -77,6 +94,7 @@ public class SyncManager {
         stopListeners();
         syncedUid = uid;
         childListenersAttached = false;
+        dbExecutor.execute(pendingSchedules::clear);
 
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         SQLiteDatabase sqlite = SQLManager.getInstance(appContext).getWritableDatabase();
@@ -87,11 +105,14 @@ public class SyncManager {
                     if (error != null || snapshot == null || !snapshot.exists()) return;
                     RemoteUser remote = RemoteUser.fromSnapshot(uid, snapshot);
                     dbExecutor.execute(() -> {
+                        if (!uid.equals(syncedUid)) return;   // signed out or switched user since
                         mirrorUser(userRepository, remote);
-                        if (!childListenersAttached) {
+                        // The Users row now exists; attach the children back on the main thread.
+                        mainHandler.post(() -> {
+                            if (!uid.equals(syncedUid) || childListenersAttached) return;
                             childListenersAttached = true;
                             attachChildListeners(uid, firestore, sqlite);
-                        }
+                        });
                     });
                 });
     }
@@ -108,9 +129,10 @@ public class SyncManager {
                     if (error != null || snapshots == null) return;
                     List<DocumentChange> changes = snapshots.getDocumentChanges();
                     dbExecutor.execute(() -> {
+                        if (!uid.equals(syncedUid)) return;
                         for (DocumentChange change : changes) {
                             onCustomWorkoutChange(customWorkoutRepository, exerciseOrderRepository,
-                                    uid, change);
+                                    scheduledWorkoutRepository, uid, change);
                         }
                     });
                 });
@@ -121,6 +143,7 @@ public class SyncManager {
                     if (error != null || snapshots == null) return;
                     List<DocumentChange> changes = snapshots.getDocumentChanges();
                     dbExecutor.execute(() -> {
+                        if (!uid.equals(syncedUid)) return;
                         for (DocumentChange change : changes) {
                             onWorkoutLogChange(workoutLogRepository, uid, change);
                         }
@@ -133,8 +156,10 @@ public class SyncManager {
                     if (error != null || snapshots == null) return;
                     List<DocumentChange> changes = snapshots.getDocumentChanges();
                     dbExecutor.execute(() -> {
+                        if (!uid.equals(syncedUid)) return;
                         for (DocumentChange change : changes) {
-                            onScheduleChange(scheduledWorkoutRepository, uid, change);
+                            onScheduleChange(scheduledWorkoutRepository, customWorkoutRepository,
+                                    uid, change);
                         }
                     });
                 });
@@ -154,6 +179,7 @@ public class SyncManager {
 
     private void onCustomWorkoutChange(CustomWorkoutRepository workoutRepository,
                                         CustomExerciseOrderRepository exerciseOrderRepository,
+                                        ScheduledWorkoutRepository scheduledWorkoutRepository,
                                         String uid, DocumentChange change) {
         DocumentSnapshot doc = change.getDocument();
         if (change.getType() == DocumentChange.Type.REMOVED) {
@@ -175,6 +201,23 @@ public class SyncManager {
                     e.sets, e.reps, e.seconds, e.restSeconds));
         }
         exerciseOrderRepository.replaceForCustomWorkout(remote.id, entries);
+
+        if (workoutRepository.getOne(remote.id) != null) {
+            flushPendingSchedules(scheduledWorkoutRepository, remote.id);
+        }
+    }
+
+    /** Mirrors the schedules that were waiting for this custom workout to arrive. */
+    private void flushPendingSchedules(ScheduledWorkoutRepository scheduledWorkoutRepository,
+                                       String customWorkoutId) {
+        Iterator<ScheduledWorkout> it = pendingSchedules.values().iterator();
+        while (it.hasNext()) {
+            ScheduledWorkout schedule = it.next();
+            if (customWorkoutId.equals(schedule.getCustomWorkoutId())) {
+                it.remove();
+                upsertSchedule(scheduledWorkoutRepository, schedule);
+            }
+        }
     }
 
     private void onWorkoutLogChange(WorkoutLogRepository workoutLogRepository, String uid,
@@ -195,10 +238,12 @@ public class SyncManager {
         }
     }
 
-    private void onScheduleChange(ScheduledWorkoutRepository scheduledWorkoutRepository, String uid,
+    private void onScheduleChange(ScheduledWorkoutRepository scheduledWorkoutRepository,
+                                   CustomWorkoutRepository customWorkoutRepository, String uid,
                                    DocumentChange change) {
         DocumentSnapshot doc = change.getDocument();
         if (change.getType() == DocumentChange.Type.REMOVED) {
+            pendingSchedules.remove(doc.getId());
             ScheduledWorkout existing = scheduledWorkoutRepository.getOne(doc.getId());
             if (existing != null) scheduledWorkoutRepository.delete(existing);
             return;
@@ -206,7 +251,18 @@ public class SyncManager {
         RemoteSchedule remote = RemoteSchedule.fromSnapshot(doc);
         ScheduledWorkout schedule = new ScheduledWorkout(remote.id, uid, remote.workoutName,
                 remote.customWorkoutId, remote.scheduledAt);
-        if (scheduledWorkoutRepository.getOne(remote.id) == null) {
+        if (remote.customWorkoutId != null
+                && customWorkoutRepository.getOne(remote.customWorkoutId) == null) {
+            pendingSchedules.put(remote.id, schedule);   // its custom workout is not mirrored yet
+            return;
+        }
+        pendingSchedules.remove(remote.id);
+        upsertSchedule(scheduledWorkoutRepository, schedule);
+    }
+
+    private void upsertSchedule(ScheduledWorkoutRepository scheduledWorkoutRepository,
+                                ScheduledWorkout schedule) {
+        if (scheduledWorkoutRepository.getOne(schedule.getId()) == null) {
             scheduledWorkoutRepository.insert(schedule);
         } else {
             scheduledWorkoutRepository.update(schedule);
@@ -220,6 +276,7 @@ public class SyncManager {
         childListenersAttached = false;
         if (uidToClear == null) return;
         dbExecutor.execute(() -> {
+            pendingSchedules.clear();
             SQLiteDatabase sqlite = SQLManager.getInstance(appContext).getWritableDatabase();
             UserRepository userRepository = new UserRepository(sqlite);
             User cached = userRepository.getOne(uidToClear);

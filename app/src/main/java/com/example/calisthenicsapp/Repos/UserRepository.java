@@ -40,6 +40,8 @@ public class UserRepository implements Repository<User>{
         cv.put("Height", object.getHeight());
         cv.put("Weight", object.getWeight());
         cv.put("Gender", object.getGender());
+        // Keep Firestore's updatedAt. If it is unchanged, the trigger bumps it to now instead.
+        cv.put("UpdatedAt", object.getUpdatedAt());
         return Repository.updateDB(db, "Users", cv,
                 "Uid = ?", object.getUid());
     }
