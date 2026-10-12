@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "828908720494",
+    "project_id": "thecalisthenicsapp",
+    "storage_bucket": "thecalisthenicsapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828908720494:android:c4c39a0da9ef6414a7b17f",
+        "android_client_info": {
+          "package_name": "com.example.calisthenicsapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwvI5x4_JQ7dOqqQpzxAOYMprLlsfPD_I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
