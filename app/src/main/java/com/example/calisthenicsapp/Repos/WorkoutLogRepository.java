@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.example.calisthenicsapp.CoreComponents.User;
 import com.example.calisthenicsapp.CoreComponents.WorkoutLog;
 
 import java.util.ArrayList;
@@ -16,9 +15,10 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
     public WorkoutLogRepository(SQLiteDatabase db) { this.db = db; }
 
     @Override
-    public boolean insert(WorkoutLog l) {               // Id is autoincremented
+    public boolean insert(WorkoutLog l) {                // Id is the Firestore document id
         ContentValues cv = new ContentValues();
-        cv.put("Username", l.getUsername());
+        cv.put("Id", l.getId());
+        cv.put("Uid", l.getUid());
         cv.put("WorkoutName", l.getWorkoutName());
         cv.put("StartedAt", l.getStartedAt());
         cv.put("DurationSeconds", l.getDurationSeconds());
@@ -34,12 +34,12 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         cv.put("DurationSeconds", l.getDurationSeconds());
         cv.put("Kcal", l.getKcal());
         return Repository.updateDB(db, "WorkoutLog", cv,
-                "Id = ?", String.valueOf(l.getId()));
+                "Id = ?", l.getId());
     }
 
     @Override
     public boolean delete(WorkoutLog l) {
-        return Repository.deleteDB(db, "WorkoutLog", "Id = ?", String.valueOf(l.getId()));
+        return Repository.deleteDB(db, "WorkoutLog", "Id = ?", l.getId());
     }
 
     @Override
@@ -47,8 +47,8 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         return query(null, null);
     }
 
-    public List<WorkoutLog> getByUsername(String username) {
-        return query("Username = ?", new String[]{username});   // newest first
+    public List<WorkoutLog> getByUid(String uid) {
+        return query("Uid = ?", new String[]{uid});   // newest first
     }
 
     private List<WorkoutLog> query(String where, String[] args) {
@@ -57,8 +57,8 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
                 null, null, "StartedAt DESC")) {
             while (c.moveToNext()) {
                 list.add(new WorkoutLog(
-                        c.getLong(c.getColumnIndexOrThrow("Id")),
-                        c.getString(c.getColumnIndexOrThrow("Username")),
+                        c.getString(c.getColumnIndexOrThrow("Id")),
+                        c.getString(c.getColumnIndexOrThrow("Uid")),
                         c.getString(c.getColumnIndexOrThrow("WorkoutName")),
                         c.getLong(c.getColumnIndexOrThrow("StartedAt")),
                         c.getInt(c.getColumnIndexOrThrow("DurationSeconds")),

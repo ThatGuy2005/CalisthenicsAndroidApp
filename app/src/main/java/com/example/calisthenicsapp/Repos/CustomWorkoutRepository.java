@@ -16,17 +16,15 @@ public class CustomWorkoutRepository implements Repository<CustomWorkout> {
     public CustomWorkoutRepository(SQLiteDatabase db) { this.db = db; }
 
     @Override
-    public boolean insert(CustomWorkout w) {
+    public boolean insert(CustomWorkout w) {            // Id is the Firestore document id
         ContentValues cv = new ContentValues();
+        cv.put("Id", w.getId());
         cv.put("Name", w.getName());
-        cv.put("Username", w.getUsername());
+        cv.put("Uid", w.getUid());
         try {
-            long id = db.insertOrThrow("CustomWorkout", null, cv);
-            if (id == -1) return false;
-            w.setId(id);                                // caller now has the id
-            return true;
+            return db.insertOrThrow("CustomWorkout", null, cv) != -1;
         } catch (SQLiteConstraintException e) {
-            return false;                               // duplicate (Username, Name) or unknown user
+            return false;                               // duplicate (Uid, Name) or unknown user
         }
     }
 
@@ -35,13 +33,13 @@ public class CustomWorkoutRepository implements Repository<CustomWorkout> {
         ContentValues cv = new ContentValues();
         cv.put("Name", w.getName());
         return Repository.updateDB(db, "CustomWorkout", cv,
-                "Id = ?", String.valueOf(w.getId()));
+                "Id = ?", w.getId());
     }
 
     @Override
     public boolean delete(CustomWorkout w) {            // its exercise rows cascade
         return Repository.deleteDB(db, "CustomWorkout",
-                "Id = ?", String.valueOf(w.getId()));
+                "Id = ?", w.getId());
     }
 
     @Override
@@ -49,12 +47,12 @@ public class CustomWorkoutRepository implements Repository<CustomWorkout> {
         return query(null, null);
     }
 
-    public List<CustomWorkout> getByUsername(String username) {
-        return query("Username = ?", new String[]{username});
+    public List<CustomWorkout> getByUid(String uid) {
+        return query("Uid = ?", new String[]{uid});
     }
 
-    public CustomWorkout getOne(long id) {
-        List<CustomWorkout> r = query("Id = ?", new String[]{String.valueOf(id)});
+    public CustomWorkout getOne(String id) {
+        List<CustomWorkout> r = query("Id = ?", new String[]{id});
         return r.isEmpty() ? null : r.get(0);
     }
 
@@ -64,9 +62,9 @@ public class CustomWorkoutRepository implements Repository<CustomWorkout> {
                 null, null, "Name ASC")) {
             while (c.moveToNext()) {
                 list.add(new CustomWorkout(
-                        c.getLong(c.getColumnIndexOrThrow("Id")),
+                        c.getString(c.getColumnIndexOrThrow("Id")),
                         c.getString(c.getColumnIndexOrThrow("Name")),
-                        c.getString(c.getColumnIndexOrThrow("Username"))));
+                        c.getString(c.getColumnIndexOrThrow("Uid"))));
             }
         }
         return list;

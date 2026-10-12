@@ -1,32 +1,32 @@
 package com.example.calisthenicsapp.CoreComponents;
 
 public class ScheduledWorkout {
-    public ScheduledWorkout(Long id, String username, String workoutName,
-                            Long customWorkoutId, long scheduledAt) {
+    public ScheduledWorkout(String id, String uid, String workoutName,
+                            String customWorkoutId, long scheduledAt) {
         this.id = id;
-        this.username = username;
+        this.uid = uid;
         this.workoutName = workoutName;
         this.customWorkoutId = customWorkoutId;
         this.scheduledAt = scheduledAt;
     }
 
-    public Long getId() {
+    public String getId() {
         return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getUsername() {
-        return this.username;
+    public String getUid() {
+        return this.uid;
     }
 
     public String getWorkoutName() {
         return this.workoutName;
     }
 
-    public Long getCustomWorkoutId() {
+    public String getCustomWorkoutId() {
         return this.customWorkoutId;
     }
 
@@ -38,9 +38,9 @@ public class ScheduledWorkout {
         return this.customWorkoutId != null;
     }
 
-    private Long id;                 // null until inserted
-    private String username;
+    private String id;               // null until inserted
+    private String uid;
     private String workoutName;      // premade workout, or null
-    private Long customWorkoutId;    // custom workout, or null
+    private String customWorkoutId;  // custom workout, or null
     private long scheduledAt;
 }

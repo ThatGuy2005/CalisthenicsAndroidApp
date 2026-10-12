@@ -1,17 +1,21 @@
 package com.example.calisthenicsapp.CoreComponents;
 
 public class User {
-    public User(String username, String email, String passwordHash, double height,
-                double weight, String gender, String mode) {
+    public User(String uid, String username, String email, double height,
+                double weight, String gender, long createdAt, long updatedAt) {
+        this.uid = uid;
         this.username = username;
         this.email = email;
-        this.passwordHash = passwordHash;
         this.height = height;
         this.weight = weight;
         this.gender = gender;
-        this.mode = mode;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
+    public String getUid() {
+        return this.uid;
+    }
     public String getUsername() {
         return this.username;
     }
@@ -31,19 +35,21 @@ public class User {
         return this.email;
     }
 
-    public String getMode() {
-        return this.mode;
+    public long getCreatedAt() {
+        return this.createdAt;
     }
 
-    public String getPasswordHash() {
-        return this.passwordHash;
+    public long getUpdatedAt() {
+        return this.updatedAt;
     }
+
+    private String uid;
     private String username;
     private String email;
-    private String passwordHash;
     private Double height;
     private Double weight;
     private String gender;
-    private String mode;
+    private long createdAt;
+    private long updatedAt;
 
 }

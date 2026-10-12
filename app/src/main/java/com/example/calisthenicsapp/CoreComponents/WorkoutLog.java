@@ -1,22 +1,22 @@
 package com.example.calisthenicsapp.CoreComponents;
 
 public class WorkoutLog {
-    public WorkoutLog(long id, String username, String workoutName,
+    public WorkoutLog(String id, String uid, String workoutName,
                       long startedAt, int durationSeconds, double kcal) {
         this.id = id;
-        this.username = username;
+        this.uid = uid;
         this.workoutName = workoutName;
         this.startedAt = startedAt;
         this.durationSeconds = durationSeconds;
         this.kcal = kcal;
     }
 
-    public long getId() {
+    public String getId() {
         return this.id;
     }
 
-    public String getUsername() {
-        return this.username;
+    public String getUid() {
+        return this.uid;
     }
 
     public String getWorkoutName() {
@@ -35,8 +35,8 @@ public class WorkoutLog {
         return this.kcal;
     }
 
-    private long id;
-    private String username;
+    private String id;
+    private String uid;
     private String workoutName;
     private long startedAt;
     private int durationSeconds;

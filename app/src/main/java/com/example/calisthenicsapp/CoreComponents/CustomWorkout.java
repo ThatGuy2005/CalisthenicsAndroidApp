@@ -1,20 +1,20 @@
 package com.example.calisthenicsapp.CoreComponents;
 
 public class CustomWorkout extends Workout{
-    public CustomWorkout(long id, String name, String username) {
+    public CustomWorkout(String id, String name, String uid) {
         super(name);
         this.id = id;
-        this.username = username;
+        this.uid = uid;
     }
-    public String getUsername() {
-        return this.username;
+    public String getUid() {
+        return this.uid;
     }
-    public long getId() {
+    public String getId() {
         return this.id;
     }
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
-    private String username;
-    private long id;
+    private String uid;
+    private String id;
 }

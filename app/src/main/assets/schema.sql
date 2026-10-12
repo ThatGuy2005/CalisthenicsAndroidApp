@@ -1,15 +1,16 @@
 PRAGMA foreign_keys = ON;
 
 -- ========== USERS ==========
+-- Mirrors users/{uid} from Firestore (the source of truth). Firebase Authentication
+-- owns the password, so there is no PasswordHash column, and there is no admin role,
+-- so there is no Mode column.
 CREATE TABLE IF NOT EXISTS Users (
-    Username TEXT PRIMARY KEY COLLATE NOCASE,
+    Uid      TEXT PRIMARY KEY NOT NULL,     -- Firebase Auth uid
     Email    TEXT NOT NULL UNIQUE COLLATE NOCASE,
-    PasswordHash  TEXT NOT NULL,
+    Username TEXT NOT NULL UNIQUE COLLATE NOCASE,
     Height        REAL,
     Weight        REAL,
     Gender        TEXT,
-    Mode          TEXT NOT NULL DEFAULT 'User'
-                  CHECK (Mode IN ('Admin', 'User')),
     CreatedAt     INTEGER NOT NULL
                   DEFAULT (CAST(strftime('%s', 'now') AS INTEGER)),  -- Unix epoch, seconds
     UpdatedAt     INTEGER NOT NULL
@@ -25,7 +26,7 @@ WHEN NEW.UpdatedAt = OLD.UpdatedAt
 BEGIN
     UPDATE Users
     SET UpdatedAt = CAST(strftime('%s', 'now') AS INTEGER)
-    WHERE Username = NEW.Username;
+    WHERE Uid = NEW.Uid;
 END;
 
 -- ========== EXERCISE ==========
@@ -66,17 +67,19 @@ CREATE TABLE IF NOT EXISTS ExerciseOrder (
 );
 
 -- ========== CUSTOM WORKOUT ==========
+-- Id, like every per-user table's Id below, is a Firestore document id (TEXT), not an
+-- autoincrement integer: the id is assigned by Firestore and mirrored in here as-is.
 CREATE TABLE IF NOT EXISTS CustomWorkout (
-    Id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    Name      TEXT NOT NULL,
-    Username  TEXT NOT NULL,
-    UNIQUE (Username, Name),                              -- unique per user, not globally
-    FOREIGN KEY (Username) REFERENCES Users(Username)
+    Id    TEXT PRIMARY KEY NOT NULL,
+    Name  TEXT NOT NULL,
+    Uid   TEXT NOT NULL,
+    UNIQUE (Uid, Name),                                   -- unique per user, not globally
+    FOREIGN KEY (Uid) REFERENCES Users(Uid)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS CustomExerciseOrder (
-    CustomWorkoutId INTEGER NOT NULL,
+    CustomWorkoutId TEXT NOT NULL,
     ExerciseName    TEXT NOT NULL,
     Position        INTEGER NOT NULL CHECK (Position > 0),
     Sets        INTEGER NOT NULL DEFAULT 3 CHECK (Sets > 0),
@@ -90,32 +93,32 @@ CREATE TABLE IF NOT EXISTS CustomExerciseOrder (
         ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_CustomWorkout_Username ON CustomWorkout(Username);
+CREATE INDEX IF NOT EXISTS idx_CustomWorkout_Uid ON CustomWorkout(Uid);
 
 CREATE TABLE IF NOT EXISTS WorkoutLog (
-    Id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    Username        TEXT NOT NULL,
+    Id              TEXT PRIMARY KEY NOT NULL,
+    Uid             TEXT NOT NULL,
     WorkoutName     TEXT NOT NULL,                        -- plain text snapshot, no FK, so the log survives workout deletion
     StartedAt       INTEGER NOT NULL,                     -- Unix epoch, seconds
     DurationSeconds INTEGER NOT NULL CHECK (DurationSeconds >= 0),
     Kcal            REAL NOT NULL CHECK (Kcal >= 0),
-    FOREIGN KEY (Username) REFERENCES Users(Username)
+    FOREIGN KEY (Uid) REFERENCES Users(Uid)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
-CREATE INDEX IF NOT EXISTS idx_WorkoutLog_User ON WorkoutLog(Username, StartedAt);
+CREATE INDEX IF NOT EXISTS idx_WorkoutLog_Uid ON WorkoutLog(Uid, StartedAt);
 
 CREATE TABLE IF NOT EXISTS ScheduledWorkout (
-    Id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    Username        TEXT NOT NULL,
+    Id              TEXT PRIMARY KEY NOT NULL,
+    Uid             TEXT NOT NULL,
     WorkoutName     TEXT,                 -- premade workout
-    CustomWorkoutId INTEGER,              -- custom workout
+    CustomWorkoutId TEXT,                 -- custom workout
     ScheduledAt     INTEGER NOT NULL,     -- Unix epoch, seconds
     CHECK ((WorkoutName IS NOT NULL) + (CustomWorkoutId IS NOT NULL) = 1),
-    FOREIGN KEY (Username) REFERENCES Users(Username)
+    FOREIGN KEY (Uid) REFERENCES Users(Uid)
         ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (WorkoutName) REFERENCES Workout(Name)
         ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (CustomWorkoutId) REFERENCES CustomWorkout(Id)
         ON DELETE CASCADE
 );
-CREATE INDEX IF NOT EXISTS idx_Scheduled_User ON ScheduledWorkout(Username, ScheduledAt);
+CREATE INDEX IF NOT EXISTS idx_Scheduled_Uid ON ScheduledWorkout(Uid, ScheduledAt);
