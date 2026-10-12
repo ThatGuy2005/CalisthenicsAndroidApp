@@ -22,6 +22,8 @@ public class UserRepository implements Repository<User>{
         cv.put("Height", object.getHeight());
         cv.put("Weight", object.getWeight());
         cv.put("Gender", object.getGender());
+        cv.put("CreatedAt", object.getCreatedAt());
+        cv.put("UpdatedAt", object.getUpdatedAt());
         return Repository.insertDB(db,"Users",cv);
     };
 

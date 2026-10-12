@@ -51,6 +51,11 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         return query("Uid = ?", new String[]{uid});   // newest first
     }
 
+    public WorkoutLog getOne(String id) {
+        List<WorkoutLog> r = query("Id = ?", new String[]{id});
+        return r.isEmpty() ? null : r.get(0);
+    }
+
     private List<WorkoutLog> query(String where, String[] args) {
         List<WorkoutLog> list = new ArrayList<>();
         try (Cursor c = db.query("WorkoutLog", null, where, args,
