@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.example.calisthenicsapp.CoreComponents.LoggedExercise;
 import com.example.calisthenicsapp.CoreComponents.WorkoutLog;
+import com.example.calisthenicsapp.CoreComponents.WorkoutStats;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,6 +66,22 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
     public WorkoutLog getOne(String id) {
         List<WorkoutLog> r = query("Id = ?", new String[]{id});
         return r.isEmpty() ? null : r.get(0);
+    }
+
+    /** Totals over the user's logs that started at or after fromSeconds (epoch seconds). */
+    public WorkoutStats getStats(String uid, long fromSeconds) {
+        try (Cursor c = db.rawQuery(
+                "SELECT COUNT(*), "
+                        + "COALESCE(SUM(Status = 'Completed'), 0), "
+                        + "COALESCE(SUM(Status = 'Partial'), 0), "
+                        + "COALESCE(SUM(DurationSeconds), 0), "
+                        + "COALESCE(SUM(Kcal), 0) "
+                        + "FROM WorkoutLog WHERE Uid = ? AND StartedAt >= ?",
+                new String[]{uid, String.valueOf(fromSeconds)})) {
+            c.moveToFirst();      // an aggregate without GROUP BY always returns one row
+            return new WorkoutStats(c.getInt(0), c.getInt(1), c.getInt(2),
+                    c.getLong(3), c.getDouble(4));
+        }
     }
 
     private List<WorkoutLog> query(String where, String[] args) {
