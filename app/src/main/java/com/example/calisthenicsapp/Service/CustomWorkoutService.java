@@ -4,19 +4,25 @@ import android.content.Context;
 
 import com.example.calisthenicsapp.CoreComponents.CustomExerciseOrderEntry;
 import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
+import com.example.calisthenicsapp.CoreComponents.ExerciseOrderEntry;
 import com.example.calisthenicsapp.CoreComponents.ScheduledWorkout;
 import com.example.calisthenicsapp.Repos.CustomExerciseOrderRepository;
 import com.example.calisthenicsapp.Repos.CustomWorkoutRepository;
+import com.example.calisthenicsapp.Repos.ExerciseOrderRepository;
 import com.example.calisthenicsapp.Repos.ExerciseRepository;
 import com.example.calisthenicsapp.Repos.ScheduledWorkoutRepository;
+import com.example.calisthenicsapp.Repos.WorkoutRepository;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The signed-in user's custom workouts (users/{uid}/customWorkouts).
@@ -55,20 +61,35 @@ public class CustomWorkoutService extends UserDataService {
             return;
         }
         String trimmed = name == null ? "" : name.trim();
+        onDb(() -> createOnDb(uid, trimmed, exercises, callback));
+    }
+
+    /**
+     * Copies a premade workout into a new custom workout that the user can edit (FR-4.3).
+     * Pass null as newName to reuse the premade workout's name, made unique with " (2)",
+     * " (3)", ... if the user already has a workout called that. On success, returns the new
+     * workout's id. Like create, this also works offline.
+     */
+    public void duplicatePremade(String workoutName, String newName,
+                                 ServiceCallback<String> callback) {
+        String uid = sessionManager.getCurrentUid();
+        if (uid == null) {
+            fail(callback, NOT_SIGNED_IN);
+            return;
+        }
         onDb(() -> {
-            String error = validateName(uid, trimmed, null);
-            if (error == null) error = validateExercises(exercises);
-            if (error != null) {
-                fail(callback, error);
+            if (workoutName == null || new WorkoutRepository(db()).getOne(workoutName) == null) {
+                fail(callback, "That workout no longer exists.");
                 return;
             }
-            DocumentReference doc = workouts(uid).document();     // Firestore auto id
-            Map<String, Object> data = new HashMap<>();
-            data.put("name", trimmed);
-            data.put("updatedAt", now());
-            data.put("exercises", toRemote(exercises));
-            watchWrite(doc.set(data), "Creating custom workout " + doc.getId());
-            succeed(callback, doc.getId());
+            List<CustomExerciseOrderEntry> copy = new ArrayList<>();
+            for (ExerciseOrderEntry e : new ExerciseOrderRepository(db()).getByWorkout(workoutName)) {
+                // customWorkoutId and position are ignored by create; the list order is kept.
+                copy.add(new CustomExerciseOrderEntry(null, e.getExerciseName(), e.getPosition(),
+                        e.getSets(), e.getReps(), e.getSeconds(), e.getRestSeconds()));
+            }
+            String name = newName == null ? uniqueName(uid, workoutName) : newName.trim();
+            createOnDb(uid, name, copy, callback);
         });
     }
 
@@ -139,6 +160,40 @@ public class CustomWorkoutService extends UserDataService {
             watchWrite(batch.commit(), "Deleting custom workout " + customWorkoutId);
             succeed(callback, null);
         });
+    }
+
+    /** Shared by create and duplicatePremade; must run inside onDb. */
+    private void createOnDb(String uid, String name, List<CustomExerciseOrderEntry> exercises,
+                            ServiceCallback<String> callback) {
+        String error = validateName(uid, name, null);
+        if (error == null) error = validateExercises(exercises);
+        if (error != null) {
+            fail(callback, error);
+            return;
+        }
+        DocumentReference doc = workouts(uid).document();     // Firestore auto id
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", name);
+        data.put("updatedAt", now());
+        data.put("exercises", toRemote(exercises));
+        watchWrite(doc.set(data), "Creating custom workout " + doc.getId());
+        succeed(callback, doc.getId());
+    }
+
+    /** base, or base + " (2)", " (3)", ... : the first one none of the user's workouts uses. */
+    private String uniqueName(String uid, String base) {
+        Set<String> taken = new HashSet<>();
+        for (CustomWorkout w : new CustomWorkoutRepository(db()).getByUid(uid)) {
+            taken.add(w.getName().toLowerCase(Locale.ROOT));
+        }
+        String name = base;
+        for (int i = 2; taken.contains(name.toLowerCase(Locale.ROOT)); i++) {
+            String suffix = " (" + i + ")";
+            String start = base.length() + suffix.length() > NAME_MAX
+                    ? base.substring(0, NAME_MAX - suffix.length()).trim() : base;
+            name = start + suffix;
+        }
+        return name;
     }
 
     private CollectionReference workouts(String uid) {
