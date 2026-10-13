@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.calisthenicsapp.CoreComponents.User;
 import com.example.calisthenicsapp.Database.SQLManager;
@@ -9,8 +10,11 @@ import com.example.calisthenicsapp.Verificate.UserValidator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -19,13 +23,18 @@ import java.util.concurrent.Executors;
 /**
  * Wraps FirebaseAuth (email/password) and the users/{uid} Firestore profile document.
  * Every method is asynchronous and reports back through an {@link AuthCallback}; nothing here
- * blocks the calling thread. On a successful sign-up, the Firestore profile write is followed
+ * blocks the calling thread. Sign-up claims the username in usernames/{lowercased name} and
+ * writes the profile in one transaction; if that fails (name taken, no connection) the new
+ * Auth account is deleted again. On a successful sign-up, the Firestore profile write is followed
  * by a local SQLite insert (on a background thread) so the per-user tables that foreign-key to
  * Users(Uid) have something to reference immediately. Stage 4's sync listeners take over
  * keeping that local row current after this point, including mirroring it on sign-in on a
  * device that has never seen this user before.
  */
 public class AuthService {
+
+    private static final String TAG = "AuthService";
+    private static final String USERNAME_TAKEN = "That username is taken.";
 
     public interface AuthCallback<T> {
         void onSuccess(T result);
@@ -86,11 +95,24 @@ public class AuthService {
         profile.put("createdAt", now);
         profile.put("updatedAt", now);
 
-        firestore.collection("users").document(firebaseUser.getUid())
-                .set(profile)
-                .addOnCompleteListener(docTask -> {
-                    if (!docTask.isSuccessful()) {
-                        callback.onError(describeError(docTask.getException()));
+        DocumentReference claimDoc = firestore.collection("usernames")
+                .document(UserValidator.usernameKey(username));
+        DocumentReference profileDoc = firestore.collection("users").document(firebaseUser.getUid());
+
+        // Claim and profile are written together, so neither can exist without the other.
+        // Returns false, without writing anything, if someone else already holds the username.
+        firestore.runTransaction(transaction -> {
+                    DocumentSnapshot claim = transaction.get(claimDoc);
+                    if (claim.exists()) return false;
+                    transaction.set(claimDoc, Collections.singletonMap("uid", firebaseUser.getUid()));
+                    transaction.set(profileDoc, profile);
+                    return true;
+                })
+                .addOnCompleteListener(txTask -> {
+                    if (!txTask.isSuccessful() || !Boolean.TRUE.equals(txTask.getResult())) {
+                        String message = txTask.isSuccessful()
+                                ? USERNAME_TAKEN : describeError(txTask.getException());
+                        discardAccount(firebaseUser, message, callback);
                         return;
                     }
                     User localUser = new User(firebaseUser.getUid(), username, firebaseUser.getEmail(),
@@ -100,6 +122,22 @@ public class AuthService {
                         callback.onSuccess(firebaseUser);
                     });
                 });
+    }
+
+    /**
+     * Deletes an Auth account whose profile could not be saved, so no account is left without a
+     * users/{uid} document and the email can be used to sign up again. Deleting also signs it out.
+     */
+    private void discardAccount(FirebaseUser firebaseUser, String message,
+                                AuthCallback<FirebaseUser> callback) {
+        firebaseUser.delete().addOnCompleteListener(deleteTask -> {
+            if (!deleteTask.isSuccessful()) {
+                Log.w(TAG, "Could not delete Auth user " + firebaseUser.getUid()
+                        + " after a failed sign-up", deleteTask.getException());
+                firebaseAuth.signOut();
+            }
+            callback.onError(message);
+        });
     }
 
     public void signIn(String email, String password, AuthCallback<FirebaseUser> callback) {

@@ -47,6 +47,14 @@ public final class UserValidator {
         return EMAIL.matcher(email).matches();
     }
 
+    /**
+     * The id of the username's usernames/{key} claim document in Firestore. Lowercased, so
+     * "Bob" and "bob" claim the same document and count as the same username.
+     */
+    public static String usernameKey(String username) {
+        return username.toLowerCase(java.util.Locale.ROOT);
+    }
+
     /** Call this before validating and storing, so "Bob@X.com" and "bob@x.com" are the same account. */
     public static String normalizeEmail(String email) {
         return email == null ? null : email.trim().toLowerCase(java.util.Locale.ROOT);

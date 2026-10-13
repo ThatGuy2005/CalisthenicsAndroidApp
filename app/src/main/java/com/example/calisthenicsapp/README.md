@@ -87,7 +87,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 
 ## 3. DATA REQUIREMENTS
 
-- **DR-1:** Premade exercises and workouts shall be stored only in the local SQLite database. Per-user data (profile, custom workouts, workout logs, schedules) shall be stored in Cloud Firestore under users/{uid}, which is the source of truth. Firestore changes shall be mirrored into SQLite, and the app shall read from SQLite.
+- **DR-1:** Premade exercises and workouts shall be stored only in the local SQLite database. Per-user data (profile, custom workouts, workout logs, schedules) shall be stored in Cloud Firestore under users/{uid}, which is the source of truth. Each username in use is claimed by a usernames/{lowercased username} document holding the owner's uid, which keeps usernames unique. Firestore changes shall be mirrored into SQLite, and the app shall read from SQLite.
 - **DR-2:** The database shall contain at least the following entities:
   - **Users:** uid (Firebase Authentication id), username (unique), email, height, weight, gender, created date, updated date.
   - **Exercise:** name, description/instructions, animation reference, muscle group, difficulty, intensity (MET), rep_or_timed flag, equipment, single_multi_muscle flag.
@@ -124,7 +124,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 - **NFR-10:** Animations shall play smoothly, without noticeable stutter.
 - **NFR-11:** Database and network operations shall run off the main (UI) thread so that the interface stays responsive.
 - **NFR-12:** Workout data shall not be lost if the app is closed or crashes during use (logs shall be saved as soon as a workout is finished).
-- **NFR-13:** The app shall handle missing permissions or no internet access without crashing. Sign-up, sign-in, password reset and email sending require a connection; everything else works offline and syncs when a connection is available.
+- **NFR-13:** The app shall handle missing permissions or no internet access without crashing. Sign-up, sign-in, password reset, changing the username and email sending require a connection; everything else works offline and syncs when a connection is available.
 
 ### 4.4 Compatibility and Maintainability
 - **NFR-14:** The app shall run on Android devices from a defined minimum API level (to be decided by the team).
