@@ -103,27 +103,33 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         return list;
     }
 
+    /** The snapshot as JSON; also used by the data export. Fails only on NaN/infinite numbers. */
+    public static JSONArray snapshotToJson(List<LoggedExercise> exercises) throws JSONException {
+        JSONArray array = new JSONArray();
+        for (LoggedExercise e : exercises) {
+            JSONObject o = new JSONObject();
+            o.put("exerciseName", e.getExerciseName());
+            o.put("met", e.getMet());
+            o.put("timed", e.isTimed());
+            o.put("sets", e.getSets());
+            o.put("completedSets", e.getCompletedSets());
+            o.put("reps", e.getReps() == null ? JSONObject.NULL : e.getReps());
+            o.put("seconds", e.getSeconds() == null ? JSONObject.NULL : e.getSeconds());
+            o.put("activeSeconds", e.getActiveSeconds());
+            o.put("kcal", e.getKcal());
+            array.put(o);
+        }
+        return array;
+    }
+
     // The snapshot is only ever read back whole, so it is one JSON column, not a child table.
     private static String toJson(List<LoggedExercise> exercises) {
-        JSONArray array = new JSONArray();
         try {
-            for (LoggedExercise e : exercises) {
-                JSONObject o = new JSONObject();
-                o.put("exerciseName", e.getExerciseName());
-                o.put("met", e.getMet());
-                o.put("timed", e.isTimed());
-                o.put("sets", e.getSets());
-                o.put("completedSets", e.getCompletedSets());
-                o.put("reps", e.getReps() == null ? JSONObject.NULL : e.getReps());
-                o.put("seconds", e.getSeconds() == null ? JSONObject.NULL : e.getSeconds());
-                o.put("activeSeconds", e.getActiveSeconds());
-                o.put("kcal", e.getKcal());
-                array.put(o);
-            }
+            return snapshotToJson(exercises).toString();
         } catch (JSONException ex) {
-            Log.w(TAG, "Could not store a workout log snapshot", ex);   // only NaN/infinite numbers
+            Log.w(TAG, "Could not store a workout log snapshot", ex);
+            return "[]";
         }
-        return array.toString();
     }
 
     private static List<LoggedExercise> fromJson(String json) {

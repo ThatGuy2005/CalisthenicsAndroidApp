@@ -42,7 +42,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 - **FR-1.4:** The system shall allow a registered user to log in with email and password. Firebase Authentication shall keep the user signed in across app restarts until they log out.
 - **FR-1.5:** The system shall display a clear error message on failed login without revealing whether the email or the password was wrong. Repeated failed attempts are throttled by Firebase Authentication.
 - **FR-1.6:** The system shall allow a logged-in user to log out.
-- **FR-1.7:** The system shall allow a user to view and edit their profile (email, height, weight, gender, password). Changing the email or the password requires the user to sign in again first. Users shall have a global toggle for units (kg/lb, cm/ft).
+- **FR-1.7:** The system shall allow a user to view and edit their profile (email, height, weight, gender, password). Changing the email or the password requires the user to confirm their current password first. A new email address only takes effect once the user clicks the confirmation link sent to it. Users shall have a global toggle for units (kg/lb, cm/ft).
 - **FR-1.8:** The system shall record the account creation date and the last update date for each user.
 - **FR-1.9:** Password recovery shall use Firebase Authentication's password reset email.
 - **FR-1.10:** The system shall provide a full account deletion option, which permanently deletes the Firebase account, all of the user's data in Firestore, and the local cache on the device.
@@ -124,7 +124,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 - **NFR-10:** Animations shall play smoothly, without noticeable stutter.
 - **NFR-11:** Database and network operations shall run off the main (UI) thread so that the interface stays responsive.
 - **NFR-12:** Workout data shall not be lost if the app is closed or crashes during use (logs shall be saved as soon as a workout is finished).
-- **NFR-13:** The app shall handle missing permissions or no internet access without crashing. Sign-up, sign-in, password reset, changing the username and email sending require a connection; everything else works offline and syncs when a connection is available.
+- **NFR-13:** The app shall handle missing permissions or no internet access without crashing. Sign-up, sign-in, password reset, changing the username, email or password, deleting the account and email sending require a connection; everything else works offline and syncs when a connection is available.
 
 ### 4.4 Compatibility and Maintainability
 - **NFR-14:** The app shall run on Android devices from a defined minimum API level (to be decided by the team).

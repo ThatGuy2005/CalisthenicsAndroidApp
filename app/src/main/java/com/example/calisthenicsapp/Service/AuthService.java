@@ -144,11 +144,29 @@ public class AuthService {
         firebaseAuth.signInWithEmailAndPassword(UserValidator.normalizeEmail(email), password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult().getUser() != null) {
+                        syncProfileEmail(task.getResult().getUser());
                         callback.onSuccess(task.getResult().getUser());
                     } else {
                         callback.onError(describeError(task.getException()));
                     }
                 });
+    }
+
+    /**
+     * An email change (AccountService.changeEmail) only takes effect in Firebase Auth once the
+     * user clicks the link, and then they have to sign in again with the new address. This is
+     * that sign-in, so copy the new address into users/{uid} if the profile still has the old one.
+     */
+    private void syncProfileEmail(FirebaseUser user) {
+        String email = user.getEmail();
+        DocumentReference profileDoc = firestore.collection("users").document(user.getUid());
+        profileDoc.get().addOnSuccessListener(snapshot -> {
+            if (email == null || !snapshot.exists() || email.equals(snapshot.getString("email"))) {
+                return;
+            }
+            profileDoc.update("email", email, "updatedAt", System.currentTimeMillis() / 1000L)
+                    .addOnFailureListener(e -> Log.w(TAG, "Could not update the profile email", e));
+        });
     }
 
     public void signOut() {
@@ -170,8 +188,9 @@ public class AuthService {
      * Translates a FirebaseAuthException into a message safe to show the user.
      * Wrong-password and no-such-user both read as "Incorrect email or password" on purpose,
      * so a failed sign-in never reveals whether the email or the password was the problem.
+     * Also used by AccountService.
      */
-    private String describeError(Exception exception) {
+    static String describeError(Exception exception) {
         if (!(exception instanceof FirebaseAuthException)) {
             return "Something went wrong. Please check your connection and try again.";
         }
@@ -187,6 +206,8 @@ public class AuthService {
             case "ERROR_USER_NOT_FOUND":
             case "ERROR_INVALID_CREDENTIAL":
                 return "Incorrect email or password.";
+            case "ERROR_REQUIRES_RECENT_LOGIN":
+                return "Please sign in again and retry.";
             case "ERROR_USER_DISABLED":
                 return "This account has been disabled.";
             case "ERROR_TOO_MANY_REQUESTS":
