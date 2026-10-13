@@ -102,6 +102,9 @@ CREATE TABLE IF NOT EXISTS WorkoutLog (
     StartedAt       INTEGER NOT NULL,                     -- Unix epoch, seconds
     DurationSeconds INTEGER NOT NULL CHECK (DurationSeconds >= 0),
     Kcal            REAL NOT NULL CHECK (Kcal >= 0),
+    Status          TEXT NOT NULL DEFAULT 'Completed'
+                    CHECK (Status IN ('Completed', 'Partial')),
+    Snapshot        TEXT,                                 -- JSON array of LoggedExercise: the exercises as done
     FOREIGN KEY (Uid) REFERENCES Users(Uid)
         ON DELETE CASCADE ON UPDATE CASCADE
 );

@@ -230,7 +230,7 @@ public class SyncManager {
         }
         RemoteWorkoutLog remote = RemoteWorkoutLog.fromSnapshot(doc);
         WorkoutLog log = new WorkoutLog(remote.id, uid, remote.workoutName, remote.startedAt,
-                remote.durationSeconds, remote.kcal);
+                remote.durationSeconds, remote.kcal, remote.status, remote.exercises);
         if (workoutLogRepository.getOne(remote.id) == null) {
             workoutLogRepository.insert(log);
         } else {

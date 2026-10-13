@@ -3,13 +3,20 @@ package com.example.calisthenicsapp.Repos;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
+import com.example.calisthenicsapp.CoreComponents.LoggedExercise;
 import com.example.calisthenicsapp.CoreComponents.WorkoutLog;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class WorkoutLogRepository implements Repository<WorkoutLog> {
+    private static final String TAG = "WorkoutLogRepository";
     private final SQLiteDatabase db;
 
     public WorkoutLogRepository(SQLiteDatabase db) { this.db = db; }
@@ -23,6 +30,8 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         cv.put("StartedAt", l.getStartedAt());
         cv.put("DurationSeconds", l.getDurationSeconds());
         cv.put("Kcal", l.getKcal());
+        cv.put("Status", l.getStatus());
+        cv.put("Snapshot", toJson(l.getExercises()));
         return Repository.insertDB(db, "WorkoutLog", cv);
     }
 
@@ -33,6 +42,8 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         cv.put("StartedAt", l.getStartedAt());
         cv.put("DurationSeconds", l.getDurationSeconds());
         cv.put("Kcal", l.getKcal());
+        cv.put("Status", l.getStatus());
+        cv.put("Snapshot", toJson(l.getExercises()));
         return Repository.updateDB(db, "WorkoutLog", cv,
                 "Id = ?", l.getId());
     }
@@ -67,8 +78,57 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
                         c.getString(c.getColumnIndexOrThrow("WorkoutName")),
                         c.getLong(c.getColumnIndexOrThrow("StartedAt")),
                         c.getInt(c.getColumnIndexOrThrow("DurationSeconds")),
-                        c.getDouble(c.getColumnIndexOrThrow("Kcal"))));
+                        c.getDouble(c.getColumnIndexOrThrow("Kcal")),
+                        c.getString(c.getColumnIndexOrThrow("Status")),
+                        fromJson(c.getString(c.getColumnIndexOrThrow("Snapshot")))));
             }
+        }
+        return list;
+    }
+
+    // The snapshot is only ever read back whole, so it is one JSON column, not a child table.
+    private static String toJson(List<LoggedExercise> exercises) {
+        JSONArray array = new JSONArray();
+        try {
+            for (LoggedExercise e : exercises) {
+                JSONObject o = new JSONObject();
+                o.put("exerciseName", e.getExerciseName());
+                o.put("met", e.getMet());
+                o.put("timed", e.isTimed());
+                o.put("sets", e.getSets());
+                o.put("completedSets", e.getCompletedSets());
+                o.put("reps", e.getReps() == null ? JSONObject.NULL : e.getReps());
+                o.put("seconds", e.getSeconds() == null ? JSONObject.NULL : e.getSeconds());
+                o.put("activeSeconds", e.getActiveSeconds());
+                o.put("kcal", e.getKcal());
+                array.put(o);
+            }
+        } catch (JSONException ex) {
+            Log.w(TAG, "Could not store a workout log snapshot", ex);   // only NaN/infinite numbers
+        }
+        return array.toString();
+    }
+
+    private static List<LoggedExercise> fromJson(String json) {
+        List<LoggedExercise> list = new ArrayList<>();
+        if (json == null) return list;
+        try {
+            JSONArray array = new JSONArray(json);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject o = array.getJSONObject(i);
+                list.add(new LoggedExercise(
+                        o.optString("exerciseName"),
+                        o.optDouble("met", 0),
+                        o.optBoolean("timed"),
+                        o.optInt("sets"),
+                        o.optInt("completedSets"),
+                        o.isNull("reps") ? null : o.optInt("reps"),
+                        o.isNull("seconds") ? null : o.optInt("seconds"),
+                        o.optInt("activeSeconds"),
+                        o.optDouble("kcal", 0)));
+            }
+        } catch (JSONException ex) {
+            Log.w(TAG, "Unreadable workout log snapshot", ex);
         }
         return list;
     }
