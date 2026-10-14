@@ -153,7 +153,9 @@ and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters.
 
 - **Search filters:** pass null or "" to skip a filter. The name matches anywhere in it and case
   is ignored.
-- **Difficulty values:** `ExerciseService.DIFFICULTIES`.
+- **Difficulty:** the `Difficulty` enum (BEGINNER, INTERMEDIATE, ADVANCED). `Exercise.getDifficulty()`
+  returns it, and `searchExercises` takes it (null for any). For the filter options use
+  `Difficulty.values()`, easiest first, and `getLabel()` for the text.
 - **Animations:** `Exercise.getAnimationFile()` is null until animations are added; show a
   placeholder.
 
@@ -267,6 +269,5 @@ database matches a fresh install.
 
 - **Workouts (FR-4.1, FR-4.2):** premade workouts have a level but no category or estimated
   duration, and there is one rest time per exercise rather than separate rest types.
-- **Exercises (FR-3.2):** difficulty is a String rather than an enum.
 - **UI-only features:** the units setting (FR-1.7) and the FR-5.2 items above belong to the
   screens.

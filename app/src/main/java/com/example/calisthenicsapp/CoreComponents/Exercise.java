@@ -7,7 +7,7 @@ public class Exercise {
      */
     public Exercise(String name, String instructions, boolean isTimed,
                     Integer defaultSeconds, Integer defaultReps, double met,
-                    String animationFile, String muscleGroup, String difficulty) {
+                    String animationFile, String muscleGroup, Difficulty difficulty) {
         this.name = name;
         this.instructions = instructions;
         this.isTimed = isTimed;
@@ -43,7 +43,8 @@ public class Exercise {
         return this.muscleGroup;
     }
     /** "Beginner", "Intermediate", "Advanced", or null. */
-    public String getDifficulty() {
+    /** Null if the exercise has none. */
+    public Difficulty getDifficulty() {
         return this.difficulty;
     }
     private String name;
@@ -54,5 +55,5 @@ public class Exercise {
     private double met;
     private String animationFile;
     private String muscleGroup;
-    private String difficulty;
+    private Difficulty difficulty;
 }

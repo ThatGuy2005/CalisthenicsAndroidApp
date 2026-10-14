@@ -1,5 +1,6 @@
 package com.example.calisthenicsapp.Repos;
 
+import com.example.calisthenicsapp.CoreComponents.Difficulty;
 import com.example.calisthenicsapp.CoreComponents.Exercise;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -51,7 +52,7 @@ public class ExerciseRepository implements Repository<Exercise> {
      * Exercises matching every filter that is not null, sorted by name. nameQuery matches
      * anywhere in the name; muscleGroup and difficulty must match whole. All ignore case.
      */
-    public List<Exercise> search(String nameQuery, String muscleGroup, String difficulty) {
+    public List<Exercise> search(String nameQuery, String muscleGroup, Difficulty difficulty) {
         List<String> conditions = new ArrayList<>();
         List<String> args = new ArrayList<>();
         if (nameQuery != null) {
@@ -65,7 +66,7 @@ public class ExerciseRepository implements Repository<Exercise> {
         }
         if (difficulty != null) {
             conditions.add("Difficulty = ? COLLATE NOCASE");
-            args.add(difficulty);
+            args.add(difficulty.getLabel());
         }
         String where = conditions.isEmpty() ? null : TextUtils.join(" AND ", conditions);
 
@@ -98,7 +99,8 @@ public class ExerciseRepository implements Repository<Exercise> {
         cv.put("Met", e.getMet());
         cv.put("AnimationFile", e.getAnimationFile());
         cv.put("MuscleGroup", e.getMuscleGroup());
-        cv.put("Difficulty", e.getDifficulty());
+        if (e.getDifficulty() != null) cv.put("Difficulty", e.getDifficulty().getLabel());
+        else cv.putNull("Difficulty");
         return cv;
     }
 
@@ -112,6 +114,6 @@ public class ExerciseRepository implements Repository<Exercise> {
                 c.getDouble(c.getColumnIndexOrThrow("Met")),
                 c.getString(c.getColumnIndexOrThrow("AnimationFile")),
                 c.getString(c.getColumnIndexOrThrow("MuscleGroup")),
-                c.getString(c.getColumnIndexOrThrow("Difficulty")));
+                Difficulty.fromLabel(c.getString(c.getColumnIndexOrThrow("Difficulty"))));
     }
 }

@@ -2,11 +2,10 @@ package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
 
+import com.example.calisthenicsapp.CoreComponents.Difficulty;
 import com.example.calisthenicsapp.CoreComponents.Exercise;
 import com.example.calisthenicsapp.Repos.ExerciseRepository;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,10 +16,6 @@ import java.util.List;
  * background thread and every callback is delivered on the main thread.
  */
 public class ExerciseService extends UserDataService {
-
-    /** The allowed difficulty values, easiest first, for building the filter options. */
-    public static final List<String> DIFFICULTIES = Collections.unmodifiableList(
-            Arrays.asList("Beginner", "Intermediate", "Advanced"));
 
     public ExerciseService(Context context) {
         super(context);
@@ -42,27 +37,16 @@ public class ExerciseService extends UserDataService {
     }
 
     /**
-     * Exercises matching all the given filters, sorted by name. Pass null or "" to skip a filter.
-     * nameQuery matches anywhere in the name ("push" finds "Knee Push-Up"); muscleGroup and
-     * difficulty must match a whole value. None of them are case-sensitive.
+     * Exercises matching all the given filters, sorted by name. Pass null (or "" for the text
+     * filters) to skip a filter. nameQuery matches anywhere in the name ("push" finds "Knee
+     * Push-Up") and muscleGroup must match a whole value, both ignoring case. For the difficulty
+     * filter options, use Difficulty.values() (easiest first) and getLabel().
      */
-    public void searchExercises(String nameQuery, String muscleGroup, String difficulty,
+    public void searchExercises(String nameQuery, String muscleGroup, Difficulty difficulty,
                                 ServiceCallback<List<Exercise>> callback) {
         String name = blankToNull(nameQuery);
         String group = blankToNull(muscleGroup);
-        String level = blankToNull(difficulty);
-        if (level != null && !isDifficulty(level)) {
-            fail(callback, "Difficulty must be Beginner, Intermediate or Advanced.");
-            return;
-        }
-        onDb(() -> succeed(callback, new ExerciseRepository(db()).search(name, group, level)));
-    }
-
-    private static boolean isDifficulty(String value) {
-        for (String d : DIFFICULTIES) {
-            if (d.equalsIgnoreCase(value)) return true;
-        }
-        return false;
+        onDb(() -> succeed(callback, new ExerciseRepository(db()).search(name, group, difficulty)));
     }
 
     private static String blankToNull(String value) {
