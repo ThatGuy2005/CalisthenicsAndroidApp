@@ -30,6 +30,19 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    testOptions {
+        // Robolectric tests read schema.sql and seed.sql from the assets.
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            // Robolectric reaches into JDK internals for file descriptors and loads native
+            // SQLite; newer JDKs only allow that when asked.
+            it.jvmArgs(
+                "--add-opens=java.base/java.io=ALL-UNNAMED",
+                "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
+                "--enable-native-access=ALL-UNNAMED"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -41,6 +54,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
 }

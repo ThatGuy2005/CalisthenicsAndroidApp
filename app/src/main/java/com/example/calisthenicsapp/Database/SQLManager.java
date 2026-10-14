@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,6 +63,15 @@ public class SQLManager extends SQLiteOpenHelper {
             instance = new SQLManager(context.getApplicationContext());
         }
         return instance;
+    }
+
+    /** For tests: closes the shared instance, so the next getInstance opens the file again. */
+    @VisibleForTesting
+    public static synchronized void closeInstance() {
+        if (instance != null) {
+            instance.close();
+            instance = null;
+        }
     }
 
     private SQLManager(Context context) {
