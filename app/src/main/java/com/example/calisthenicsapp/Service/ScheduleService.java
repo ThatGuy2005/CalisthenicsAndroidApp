@@ -15,10 +15,12 @@ import com.example.calisthenicsapp.Repos.ScheduledWorkoutRepository;
 import com.example.calisthenicsapp.Repos.UserRepository;
 import com.example.calisthenicsapp.Repos.WorkoutRepository;
 import com.example.calisthenicsapp.Scheduling.DeviceCalendar;
+import com.example.calisthenicsapp.Scheduling.Recurrence;
 import com.example.calisthenicsapp.Scheduling.WorkoutSummary;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,6 +28,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -35,6 +39,8 @@ import java.util.TimeZone;
 /**
  * The signed-in user's planned workouts (users/{uid}/schedules). A schedule points at exactly
  * one premade workout (by name) or one custom workout (by id). Times are epoch seconds.
+ * A schedule happens once, or repeats by a {@link Recurrence} from its first occurrence on
+ * (FR-6.1).
  *
  * A schedule can also be an event in the device's calendar (FR-6.2). The event id is kept only
  * in this device's SQLite, see {@link ScheduledWorkout#getCalendarEventId()}. Rescheduling or
@@ -63,10 +69,21 @@ public class ScheduleService extends UserDataService {
         readForUser(callback, uid -> new ScheduledWorkoutRepository(db()).getByUid(uid));
     }
 
-    /** Schedules from now on, soonest first. */
+    /**
+     * Schedules that still have an occurrence from now on, sorted by their next occurrence
+     * (see {@link ScheduledWorkout#nextOccurrence}).
+     */
     public void getUpcoming(ServiceCallback<List<ScheduledWorkout>> callback) {
         long from = now();
-        readForUser(callback, uid -> new ScheduledWorkoutRepository(db()).getUpcoming(uid, from));
+        TimeZone zone = TimeZone.getDefault();
+        readForUser(callback, uid -> {
+            List<ScheduledWorkout> upcoming = new ArrayList<>();
+            for (ScheduledWorkout s : new ScheduledWorkoutRepository(db()).getUpcoming(uid, from)) {
+                if (s.nextOccurrence(from, zone) != null) upcoming.add(s);
+            }
+            upcoming.sort(Comparator.comparingLong(s -> s.nextOccurrence(from, zone)));
+            return upcoming;
+        });
     }
 
     public boolean hasCalendarPermission() {
@@ -85,6 +102,12 @@ public class ScheduleService extends UserDataService {
      */
     public void schedulePremade(String workoutName, long scheduledAt, boolean addToCalendar,
                                 ServiceCallback<String> callback) {
+        schedulePremade(workoutName, scheduledAt, null, addToCalendar, callback);
+    }
+
+    /** Like the other overloads; with a recurrence, scheduledAt is the first occurrence. */
+    public void schedulePremade(String workoutName, long scheduledAt, Recurrence recurrence,
+                                boolean addToCalendar, ServiceCallback<String> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
             fail(callback, NOT_SIGNED_IN);
@@ -95,7 +118,7 @@ public class ScheduleService extends UserDataService {
                 fail(callback, "Unknown workout: " + workoutName);
                 return;
             }
-            add(uid, workoutName, null, scheduledAt, addToCalendar, callback);
+            add(uid, workoutName, null, scheduledAt, recurrence, addToCalendar, callback);
         });
     }
 
@@ -107,6 +130,12 @@ public class ScheduleService extends UserDataService {
     /** See {@link #schedulePremade(String, long, boolean, ServiceCallback)}. */
     public void scheduleCustom(String customWorkoutId, long scheduledAt, boolean addToCalendar,
                                ServiceCallback<String> callback) {
+        scheduleCustom(customWorkoutId, scheduledAt, null, addToCalendar, callback);
+    }
+
+    /** Like the other overloads; with a recurrence, scheduledAt is the first occurrence. */
+    public void scheduleCustom(String customWorkoutId, long scheduledAt, Recurrence recurrence,
+                               boolean addToCalendar, ServiceCallback<String> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
             fail(callback, NOT_SIGNED_IN);
@@ -118,11 +147,14 @@ public class ScheduleService extends UserDataService {
                 fail(callback, "That custom workout no longer exists.");
                 return;
             }
-            add(uid, null, customWorkoutId, scheduledAt, addToCalendar, callback);
+            add(uid, null, customWorkoutId, scheduledAt, recurrence, addToCalendar, callback);
         });
     }
 
-    /** The calendar event, if any, moves with it. */
+    /**
+     * Moves the schedule; for a repeating one, the whole series moves to repeat from the new
+     * first occurrence. The calendar event, if any, moves with it.
+     */
     public void reschedule(String scheduleId, long newScheduledAt, ServiceCallback<Void> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
@@ -140,6 +172,28 @@ public class ScheduleService extends UserDataService {
             }
             watchWrite(schedules(uid).document(scheduleId).update("scheduledAt", newScheduledAt),
                     "Rescheduling " + scheduleId);
+            succeed(callback, null);
+        });
+    }
+
+    /**
+     * Makes the schedule repeat by the recurrence, or with null happen only once (FR-6.1).
+     * The first occurrence stays where it is.
+     */
+    public void setRecurrence(String scheduleId, Recurrence recurrence, ServiceCallback<Void> callback) {
+        String uid = sessionManager.getCurrentUid();
+        if (uid == null) {
+            fail(callback, NOT_SIGNED_IN);
+            return;
+        }
+        onDb(() -> {
+            if (scheduleId == null || new ScheduledWorkoutRepository(db()).getOne(scheduleId) == null) {
+                fail(callback, GONE);
+                return;
+            }
+            watchWrite(schedules(uid).document(scheduleId).update("recurrenceRule",
+                            recurrence == null ? FieldValue.delete() : recurrence.toRule()),
+                    "Changing the repeat of schedule " + scheduleId);
             succeed(callback, null);
         });
     }
@@ -272,9 +326,12 @@ public class ScheduleService extends UserDataService {
         });
     }
 
-    /** Writes only the one workout field, so the document has exactly one of the two. */
+    /**
+     * Writes only the one workout field, so the document has exactly one of the two, and the
+     * repeat rule only for a repeating schedule.
+     */
     private void add(String uid, String workoutName, String customWorkoutId, long scheduledAt,
-                     boolean addToCalendar, ServiceCallback<String> callback) {
+                     Recurrence recurrence, boolean addToCalendar, ServiceCallback<String> callback) {
         if (scheduledAt <= 0) {
             fail(callback, "Pick a date and time.");
             return;
@@ -284,6 +341,7 @@ public class ScheduleService extends UserDataService {
         if (workoutName != null) data.put("workoutName", workoutName);
         else data.put("customWorkoutId", customWorkoutId);
         data.put("scheduledAt", scheduledAt);
+        if (recurrence != null) data.put("recurrenceRule", recurrence.toRule());
         watchWrite(doc.set(data), "Creating schedule " + doc.getId());
 
         if (addToCalendar && hasCalendarPermission()) {

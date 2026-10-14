@@ -266,7 +266,7 @@ public class SyncManager {
         }
         RemoteSchedule remote = RemoteSchedule.fromSnapshot(doc);
         ScheduledWorkout schedule = new ScheduledWorkout(remote.id, uid, remote.workoutName,
-                remote.customWorkoutId, remote.scheduledAt);
+                remote.customWorkoutId, remote.scheduledAt, remote.recurrenceRule, null);
         if (remote.customWorkoutId != null
                 && customWorkoutRepository.getOne(remote.customWorkoutId) == null) {
             pendingSchedules.put(remote.id, schedule);   // its custom workout is not mirrored yet

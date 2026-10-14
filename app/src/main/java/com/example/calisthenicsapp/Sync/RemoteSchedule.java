@@ -8,17 +8,21 @@ public class RemoteSchedule {
     public final String workoutName;
     public final String customWorkoutId;
     public final long scheduledAt;
+    public final String recurrenceRule;   // null = once
 
-    private RemoteSchedule(String id, String workoutName, String customWorkoutId, long scheduledAt) {
+    private RemoteSchedule(String id, String workoutName, String customWorkoutId, long scheduledAt,
+                           String recurrenceRule) {
         this.id = id;
         this.workoutName = workoutName;
         this.customWorkoutId = customWorkoutId;
         this.scheduledAt = scheduledAt;
+        this.recurrenceRule = recurrenceRule;
     }
 
     public static RemoteSchedule fromSnapshot(DocumentSnapshot doc) {
         Long scheduledAt = doc.getLong("scheduledAt");
         return new RemoteSchedule(doc.getId(), doc.getString("workoutName"),
-                doc.getString("customWorkoutId"), scheduledAt == null ? 0L : scheduledAt);
+                doc.getString("customWorkoutId"), scheduledAt == null ? 0L : scheduledAt,
+                doc.getString("recurrenceRule"));
     }
 }

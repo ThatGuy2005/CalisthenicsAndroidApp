@@ -24,7 +24,7 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         }
     }
 
-    /** Changes the workout and/or the time. The owner (Uid) and the calendar event stay. */
+    /** Changes the workout, the time and/or the repeat rule. The owner (Uid) and the calendar event stay. */
     @Override
     public boolean update(ScheduledWorkout s) {
         if (s.getId() == null) return false;
@@ -57,9 +57,13 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         return query("Uid = ?", new String[]{uid});
     }
 
-    /** A user's workouts scheduled at or after fromEpochSeconds, soonest first. */
+    /**
+     * A user's schedules that still have an occurrence at or after fromEpochSeconds: one-off
+     * schedules from then on, and every repeating one. Sorted by their first occurrence, so
+     * sort by the next one where that matters.
+     */
     public List<ScheduledWorkout> getUpcoming(String uid, long fromEpochSeconds) {
-        return query("Uid = ? AND ScheduledAt >= ?",
+        return query("Uid = ? AND (ScheduledAt >= ? OR RecurrenceRule IS NOT NULL)",
                 new String[]{uid, String.valueOf(fromEpochSeconds)});
     }
 
@@ -96,6 +100,7 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
             int nameCol = c.getColumnIndexOrThrow("WorkoutName");
             int customCol = c.getColumnIndexOrThrow("CustomWorkoutId");
             int atCol = c.getColumnIndexOrThrow("ScheduledAt");
+            int ruleCol = c.getColumnIndexOrThrow("RecurrenceRule");
             int eventCol = c.getColumnIndexOrThrow("CalendarEventId");
             while (c.moveToNext()) {
                 list.add(new ScheduledWorkout(
@@ -104,6 +109,7 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
                         c.getString(nameCol),
                         c.getString(customCol),
                         c.getLong(atCol),
+                        c.getString(ruleCol),
                         c.isNull(eventCol) ? null : c.getLong(eventCol)));
             }
         }
@@ -119,6 +125,8 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         if (s.getCustomWorkoutId() != null) cv.put("CustomWorkoutId", s.getCustomWorkoutId());
         else cv.putNull("CustomWorkoutId");
         cv.put("ScheduledAt", s.getScheduledAt());
+        if (s.getRecurrenceRule() != null) cv.put("RecurrenceRule", s.getRecurrenceRule());
+        else cv.putNull("RecurrenceRule");
         return cv;
     }
 }

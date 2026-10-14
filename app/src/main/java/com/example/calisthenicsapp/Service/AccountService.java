@@ -261,6 +261,7 @@ public class AccountService extends UserDataService {
             o.put("workoutName", orNull(s.getWorkoutName()));
             o.put("customWorkoutId", orNull(s.getCustomWorkoutId()));
             o.put("scheduledAt", s.getScheduledAt());
+            o.put("recurrenceRule", orNull(s.getRecurrenceRule()));
             schedules.put(o);
         }
         root.put("schedules", schedules);
