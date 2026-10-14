@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Scheduling;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.example.calisthenicsapp.Session.WorkoutSession.SessionExercise;
@@ -67,6 +68,24 @@ public class WorkoutSummaryTest {
         assertTrue(body.contains("Workout: Legs"));
         assertTrue(body.contains("October 15, 2026"));
         assertTrue(body.contains("1. Squat: 3 x 15 reps, 45 s rest"));
+    }
+
+    @Test
+    public void repeatingWorkoutSaysHowItRepeats() {
+        WorkoutSummary summary = new WorkoutSummary("abc123", "Legs", START, Recurrence.weekly(),
+                Collections.singletonList(reps("Squat", 3, 15, 45)));
+        assertTrue(summary.getDescription().contains("Repeats: every week"));
+        assertTrue(summary.getEmailBody(TimeZone.getTimeZone("UTC"), Locale.US)
+                .contains("Repeats: every week"));
+        assertTrue(summary.toIcs(START).contains("\r\nRRULE:FREQ=WEEKLY\r\n"));
+    }
+
+    @Test
+    public void oneOffWorkoutDoesNotRepeat() {
+        WorkoutSummary summary = new WorkoutSummary("abc123", "Legs", START,
+                Collections.singletonList(reps("Squat", 3, 15, 45)));
+        assertFalse(summary.getDescription().contains("Repeats"));
+        assertFalse(summary.toIcs(START).contains("RRULE"));
     }
 
     @Test

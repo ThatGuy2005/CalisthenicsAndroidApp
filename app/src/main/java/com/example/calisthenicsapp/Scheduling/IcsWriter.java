@@ -22,10 +22,13 @@ public final class IcsWriter {
     /**
      * @param uid      stays the same for the same event, so importing it again updates the
      *                 event instead of adding a second one
+     * @param endSeconds end of the first occurrence
+     * @param rrule    e.g. "FREQ=WEEKLY", or null for an event that happens once
      * @param nowSeconds when the file is made (DTSTAMP)
      */
-    public static String event(String uid, long startSeconds, long endSeconds, String summary,
-                               String description, int reminderMinutes, long nowSeconds) {
+    public static String event(String uid, long startSeconds, long endSeconds, String rrule,
+                               String summary, String description, int reminderMinutes,
+                               long nowSeconds) {
         StringBuilder ics = new StringBuilder();
         line(ics, "BEGIN:VCALENDAR");
         line(ics, "VERSION:2.0");
@@ -37,6 +40,7 @@ public final class IcsWriter {
         line(ics, "DTSTAMP:" + utc(nowSeconds));
         line(ics, "DTSTART:" + utc(startSeconds));
         line(ics, "DTEND:" + utc(endSeconds));
+        if (rrule != null) line(ics, "RRULE:" + rrule);
         line(ics, "SUMMARY:" + escape(summary));
         line(ics, "DESCRIPTION:" + escape(description));
         line(ics, "BEGIN:VALARM");

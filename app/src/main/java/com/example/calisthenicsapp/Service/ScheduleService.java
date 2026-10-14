@@ -178,7 +178,7 @@ public class ScheduleService extends UserDataService {
 
     /**
      * Makes the schedule repeat by the recurrence, or with null happen only once (FR-6.1).
-     * The first occurrence stays where it is.
+     * The first occurrence stays where it is. The calendar event, if any, follows.
      */
     public void setRecurrence(String scheduleId, Recurrence recurrence, ServiceCallback<Void> callback) {
         String uid = sessionManager.getCurrentUid();
@@ -346,7 +346,7 @@ public class ScheduleService extends UserDataService {
 
         if (addToCalendar && hasCalendarPermission()) {
             WorkoutSummary summary = WorkoutSummary.of(db(), doc.getId(), workoutName,
-                    customWorkoutId, scheduledAt);
+                    customWorkoutId, scheduledAt, recurrence);
             Long eventId = summary == null ? null : DeviceCalendar.putEvent(context(), null, summary);
             if (eventId != null) new ScheduledWorkoutRepository(db()).setCalendarEventId(doc.getId(), eventId);
         }

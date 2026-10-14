@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -46,8 +47,8 @@ import java.util.concurrent.Executors;
  * three per-user collections subscribed to, because CustomWorkout, WorkoutLog and
  * ScheduledWorkout all foreign-key to Users(Uid).
  *
- * Schedules can have an event in the device calendar (FR-6.2). When a schedule's time changes
- * or it is removed, from this device or another, the event is moved or deleted here, so the
+ * Schedules can have an event in the device calendar (FR-6.2). When a schedule's time or
+ * repeat rule changes or it is removed, from this device or another, the event is moved or deleted here, so the
  * calendar follows Firestore too. Signing out leaves the events in the calendar.
  *
  * Threading: listener state (syncedUid, registrations) is changed only on the main thread.
@@ -285,15 +286,16 @@ public class SyncManager {
             return;
         }
         scheduledWorkoutRepository.update(schedule);
-        // Metadata-only changes arrive here too, so act only on a real time change.
-        if (existing.getScheduledAt() != schedule.getScheduledAt()
-                && existing.getCalendarEventId() != null) {
-            moveCalendarEvent(sqlite, scheduledWorkoutRepository, schedule,
+        // Metadata-only changes arrive here too, so act only on a real change.
+        boolean changed = existing.getScheduledAt() != schedule.getScheduledAt()
+                || !Objects.equals(existing.getRecurrenceRule(), schedule.getRecurrenceRule());
+        if (changed && existing.getCalendarEventId() != null) {
+            updateCalendarEvent(sqlite, scheduledWorkoutRepository, schedule,
                     existing.getCalendarEventId());
         }
     }
 
-    private void moveCalendarEvent(SQLiteDatabase sqlite,
+    private void updateCalendarEvent(SQLiteDatabase sqlite,
                                    ScheduledWorkoutRepository scheduledWorkoutRepository,
                                    ScheduledWorkout schedule, long eventId) {
         WorkoutSummary summary = WorkoutSummary.of(sqlite, schedule);

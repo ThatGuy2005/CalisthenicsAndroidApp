@@ -41,7 +41,7 @@ public class IcsWriterTest {
 
     @Test
     public void eventHasRequiredPropertiesAndCrlfLines() {
-        String ics = IcsWriter.event("abc@calisthenicsapp", START, START + 1800,
+        String ics = IcsWriter.event("abc@calisthenicsapp", START, START + 1800, null,
                 "Workout: Legs", "Squat, lunge", 30, START - 3600);
         assertTrue(ics.startsWith("BEGIN:VCALENDAR\r\nVERSION:2.0\r\n"));
         assertTrue(ics.endsWith("END:VEVENT\r\nEND:VCALENDAR\r\n"));
@@ -53,5 +53,13 @@ public class IcsWriterTest {
         assertTrue(ics.contains("\r\nDESCRIPTION:Squat\\, lunge\r\n"));
         assertTrue(ics.contains("\r\nTRIGGER:-PT30M\r\n"));
         assertFalse(ics.replace("\r\n", "").contains("\n"));   // no bare line feeds
+        assertFalse(ics.contains("RRULE"));
+    }
+
+    @Test
+    public void repeatingEventHasRrule() {
+        String ics = IcsWriter.event("abc@calisthenicsapp", START, START + 1800,
+                "FREQ=WEEKLY;INTERVAL=2", "Workout: Legs", "", 30, START);
+        assertTrue(ics.contains("\r\nDTEND:20261015T163000Z\r\nRRULE:FREQ=WEEKLY;INTERVAL=2\r\n"));
     }
 }

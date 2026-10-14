@@ -33,6 +33,13 @@ public class RecurrenceTest {
     }
 
     @Test
+    public void describesItselfForPeople() {
+        assertEquals("Every week", Recurrence.weekly().describe());
+        assertEquals("Every 2 days", new Recurrence(Recurrence.Frequency.DAILY, 2).describe());
+        assertEquals("Every 3 months", new Recurrence(Recurrence.Frequency.MONTHLY, 3).describe());
+    }
+
+    @Test
     public void rejectsRulesItCannotRepeatBy() {
         for (String rule : new String[]{"FREQ=YEARLY", "FREQ=WEEKLY;BYDAY=MO", "INTERVAL=2",
                 "FREQ=DAILY;INTERVAL=0", "FREQ=DAILY;INTERVAL=x", "WEEKLY"}) {

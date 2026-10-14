@@ -33,39 +33,50 @@ public final class WorkoutSummary {
     private final String scheduleId;
     private final String workoutName;
     private final long startSeconds;
+    private final Recurrence recurrence;    // null = once
     private final List<SessionExercise> exercises;
 
     public WorkoutSummary(String scheduleId, String workoutName, long startSeconds,
                           List<SessionExercise> exercises) {
+        this(scheduleId, workoutName, startSeconds, null, exercises);
+    }
+
+    /** startSeconds is the first occurrence; recurrence is null for a one-off workout. */
+    public WorkoutSummary(String scheduleId, String workoutName, long startSeconds,
+                          Recurrence recurrence, List<SessionExercise> exercises) {
         this.scheduleId = scheduleId;
         this.workoutName = workoutName;
         this.startSeconds = startSeconds;
+        this.recurrence = recurrence;
         this.exercises = Collections.unmodifiableList(new ArrayList<>(exercises));
     }
 
     /** Reads the schedule's workout from SQLite. Null if the workout no longer exists. */
     public static WorkoutSummary of(SQLiteDatabase db, ScheduledWorkout schedule) {
         return of(db, schedule.getId(), schedule.getWorkoutName(), schedule.getCustomWorkoutId(),
-                schedule.getScheduledAt());
+                schedule.getScheduledAt(), schedule.getRecurrence());
     }
 
     /** Exactly one of workoutName (premade) and customWorkoutId is set. */
     public static WorkoutSummary of(SQLiteDatabase db, String scheduleId, String workoutName,
-                                    String customWorkoutId, long startSeconds) {
+                                    String customWorkoutId, long startSeconds,
+                                    Recurrence recurrence) {
         if (customWorkoutId != null) {
             CustomWorkout workout = new CustomWorkoutRepository(db).getOne(customWorkoutId);
             if (workout == null) return null;
-            return new WorkoutSummary(scheduleId, workout.getName(), startSeconds,
+            return new WorkoutSummary(scheduleId, workout.getName(), startSeconds, recurrence,
                     WorkoutExercises.ofCustom(db, customWorkoutId));
         }
         if (workoutName == null || new WorkoutRepository(db).getOne(workoutName) == null) return null;
-        return new WorkoutSummary(scheduleId, workoutName, startSeconds,
+        return new WorkoutSummary(scheduleId, workoutName, startSeconds, recurrence,
                 WorkoutExercises.ofPremade(db, workoutName));
     }
 
     public String getScheduleId() { return scheduleId; }
     public String getWorkoutName() { return workoutName; }
     public long getStartSeconds() { return startSeconds; }
+    /** Null if the workout happens once. */
+    public Recurrence getRecurrence() { return recurrence; }
     public List<SessionExercise> getExercises() { return exercises; }
 
     /** Every set plus the rests between them; no rest after the very last set. */
@@ -80,10 +91,15 @@ public final class WorkoutSummary {
         return Math.max(total, 0);
     }
 
-    /** The estimate rounded up to whole 5 minutes, and at least 15 minutes. */
-    public long getEndSeconds() {
+    /** How long the calendar event lasts: the estimate rounded up to whole 5 minutes, at least 15. */
+    public int getEventSeconds() {
         int rounded = (getEstimatedSeconds() + ROUND_TO_SECONDS - 1) / ROUND_TO_SECONDS * ROUND_TO_SECONDS;
-        return startSeconds + Math.max(rounded, MIN_EVENT_SECONDS);
+        return Math.max(rounded, MIN_EVENT_SECONDS);
+    }
+
+    /** End of the (first) occurrence. */
+    public long getEndSeconds() {
+        return startSeconds + getEventSeconds();
     }
 
     public String getTitle() {
@@ -107,7 +123,8 @@ public final class WorkoutSummary {
 
     /** The calendar event's description. */
     public String getDescription() {
-        return "About " + estimatedMinutes() + " min.\n\nExercises:\n" + getExerciseList();
+        return "About " + estimatedMinutes() + " min." + repeatsLine()
+                + "\n\nExercises:\n" + getExerciseList();
     }
 
     public String getEmailSubject(TimeZone zone, Locale locale) {
@@ -116,7 +133,8 @@ public final class WorkoutSummary {
 
     public String getEmailBody(TimeZone zone, Locale locale) {
         return "Workout: " + workoutName + "\n"
-                + "When: " + formatStart(zone, locale) + " (about " + estimatedMinutes() + " min)\n\n"
+                + "When: " + formatStart(zone, locale) + " (about " + estimatedMinutes() + " min)"
+                + repeatsLine() + "\n\n"
                 + "Exercises:\n" + getExerciseList() + "\n\n"
                 + "Sent from CalisthenicsApp.\n";
     }
@@ -124,7 +142,12 @@ public final class WorkoutSummary {
     /** The .ics file; its UID is fixed per schedule, so importing it again updates the event. */
     public String toIcs(long nowSeconds) {
         return IcsWriter.event(scheduleId + "@calisthenicsapp", startSeconds, getEndSeconds(),
+                recurrence == null ? null : recurrence.toRule(),
                 getTitle(), getDescription(), REMINDER_MINUTES, nowSeconds);
+    }
+
+    private String repeatsLine() {
+        return recurrence == null ? "" : "\nRepeats: " + recurrence.describe().toLowerCase(Locale.ROOT);
     }
 
     private int estimatedMinutes() {

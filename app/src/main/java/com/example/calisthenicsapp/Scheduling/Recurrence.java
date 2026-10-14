@@ -72,6 +72,13 @@ public final class Recurrence {
     public Frequency getFrequency() { return frequency; }
     public int getInterval() { return interval; }
 
+    /** For people: "Every week", "Every 2 days". */
+    public String describe() {
+        String unit = frequency == Frequency.DAILY ? "day"
+                : frequency == Frequency.WEEKLY ? "week" : "month";
+        return interval == 1 ? "Every " + unit : "Every " + interval + " " + unit + "s";
+    }
+
     /** The RRULE value, e.g. "FREQ=WEEKLY" or "FREQ=DAILY;INTERVAL=2". */
     public String toRule() {
         return "FREQ=" + frequency.name() + (interval == 1 ? "" : ";INTERVAL=" + interval);

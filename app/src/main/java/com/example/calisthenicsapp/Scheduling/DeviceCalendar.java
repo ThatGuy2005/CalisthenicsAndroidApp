@@ -20,7 +20,7 @@ import java.util.TimeZone;
 
 /**
  * Scheduled workouts as events in the device's calendar (FR-6.2), through the calendar
- * provider. Needs {@link #PERMISSIONS}; the screen asks for them (FR-6.5). Every method checks
+ * provider. A repeating schedule is one repeating event (FR-6.1). Needs {@link #PERMISSIONS}; the screen asks for them (FR-6.5). Every method checks
  * them first, so a denied permission never crashes. Call these on a background thread.
  *
  * Events go into the primary writable calendar. A device with no calendar account at all
@@ -106,12 +106,24 @@ public final class DeviceCalendar {
         }
     }
 
+    /**
+     * A repeating event needs RRULE and DURATION instead of DTEND; the provider rejects an
+     * event with both. The unused ones are set to null so an update can switch between the two.
+     */
     private static ContentValues eventValues(WorkoutSummary summary) {
         ContentValues values = new ContentValues();
         values.put(Events.TITLE, summary.getTitle());
         values.put(Events.DESCRIPTION, summary.getDescription());
         values.put(Events.DTSTART, summary.getStartSeconds() * 1000L);
-        values.put(Events.DTEND, summary.getEndSeconds() * 1000L);
+        if (summary.getRecurrence() == null) {
+            values.put(Events.DTEND, summary.getEndSeconds() * 1000L);
+            values.putNull(Events.RRULE);
+            values.putNull(Events.DURATION);
+        } else {
+            values.putNull(Events.DTEND);
+            values.put(Events.RRULE, summary.getRecurrence().toRule());
+            values.put(Events.DURATION, "PT" + summary.getEventSeconds() + "S");
+        }
         values.put(Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
         values.put(Events.HAS_ALARM, 1);
         return values;
