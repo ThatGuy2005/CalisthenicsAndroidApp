@@ -3,14 +3,19 @@ package com.example.calisthenicsapp.Service;
 import android.content.Context;
 
 import com.example.calisthenicsapp.CoreComponents.WorkoutLog;
+import com.example.calisthenicsapp.Repos.ScheduledWorkoutRepository;
 import com.example.calisthenicsapp.Repos.WorkoutLogRepository;
+import com.example.calisthenicsapp.Scheduling.OccurrenceStatus;
+import com.example.calisthenicsapp.Scheduling.ScheduleOccurrence;
 import com.example.calisthenicsapp.Session.WorkoutSession;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * The signed-in user's finished workouts (users/{uid}/workoutLogs). A log is saved from a
@@ -33,6 +38,8 @@ public class WorkoutLogService extends UserDataService {
      * workout. Fails if the session is still going or no set was completed.
      * Saving the same session again returns the same log id instead of logging it twice,
      * also after the session was restored from saved instance state. Works offline.
+     * A Completed session also completes the scheduled workout it was planned as, if any
+     * (FR-6.1, see {@link ScheduleOccurrence#matching}); a Partial one does not.
      * On success, returns the log id.
      */
     public void saveSession(WorkoutSession session, ServiceCallback<String> callback) {
@@ -79,7 +86,28 @@ public class WorkoutLogService extends UserDataService {
         data.put("exercises", exercises);
         session.setLogId(doc.getId());
         watchWrite(doc.set(data), "Saving workout log " + doc.getId());
-        succeed(callback, doc.getId());
+        if (!WorkoutSession.STATUS_COMPLETED.equals(session.getStatus())) {
+            succeed(callback, doc.getId());
+            return;
+        }
+        onDb(() -> {
+            completeMatchingSchedule(uid, session);
+            succeed(callback, doc.getId());
+        });
+    }
+
+    /** Must run inside onDb. */
+    private void completeMatchingSchedule(String uid, WorkoutSession session) {
+        long started = session.getStartedAt();
+        long window = OccurrenceStatus.MISSED_AFTER_SECONDS;
+        ScheduleOccurrence match = ScheduleOccurrence.matching(
+                new ScheduledWorkoutRepository(db()).getBetween(uid, started - window, started + window + 1),
+                session.getWorkoutName(), session.getCustomWorkoutId(), started, TimeZone.getDefault());
+        if (match == null) return;
+        String scheduleId = match.getSchedule().getId();
+        watchWrite(userDoc(uid).collection("schedules").document(scheduleId)
+                        .update("completed", FieldValue.arrayUnion(match.getStartSeconds())),
+                "Completing schedule " + scheduleId + " at " + match.getStartSeconds());
     }
 
     public void delete(String logId, ServiceCallback<Void> callback) {

@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Scheduling;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import com.example.calisthenicsapp.CoreComponents.ScheduledWorkout;
 
@@ -48,6 +49,49 @@ public class ScheduleOccurrenceTest {
         ScheduledWorkout once = new ScheduledWorkout("o", "u", "Arms", null, START, null, null, null);
         assertEquals(0, ScheduleOccurrence.between(Collections.singletonList(once),
                 START + 1, START + DAY, START, UTC).size());
+    }
+
+    @Test
+    public void workoutCompletesTheClosestPendingOccurrenceOfTheSameWorkout() {
+        ScheduledWorkout daily = new ScheduledWorkout("d", "u", "Legs", null, START,
+                "FREQ=DAILY", null, null);
+        ScheduledWorkout other = new ScheduledWorkout("x", "u", "Arms", null, START, null, null, null);
+        List<ScheduledWorkout> schedules = Arrays.asList(other, daily);
+
+        // Done at 21:00 on the third day: that day's 16:00, not the next day's.
+        ScheduleOccurrence match = ScheduleOccurrence.matching(schedules, "Legs", null,
+                START + 2 * DAY + 5 * HOUR, UTC);
+        assertOccurrence(match, "d", START + 2 * DAY, OccurrenceStatus.PENDING);
+        // Done the morning after at 06:00: the next day's 16:00 is closer.
+        match = ScheduleOccurrence.matching(schedules, "Legs", null, START + 2 * DAY + 14 * HOUR, UTC);
+        assertOccurrence(match, "d", START + 3 * DAY, OccurrenceStatus.PENDING);
+    }
+
+    @Test
+    public void workoutOutsideTheWindowOrAlreadyDoneMatchesNothing() {
+        ScheduledWorkout once = new ScheduledWorkout("o", "u", "Legs", null, START, null, null, null);
+        List<ScheduledWorkout> schedules = Collections.singletonList(once);
+        assertNull(ScheduleOccurrence.matching(schedules, "Legs", null, START + 12 * HOUR, UTC));
+        assertNull(ScheduleOccurrence.matching(schedules, "Legs", null, START - 12 * HOUR - 1, UTC));
+        assertEquals("o", ScheduleOccurrence.matching(schedules, "Legs", null,
+                START - 12 * HOUR, UTC).getSchedule().getId());
+
+        ScheduledWorkout done = new ScheduledWorkout("o", "u", "Legs", null, START, null,
+                Collections.singletonList(START), null);
+        assertNull(ScheduleOccurrence.matching(Collections.singletonList(done), "Legs", null,
+                START, UTC));
+    }
+
+    @Test
+    public void customWorkoutsMatchByIdNotByName() {
+        ScheduledWorkout custom = new ScheduledWorkout("c", "u", null, "cw1", START, null, null, null);
+        ScheduledWorkout premade = new ScheduledWorkout("p", "u", "Legs", null, START, null, null, null);
+        List<ScheduledWorkout> schedules = Arrays.asList(custom, premade);
+        assertEquals("c", ScheduleOccurrence.matching(schedules, "Legs", "cw1", START, UTC)
+                .getSchedule().getId());
+        assertEquals("p", ScheduleOccurrence.matching(schedules, "Legs", null, START, UTC)
+                .getSchedule().getId());
+        assertNull(ScheduleOccurrence.matching(schedules, "Legs", "cw2", START, UTC));
     }
 
     private static void assertOccurrence(ScheduleOccurrence o, String scheduleId, long start,

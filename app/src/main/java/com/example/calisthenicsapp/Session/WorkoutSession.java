@@ -101,12 +101,20 @@ public class WorkoutSession implements Serializable {
     private long stepMillis;                   // current step, up to runningSince
     private long totalMillis;                  // whole workout, up to runningSince
     private String logId;                      // set once saved, so it is never logged twice
+    private String customWorkoutId;            // the custom workout it was started from, or null
 
     private transient LongSupplier clock;
 
     public WorkoutSession(String workoutName, List<SessionExercise> exercises, double weightKg) {
         this(workoutName, exercises, weightKg, SystemClock::elapsedRealtime,
                 System.currentTimeMillis() / 1000L);
+    }
+
+    /** customWorkoutId: the custom workout this runs, or null for a premade one. */
+    public WorkoutSession(String workoutName, String customWorkoutId, List<SessionExercise> exercises,
+                          double weightKg) {
+        this(workoutName, exercises, weightKg);
+        this.customWorkoutId = customWorkoutId;
     }
 
     /** For tests: clock returns milliseconds and must never go backwards. */
@@ -220,6 +228,8 @@ public class WorkoutSession implements Serializable {
     }
 
     public String getWorkoutName() { return workoutName; }
+    /** The custom workout it was started from, or null for a premade workout. */
+    public String getCustomWorkoutId() { return customWorkoutId; }
     public long getStartedAt() { return startedAt; }
     public double getWeightKg() { return weightKg; }
 

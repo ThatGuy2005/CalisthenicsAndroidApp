@@ -37,7 +37,7 @@ public class WorkoutSessionService extends UserDataService {
                 fail(callback, "That workout no longer exists.");
                 return;
             }
-            start(uid, workoutName, WorkoutExercises.ofPremade(db(), workoutName), callback);
+            start(uid, workoutName, null, WorkoutExercises.ofPremade(db(), workoutName), callback);
         });
     }
 
@@ -54,11 +54,13 @@ public class WorkoutSessionService extends UserDataService {
                 fail(callback, "That custom workout no longer exists.");
                 return;
             }
-            start(uid, workout.getName(), WorkoutExercises.ofCustom(db(), customWorkoutId), callback);
+            start(uid, workout.getName(), customWorkoutId,
+                    WorkoutExercises.ofCustom(db(), customWorkoutId), callback);
         });
     }
 
-    private void start(String uid, String workoutName, List<WorkoutSession.SessionExercise> exercises,
+    private void start(String uid, String workoutName, String customWorkoutId,
+                       List<WorkoutSession.SessionExercise> exercises,
                        ServiceCallback<WorkoutSession> callback) {
         if (exercises.isEmpty()) {
             fail(callback, "This workout has no exercises.");
@@ -67,6 +69,6 @@ public class WorkoutSessionService extends UserDataService {
         User user = new UserRepository(db()).getOne(uid);
         Double weight = user == null ? null : user.getWeight();
         double weightKg = weight == null || weight <= 0 ? DEFAULT_WEIGHT_KG : weight;
-        succeed(callback, new WorkoutSession(workoutName, exercises, weightKg));
+        succeed(callback, new WorkoutSession(workoutName, customWorkoutId, exercises, weightKg));
     }
 }
