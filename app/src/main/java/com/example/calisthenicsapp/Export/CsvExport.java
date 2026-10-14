@@ -7,6 +7,9 @@ import com.example.calisthenicsapp.CoreComponents.ScheduledWorkout;
 import com.example.calisthenicsapp.CoreComponents.User;
 import com.example.calisthenicsapp.CoreComponents.WorkoutLog;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -17,6 +20,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.TimeZone;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * The user's data as CSV files (NFR-5), one per kind of record, since CSV cannot nest:
@@ -95,6 +100,21 @@ public final class CsvExport {
         }
         files.put(SCHEDULES, scheduleRows.toString());
         return files;
+    }
+
+    /**
+     * Writes the files into one ZIP. Each starts with a UTF-8 byte order mark, without which
+     * Excel reads UTF-8 CSV in the old ANSI code page and garbles accented letters.
+     * Does not close out.
+     */
+    public static void writeZip(Map<String, String> files, OutputStream out) throws IOException {
+        ZipOutputStream zip = new ZipOutputStream(out, StandardCharsets.UTF_8);
+        for (Map.Entry<String, String> file : files.entrySet()) {
+            zip.putNextEntry(new ZipEntry(file.getKey()));
+            zip.write(("\uFEFF" + file.getValue()).getBytes(StandardCharsets.UTF_8));
+            zip.closeEntry();
+        }
+        zip.finish();
     }
 
     static String iso(long epochSeconds) {

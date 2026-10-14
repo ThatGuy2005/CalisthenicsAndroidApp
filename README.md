@@ -131,6 +131,16 @@ to sign-in and sign-out. Use it to choose between the sign-in screen and the mai
 | `changeEmail(currentPassword, newEmail, cb)` | Firebase sends a confirmation link to the new address. The profile shows the new email after the next sign-in. |
 | `deleteAccount(password, cb)` | Deletes everything permanently and signs out (FR-1.10). |
 | `exportMyData(cb)` | All of the user's data as a JSON string (NFR-5), e.g. to share or save as a file. |
+| `exportMyDataCsv(uri, cb)` | All of the user's data as CSV files in one ZIP (NFR-5): profile, custom workouts, logs, log exercises and schedules. Writes to `uri`; see below. |
+
+"Download my data" as CSV: let the user pick where to save, then write there.
+
+```java
+ActivityResultLauncher<String> saveCsv = registerForActivityResult(
+        new ActivityResultContracts.CreateDocument("application/zip"),
+        uri -> { if (uri != null) account.exportMyDataCsv(uri, callback); });   // null: cancelled
+saveCsv.launch("calisthenics-data.zip");
+```
 
 The limits: username 3-20 letters, digits, `.`, `_` or `-`; password 8-64 characters with a letter
 and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters.
@@ -258,6 +268,5 @@ database matches a fresh install.
 - **Workouts (FR-4.1, FR-4.2):** premade workouts have a level but no category or estimated
   duration, and there is one rest time per exercise rather than separate rest types.
 - **Exercises (FR-3.2):** difficulty is a String rather than an enum.
-- **Export:** JSON only, no CSV.
 - **UI-only features:** the units setting (FR-1.7) and the FR-5.2 items above belong to the
   screens.

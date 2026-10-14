@@ -11,11 +11,18 @@ import com.example.calisthenicsapp.CoreComponents.WorkoutLog;
 
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class CsvExportTest {
     private static final long T = 1792080000L;   // 2026-10-15T16:00:00Z
@@ -83,6 +90,28 @@ public class CsvExportTest {
                 "s1,\"Legs, hard\",cw1,2026-10-15T16:00:00Z,FREQ=WEEKLY,2026-10-15T16:00:00Z;2026-10-22T16:00:00Z",
                 "s2,Beginner Full Body,,2026-10-15T16:00:00Z,,"),
                 lines(sample().get(CsvExport.SCHEDULES)));
+    }
+
+    @Test
+    public void zipHasEveryFileWithAByteOrderMark() throws IOException {
+        Map<String, String> files = sample();
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        CsvExport.writeZip(files, bytes);
+
+        Map<String, String> unzipped = new LinkedHashMap<>();
+        try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(bytes.toByteArray()),
+                StandardCharsets.UTF_8)) {
+            for (ZipEntry entry; (entry = zip.getNextEntry()) != null; ) {
+                ByteArrayOutputStream content = new ByteArrayOutputStream();
+                byte[] buffer = new byte[4096];
+                for (int n; (n = zip.read(buffer)) > 0; ) content.write(buffer, 0, n);
+                unzipped.put(entry.getName(), content.toString(StandardCharsets.UTF_8.name()));
+            }
+        }
+        assertEquals(new ArrayList<>(files.keySet()), new ArrayList<>(unzipped.keySet()));
+        for (Map.Entry<String, String> file : files.entrySet()) {
+            assertEquals("\uFEFF" + file.getValue(), unzipped.get(file.getKey()));
+        }
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import com.example.calisthenicsapp.CoreComponents.CustomExerciseOrderEntry;
@@ -8,6 +9,7 @@ import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
 import com.example.calisthenicsapp.CoreComponents.ScheduledWorkout;
 import com.example.calisthenicsapp.CoreComponents.User;
 import com.example.calisthenicsapp.CoreComponents.WorkoutLog;
+import com.example.calisthenicsapp.Export.CsvExport;
 import com.example.calisthenicsapp.Repos.CustomExerciseOrderRepository;
 import com.example.calisthenicsapp.Repos.CustomWorkoutRepository;
 import com.example.calisthenicsapp.Repos.ScheduledWorkoutRepository;
@@ -29,12 +31,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Account management for the signed-in user: change password or email (FR-1.7), delete the
- * account (FR-1.10), and export all their data (NFR-5).
+ * account (FR-1.10), and export all their data as JSON or CSV (NFR-5).
  *
  * Changing the password or email and deleting the account need a connection, and first confirm
  * the current password (Firebase only allows these right after a sign-in). Their onSuccess waits
@@ -173,6 +179,44 @@ public class AccountService extends UserDataService {
                 Exception e = task.getException();
                 fail(callback, e instanceof FirebaseAuthException
                         ? AuthService.describeError(e) : NO_CONNECTION);
+            }
+        });
+    }
+
+    /**
+     * Saves all of the user's data as CSV files in one ZIP (NFR-5), see {@link CsvExport} for
+     * the files. target is where to write it, typically the Uri the user picked in the system's
+     * "save as" screen (ActivityResultContracts.CreateDocument("application/zip")). Read from
+     * SQLite, so it also works offline.
+     */
+    public void exportMyDataCsv(Uri target, ServiceCallback<Void> callback) {
+        String uid = sessionManager.getCurrentUid();
+        if (uid == null) {
+            fail(callback, NOT_SIGNED_IN);
+            return;
+        }
+        if (target == null) {
+            fail(callback, "Choose where to save the export.");
+            return;
+        }
+        onDb(() -> {
+            CustomExerciseOrderRepository orderRepository = new CustomExerciseOrderRepository(db());
+            List<CustomWorkout> workouts = new CustomWorkoutRepository(db()).getByUid(uid);
+            Map<String, List<CustomExerciseOrderEntry>> exercises = new HashMap<>();
+            for (CustomWorkout w : workouts) {
+                exercises.put(w.getId(), orderRepository.getByCustomWorkout(w.getId()));
+            }
+            Map<String, String> files = CsvExport.build(new UserRepository(db()).getOne(uid),
+                    workouts, exercises, new WorkoutLogRepository(db()).getByUid(uid),
+                    new ScheduledWorkoutRepository(db()).getByUid(uid));
+            // "wt": truncate, in case an existing file is being replaced.
+            try (OutputStream out = context().getContentResolver().openOutputStream(target, "wt")) {
+                if (out == null) throw new IOException("No output stream for " + target);
+                CsvExport.writeZip(files, out);
+                succeed(callback, null);
+            } catch (IOException | RuntimeException e) {   // RuntimeException: e.g. SecurityException
+                Log.w(TAG, "Writing the CSV export failed", e);
+                fail(callback, "Could not save the export.");
             }
         });
     }
