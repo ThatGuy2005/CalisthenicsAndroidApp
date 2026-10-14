@@ -63,6 +63,11 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         return query("Uid = ?", new String[]{uid});   // newest first
     }
 
+    /** The user's logs that started at or after fromSeconds, newest first: the ones getStats counts. */
+    public List<WorkoutLog> getByUidSince(String uid, long fromSeconds) {
+        return query("Uid = ? AND StartedAt >= ?", new String[]{uid, String.valueOf(fromSeconds)});
+    }
+
     public WorkoutLog getOne(String id) {
         List<WorkoutLog> r = query("Id = ?", new String[]{id});
         return r.isEmpty() ? null : r.get(0);

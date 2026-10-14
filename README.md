@@ -190,7 +190,9 @@ phone call.
 
 ### History and statistics (FR-5.7)
 
-- `WorkoutLogService`: `getMyLogs(cb)` (newest first) and `delete(logId, cb)`.
+- `WorkoutLogService`: `getMyLogs(period, cb)` (newest first) and `delete(logId, cb)`.
+  - Pass the same `StatsPeriod` as the statistics, so the list shows exactly the logs the totals
+    count. `getMyLogs(cb)` without a period lists them all.
   - Each `WorkoutLog` has its exercises as they were done (`getExercises()`).
   - The status is "Completed" or "Partial".
 - `StatsService.getStats(StatsPeriod.WEEK | MONTH | ALL_TIME, cb)`: workouts, completed and
@@ -256,7 +258,6 @@ database matches a fresh install.
 - **Workouts (FR-4.1, FR-4.2):** premade workouts have a level but no category or estimated
   duration, and there is one rest time per exercise rather than separate rest types.
 - **Exercises (FR-3.2):** difficulty is a String rather than an enum.
-- **History:** the history list is not filtered by the statistics period.
 - **Export:** JSON only, no CSV.
 - **UI-only features:** the units setting (FR-1.7) and the FR-5.2 items above belong to the
   screens.

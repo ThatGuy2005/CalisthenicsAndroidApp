@@ -2,6 +2,7 @@ package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
 
+import com.example.calisthenicsapp.CoreComponents.StatsPeriod;
 import com.example.calisthenicsapp.CoreComponents.WorkoutLog;
 import com.example.calisthenicsapp.Repos.ScheduledWorkoutRepository;
 import com.example.calisthenicsapp.Repos.WorkoutLogRepository;
@@ -27,9 +28,18 @@ public class WorkoutLogService extends UserDataService {
         super(context);
     }
 
-    /** Newest first. */
+    /** All of them, newest first. */
     public void getMyLogs(ServiceCallback<List<WorkoutLog>> callback) {
-        readForUser(callback, uid -> new WorkoutLogRepository(db()).getByUid(uid));
+        getMyLogs(StatsPeriod.ALL_TIME, callback);
+    }
+
+    /**
+     * The logs of this week, this month or all time (a null period), newest first: exactly the
+     * logs StatsService.getStats counts for the same period (FR-5.7).
+     */
+    public void getMyLogs(StatsPeriod period, ServiceCallback<List<WorkoutLog>> callback) {
+        long from = (period == null ? StatsPeriod.ALL_TIME : period).startSeconds();
+        readForUser(callback, uid -> new WorkoutLogRepository(db()).getByUidSince(uid, from));
     }
 
     /**

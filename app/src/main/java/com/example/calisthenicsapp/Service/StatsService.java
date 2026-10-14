@@ -9,7 +9,7 @@ import com.example.calisthenicsapp.Repos.WorkoutLogRepository;
 /**
  * Summary statistics over the signed-in user's workout logs (FR-5.7): number of workouts,
  * total training time and total calories for this week, this month or all time.
- * The history list itself comes from WorkoutLogService.getMyLogs (newest first).
+ * The matching history list comes from WorkoutLogService.getMyLogs(period, ...).
  *
  * Computed from SQLite, so it works offline and includes logs saved offline.
  */
