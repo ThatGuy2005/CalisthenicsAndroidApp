@@ -1,0 +1,232 @@
+# CalisthenicsApp
+
+An Android app (Java, minSdk 24) for bodyweight training: premade and custom workouts, a guided
+workout session, training history with statistics, and scheduled workouts in the device calendar.
+
+- **Requirements (SRS):** [app/src/main/java/com/example/calisthenicsapp/README.md](app/src/main/java/com/example/calisthenicsapp/README.md).
+  Ids like FR-6.1 below refer to it.
+- **This file:** how to build it, and a guide to the back end for whoever builds the screens.
+
+## Building and testing
+
+Open the project in Android Studio, or use Gradle:
+
+| Command | What it does |
+|---|---|
+| `./gradlew assembleDebug` | Builds the debug APK. |
+| `./gradlew testDebugUnitTest` | Runs the unit tests: plain JVM tests plus Robolectric tests for the database. |
+| `./gradlew lintDebug` | Android lint. It should report 0 errors. |
+
+`app/google-services.json` connects the app to the Firebase project. The Firestore security rules
+are in [`firestore.rules`](firestore.rules); after changing them, publish them in the Firebase
+console (Firestore → Rules) or with `firebase deploy --only firestore:rules`.
+
+## How the back end works
+
+- **Firebase Authentication** owns the accounts.
+- **Cloud Firestore** stores each user's data under `users/{uid}` and is the source of truth.
+- **SQLite** is a local copy. `Sync/SyncManager` mirrors Firestore into it as long as someone is
+  signed in. It is started once in `CalisthenicsApplication`; the screens never deal with it.
+- **Premade exercises and workouts** live only in SQLite. They are loaded from
+  `app/src/main/assets/seed.sql` on the first start.
+
+| Package | Contents |
+|---|---|
+| `Service` | **The API for the screens.** One class per area; see below. |
+| `CoreComponents` | The data classes the services return (`Exercise`, `Workout`, `WorkoutLog`, `ScheduledWorkout`, ...). |
+| `Session` | `WorkoutSession`, a workout in progress. |
+| `Scheduling` | Repeat rules, schedule occurrences and their status, the device calendar, the `.ics` file. |
+| `Repos`, `Database`, `Sync`, `Verificate` | Storage, sync and validation. Use them through the services. |
+
+### Rules for every service call
+
+1. **Create services with any `Context`.** For example `new ExerciseService(this)` in an
+   Activity. They keep only the application context, so they are safe to hold in a field.
+2. **Every call is asynchronous** and reports back through a callback:
+   ```java
+   new CustomWorkoutService(this).getMyCustomWorkouts(new ServiceCallback<List<CustomWorkout>>() {
+       @Override public void onSuccess(List<CustomWorkout> workouts) { adapter.submit(workouts); }
+       @Override public void onError(String message) { showError(message); }
+   });
+   ```
+   **Callbacks always run on the main thread**, so you can update views directly. Database and
+   network work never runs on the main thread (NFR-11).
+3. **Error messages are written for the user.** Show `onError`'s message as it is, for example
+   in a Snackbar (NFR-8).
+4. **Reads come from SQLite**, so they are fast and work offline.
+5. **Writes go to Firestore.** `onSuccess` fires as soon as Firestore has the change, which also
+   works offline; it is sent to the server later.
+   - **A read right after a write may not show the change yet:** `SyncManager` copies it into
+     SQLite a moment later. After creating or editing something, update the screen from what you
+     already know, or reload in `onResume`.
+6. **Times are Unix epoch seconds** (`long`), never milliseconds. Height is in cm, weight in kg.
+7. **Most calls need a signed-in user** and fail with "You are not signed in." otherwise.
+   Exceptions: `ExerciseService` and `WorkoutService` (premade content), and the sign-in calls.
+
+**What needs a connection (NFR-13):** sign-up, sign-in, password reset, changing the username,
+email or password, deleting the account, and sending email. Everything else works offline and
+syncs later.
+
+## Services by screen
+
+### Sign-up, sign-in and account (FR-1)
+
+`AuthService` (callbacks: `AuthService.AuthCallback<T>`, also on the main thread)
+
+| Method | Notes |
+|---|---|
+| `signUp(username, email, password, height, weight, gender, cb)` | Height, weight and gender may be null. The username must be unique; "That username is taken." otherwise. |
+| `signIn(email, password, cb)` | |
+| `sendPasswordReset(email, cb)` | |
+| `signOut()` | Also clears the local copy of the user's data. |
+| `getCurrentUser()` | Null when nobody is signed in. |
+
+`SessionManager`: `isSignedIn()`, `getCurrentUid()`, and `addAuthStateListener(...)` to react
+to sign-in and sign-out. Use it to choose between the sign-in screen and the main screen.
+
+`ProfileService`
+
+| Method | Notes |
+|---|---|
+| `getMyProfile(cb)` | A `User`. **Can be null** right after sign-in, until the profile has synced. |
+| `updateProfile(username, height, weight, gender, cb)` | Pass the current value for anything unchanged. Changing the username needs a connection. |
+
+`AccountService` (all of these ask for the current password first)
+
+| Method | Notes |
+|---|---|
+| `changePassword(currentPassword, newPassword, cb)` | |
+| `changeEmail(currentPassword, newEmail, cb)` | Firebase sends a confirmation link to the new address. The profile shows the new email after the next sign-in. |
+| `deleteAccount(password, cb)` | Deletes everything permanently and signs out (FR-1.10). |
+| `exportMyData(cb)` | All of the user's data as a JSON string (NFR-5), e.g. to share or save as a file. |
+
+The limits: username 3-20 letters, digits, `.`, `_` or `-`; password 8-64 characters with a letter
+and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters.
+`Verificate/UserValidator` has the same checks, for validating a form as the user types.
+
+### Exercises and premade workouts (FR-3, FR-4.1, FR-4.2)
+
+`ExerciseService`: `getAllExercises`, `getExercise(name)`, `getMuscleGroups` (for a filter),
+`searchExercises(nameQuery, muscleGroup, difficulty, cb)`.
+
+- **Search filters:** pass null or "" to skip a filter. The name matches anywhere in it and case
+  is ignored.
+- **Difficulty values:** `ExerciseService.DIFFICULTIES`.
+- **Animations:** `Exercise.getAnimationFile()` is null until animations are added; show a
+  placeholder.
+
+`WorkoutService`: `getAllWorkouts`, `getWorkout(name)`, `getExercises(workoutName)` (in order).
+
+### Custom workouts (FR-4.3, FR-4.4)
+
+`CustomWorkoutService`
+
+| Method | Notes |
+|---|---|
+| `getMyCustomWorkouts(cb)`, `getExercises(id, cb)` | |
+| `create(name, exercises, cb)` | Returns the new id. 1-50 exercises; the name is at most 40 characters and unique per user. |
+| `duplicatePremade(workoutName, newName, cb)` | Copies a premade workout to edit. With a null name it reuses the premade name, made unique ("Name (2)"). |
+| `rename(id, newName, cb)`, `replaceExercises(id, exercises, cb)` | |
+| `delete(id, cb)` | Also deletes the schedules that use it. |
+
+Build the exercise list from `CustomExerciseOrderEntry` objects. `position` is set from the list
+order. Leave `reps`/`seconds` null to use the exercise's own default, and leave `sets`/`restSeconds`
+null for 3 sets and 60 s rest.
+
+### Doing a workout (FR-5.1 to FR-5.6)
+
+1. Start it with `WorkoutSessionService.startPremade(name, cb)` or `startCustom(id, cb)`. The
+   `WorkoutSession` you get back is already running.
+2. While the screen shows it, call `session.tick()` about once a second (for example with a
+   `Handler`). It returns true when a step changed, which is the moment for a sound or vibration
+   cue.
+3. Buttons call `completeSet()`, `skipRest()`, `skipExercise()`, `pause()`, `resume()` and
+   `cancel()`.
+4. Read the screen state from the getters:
+   - `getPhase()` (WORK, REST, FINISHED, CANCELLED);
+   - `getCurrentExercise()`, `getCurrentSet()` and `getNextExercise()`;
+   - `getRemainingSeconds()`, which is null for a rep-based set;
+   - `getCurrentExerciseNumber()`, `getTotalSeconds()` and `getTotalKcal()`.
+5. **Save it** with `WorkoutLogService.saveSession(session, cb)` once `isOver()` is true.
+   - Saving twice does not create two logs.
+   - A finished session that matches a scheduled workout marks that schedule as completed.
+6. **Rotation and process death:** `WorkoutSession` is `Serializable`. Put it in
+   `onSaveInstanceState` with `putSerializable` and read it back the same way.
+
+**Left to the screen (FR-5.2):** keeping the screen on, sound or vibration cues, and pausing on a
+phone call.
+
+### History and statistics (FR-5.7)
+
+- `WorkoutLogService`: `getMyLogs(cb)` (newest first) and `delete(logId, cb)`.
+  - Each `WorkoutLog` has its exercises as they were done (`getExercises()`).
+  - The status is "Completed" or "Partial".
+- `StatsService.getStats(StatsPeriod.WEEK | MONTH | ALL_TIME, cb)`: workouts, completed and
+  partial counts, total time and kcal. A week starts on the first day of the week of the
+  device's locale.
+
+### Scheduled workouts (FR-6)
+
+**Creating and editing schedules:**
+
+| Method | Notes |
+|---|---|
+| `schedulePremade(name, at, recurrence, addToCalendar, cb)` and `scheduleCustom(id, at, recurrence, addToCalendar, cb)` | Return the schedule id. `recurrence` is null for a one-off workout, or e.g. `Recurrence.weekly()` or `new Recurrence(Recurrence.Frequency.DAILY, 2)`. Shorter overloads without these arguments exist. |
+| `reschedule(id, at, cb)`, `setRecurrence(id, recurrence, cb)`, `delete(id, cb)` | The calendar event follows these changes automatically. |
+
+**Listing schedules:**
+- `getUpcoming(cb)` lists schedules with an occurrence from now on, sorted by
+  `nextOccurrence(...)`.
+- `getMySchedules(cb)` lists all of the user's schedules.
+
+**Agenda or calendar views (FR-6.1, FR-6.4):** `getOccurrences(from, to, cb)` returns one
+`ScheduleOccurrence` for each date a schedule falls on. The period can be at most a year long.
+- Each occurrence has `getSchedule()`, `getStartSeconds()` and `getStatus()`.
+- The status is PENDING, COMPLETED, or MISSED (not done 12 hours after its start).
+- Mark one done by hand with `markCompleted(scheduleId, occurrence.getStartSeconds(), cb)`, or
+  undo it with `markNotCompleted(...)`.
+
+**Device calendar (FR-6.2, FR-6.5):** ask for `ScheduleService.CALENDAR_PERMISSIONS` before
+adding events:
+```java
+ActivityResultLauncher<String[]> askCalendar = registerForActivityResult(
+        new ActivityResultContracts.RequestMultiplePermissions(),
+        granted -> schedules.schedulePremade(name, at, recurrence,
+                schedules.hasCalendarPermission(), callback));   // denied: schedule without the calendar
+askCalendar.launch(ScheduleService.CALENDAR_PERMISSIONS);
+```
+- **Existing schedules:** use `addToCalendar(id, cb)` and `removeFromCalendar(id, cb)`.
+- **Is it in the calendar?** `getCalendarEventId() != null` means the schedule is in this device's
+  calendar.
+- **Event content:** each event has the workout's exercises and estimated length, plus a reminder
+  30 minutes before.
+
+**Email (FR-6.3):** `buildEmail(id, attachIcs, cb)` returns an `Intent`; call
+`startActivity(intent)`.
+- It opens the user's email app with the workout name, date, time and exercises, addressed to
+  their own address.
+- With `attachIcs`, it also attaches a calendar invitation file (`.ics`).
+- If no email app is installed, the call fails with a message instead.
+
+## Changing the database
+
+1. Change `app/src/main/assets/schema.sql`. New installs run it.
+2. Raise `SQLManager.DATABASE_VERSION`.
+3. Add an `if (oldVersion < N)` step to `SQLManager.onUpgrade` that turns version N-1 into N,
+   usually an `ALTER TABLE`.
+
+Every upgrade also refreshes the premade content from `seed.sql` without touching the user's own
+data, so a change to the seed alone only needs step 2. `SQLManagerTest` checks that an upgraded
+database matches a fresh install.
+
+## Known gaps
+
+- **Workouts (FR-4.1, FR-4.2):** premade workouts have a level but no category or estimated
+  duration, and there is one rest time per exercise rather than separate rest types.
+- **Exercises (FR-3.2):** difficulty is a String rather than an enum.
+- **History:** the history list is not filtered by the statistics period.
+- **Export:** JSON only, no CSV.
+- **No change notifications:** a screen is not told when synced data changes (see rule 5 above);
+  reload in `onResume`.
+- **UI-only features:** the units setting (FR-1.7) and the FR-5.2 items above belong to the
+  screens.
