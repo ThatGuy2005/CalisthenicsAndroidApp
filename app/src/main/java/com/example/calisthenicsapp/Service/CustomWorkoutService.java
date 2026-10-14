@@ -34,6 +34,8 @@ import java.util.Set;
  */
 public class CustomWorkoutService extends UserDataService {
     private static final int NAME_MAX = 40;
+    /** firestore.rules allows at most this many exercises in a workout or a log. */
+    private static final int EXERCISES_MAX = 50;
     private static final int DEFAULT_SETS = 3;
     private static final int DEFAULT_REST_SECONDS = 60;
 
@@ -224,6 +226,9 @@ public class CustomWorkoutService extends UserDataService {
     /** Mirrors the CHECK constraints and the Exercise foreign key of CustomExerciseOrder. */
     private String validateExercises(List<CustomExerciseOrderEntry> exercises) {
         if (exercises == null || exercises.isEmpty()) return "Add at least one exercise.";
+        if (exercises.size() > EXERCISES_MAX) {
+            return "A workout can have at most " + EXERCISES_MAX + " exercises.";
+        }
         ExerciseRepository exerciseRepository = new ExerciseRepository(db());
         for (CustomExerciseOrderEntry e : exercises) {
             if (e.getExerciseName() == null || exerciseRepository.getOne(e.getExerciseName()) == null) {
