@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.example.calisthenicsapp.CoreComponents.Difficulty;
 import com.example.calisthenicsapp.CoreComponents.Workout;
 
 import java.util.ArrayList;
@@ -18,15 +19,21 @@ public class WorkoutRepository implements Repository<Workout> {
     public boolean insert(Workout w) {
         ContentValues cv = new ContentValues();
         cv.put("Name", w.getName());
-        cv.put("Level", w.getLevel());
+        putLevel(cv, w);
         return Repository.insertDB(db, "Workout", cv);
     }
 
     @Override
     public boolean update(Workout w) {
         ContentValues cv = new ContentValues();
-        cv.put("Level", w.getLevel());
+        putLevel(cv, w);
         return Repository.updateDB(db, "Workout", cv, "Name = ?", w.getName());
+    }
+
+    /** Stored as the Difficulty label ("Beginner"), like Exercise.Difficulty. */
+    private static void putLevel(ContentValues cv, Workout w) {
+        if (w.getLevel() != null) cv.put("Level", w.getLevel().getLabel());
+        else cv.putNull("Level");
     }
 
     public boolean rename(String oldName, String newName) {
@@ -48,7 +55,7 @@ public class WorkoutRepository implements Repository<Workout> {
                 null, null, "Name ASC")) {
             while (c.moveToNext())
                 list.add(new Workout(c.getString(c.getColumnIndexOrThrow("Name")),
-                        c.getString(c.getColumnIndexOrThrow("Level"))));
+                        Difficulty.fromLabel(c.getString(c.getColumnIndexOrThrow("Level")))));
         }
         return list;
     }
@@ -58,7 +65,7 @@ public class WorkoutRepository implements Repository<Workout> {
                 new String[]{name}, null, null, null)) {
             return c.moveToFirst()
                     ? new Workout(c.getString(c.getColumnIndexOrThrow("Name")),
-                    c.getString(c.getColumnIndexOrThrow("Level"))) : null;
+                    Difficulty.fromLabel(c.getString(c.getColumnIndexOrThrow("Level")))) : null;
         }
     }
 }

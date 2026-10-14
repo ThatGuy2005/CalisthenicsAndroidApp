@@ -3,7 +3,8 @@ package com.example.calisthenicsapp.CoreComponents;
 import java.util.List;
 
 public class Workout {
-    public Workout(String name, String level) {
+    /** level: the difficulty rating of a premade workout (FR-4.1); null for a custom workout. */
+    public Workout(String name, Difficulty level) {
         this.name = name;
         this.level = level;
     }
@@ -13,10 +14,11 @@ public class Workout {
     public String getName() {
         return this.name;
     }
-    public String getLevel() {
+    /** Null for a custom workout, which has no level. */
+    public Difficulty getLevel() {
         return this.level;
     }
     private List<Exercise> exercises;
     private String name;
-    private String level;
+    private Difficulty level;
 }

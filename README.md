@@ -160,6 +160,8 @@ and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters.
   placeholder.
 
 `WorkoutService`: `getAllWorkouts`, `getWorkout(name)`, `getExercises(workoutName)` (in order).
+A premade workout's `getLevel()` is its difficulty rating, the same `Difficulty` enum (FR-4.1);
+it is null for custom workouts.
 
 ### Custom workouts (FR-4.3, FR-4.4)
 
@@ -267,7 +269,7 @@ database matches a fresh install.
 
 ## Known gaps
 
-- **Workouts (FR-4.1, FR-4.2):** premade workouts have a level but no category or estimated
+- **Workouts (FR-4.1, FR-4.2):** premade workouts have a difficulty rating but no category or estimated
   duration, and there is one rest time per exercise rather than separate rest types.
 - **UI-only features:** the units setting (FR-1.7) and the FR-5.2 items above belong to the
   screens.
