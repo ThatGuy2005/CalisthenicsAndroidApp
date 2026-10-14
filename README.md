@@ -21,6 +21,21 @@ Open the project in Android Studio, or use Gradle:
 are in [`firestore.rules`](firestore.rules); after changing them, publish them in the Firebase
 console (Firestore → Rules) or with `firebase deploy --only firestore:rules`.
 
+### Testing the Firestore rules
+
+[`firestore-tests/`](firestore-tests) checks `firestore.rules` against the local Firestore
+emulator. It covers every write the app makes, and many writes the rules must reject. It needs
+Node.js 18 or newer and Java 11 or newer, and makes no changes to the real Firebase project:
+
+```
+cd firestore-tests
+npm install
+npm test
+```
+
+Each check prints PASS or FAIL, and `npm test` fails if any check does. Run it after every change
+to `firestore.rules`, and add a check when the app starts writing something new.
+
 ## How the back end works
 
 - **Firebase Authentication** owns the accounts.
