@@ -7,6 +7,37 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // ---------- Data checks. They repeat the app's own checks (Verificate/UserValidator), so a
+    // ---------- buggy or tampered client cannot store data the app would not accept.
+
+    function nullOrNumberIn(value, min, max) {
+      return value == null || (value is number && value >= min && value <= max);
+    }
+
+    function nullOrStringUpTo(value, max) {
+      return value == null || (value is string && value.size() <= max);
+    }
+
+    // 3-20 letters, digits, '.', '_' or '-'; starts and ends with a letter or digit; no "..".
+    function validUsername(name) {
+      return name is string && name.size() >= 3 && name.size() <= 20
+          && name.matches('^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$')
+          && !name.matches('.*[.][.].*');
+    }
+
+    // users/{uid}. Height in cm and weight in kg are optional; times are epoch seconds.
+    function validProfile(data) {
+      return data.keys().hasAll(['username', 'email', 'createdAt', 'updatedAt'])
+          && data.keys().hasOnly(['username', 'email', 'height', 'weight', 'gender',
+                                  'createdAt', 'updatedAt'])
+          && validUsername(data.username)
+          && data.email is string && data.email.size() <= 254
+          && nullOrNumberIn(data.get('height', null), 50, 300)
+          && nullOrNumberIn(data.get('weight', null), 20, 500)
+          && nullOrStringUpTo(data.get('gender', null), 30)
+          && data.createdAt is int && data.updatedAt is int;
+    }
+
     // usernames/{name}: one document per username in use, with the owner's uid. The id is the
     // lowercased username, and document ids are unique, so creating one claims that name.
     match /usernames/{name} {
@@ -26,6 +57,8 @@ service cloud.firestore {
       allow read, delete: if signedIn() && request.auth.uid == uid;
       // The profile's username must be claimed by this user once the write is done.
       allow create, update: if signedIn() && request.auth.uid == uid
+          && validProfile(request.resource.data)
+          && (request.method == 'create' || request.resource.data.createdAt == resource.data.createdAt)
           && getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username.lower())).data.uid == uid;
 
       // Subcollections (customWorkouts, workoutLogs, schedules) at any depth. {collection} keeps

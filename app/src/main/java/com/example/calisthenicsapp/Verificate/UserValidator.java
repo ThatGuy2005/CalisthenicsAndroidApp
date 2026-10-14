@@ -10,6 +10,10 @@ public final class UserValidator {
     private static final int PASSWORD_MIN = 8;
     private static final int PASSWORD_MAX = 64;
     private static final int EMAIL_MAX = 254;
+    // firestore.rules checks the same limits; change both together.
+    private static final double HEIGHT_MIN = 50, HEIGHT_MAX = 300;   // cm
+    private static final double WEIGHT_MIN = 20, WEIGHT_MAX = 500;   // kg
+    private static final int GENDER_MAX = 30;
 
     // Letters, digits, '_', '.', '-'; must start and end with a letter or digit.
     private static final Pattern USERNAME = Pattern.compile(
@@ -45,6 +49,21 @@ public final class UserValidator {
         if (email == null) return false;
         if (email.length() > EMAIL_MAX) return false;
         return EMAIL.matcher(email).matches();
+    }
+
+    /** Height in cm; null means not given, which is fine. */
+    public static boolean isValidHeight(Double height) {
+        return height == null || (height >= HEIGHT_MIN && height <= HEIGHT_MAX);
+    }
+
+    /** Weight in kg; null means not given, which is fine. */
+    public static boolean isValidWeight(Double weight) {
+        return weight == null || (weight >= WEIGHT_MIN && weight <= WEIGHT_MAX);
+    }
+
+    /** Null means not given, which is fine. */
+    public static boolean isValidGender(String gender) {
+        return gender == null || gender.length() <= GENDER_MAX;
     }
 
     /**

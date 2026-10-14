@@ -22,8 +22,6 @@ import java.util.Map;
  */
 public class ProfileService extends UserDataService {
     private static final String TAG = "ProfileService";
-    private static final double HEIGHT_MIN = 50, HEIGHT_MAX = 300;
-    private static final double WEIGHT_MIN = 20, WEIGHT_MAX = 500;
     private static final String USERNAME_TAKEN = "That username is taken.";
     private static final String USERNAME_CHANGE_FAILED =
             "Could not change the username. Changing it needs an internet connection.";
@@ -53,12 +51,9 @@ public class ProfileService extends UserDataService {
             fail(callback, "Username must be 3-20 letters, digits, '.', '_' or '-'.");
             return;
         }
-        if (height != null && (height < HEIGHT_MIN || height > HEIGHT_MAX)) {
-            fail(callback, "Height must be between 50 and 300 cm.");
-            return;
-        }
-        if (weight != null && (weight < WEIGHT_MIN || weight > WEIGHT_MAX)) {
-            fail(callback, "Weight must be between 20 and 500 kg.");
+        String error = AuthService.checkBodyData(height, weight, gender);
+        if (error != null) {
+            fail(callback, error);
             return;
         }
 

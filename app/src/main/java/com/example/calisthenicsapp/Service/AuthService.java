@@ -72,6 +72,11 @@ public class AuthService {
             callback.onError("Password must be 8-64 characters with at least one letter and one digit.");
             return;
         }
+        String error = checkBodyData(height, weight, gender);
+        if (error != null) {
+            callback.onError(error);
+            return;
+        }
 
         firebaseAuth.createUserWithEmailAndPassword(normalizedEmail, password)
                 .addOnCompleteListener(task -> {
@@ -81,6 +86,14 @@ public class AuthService {
                     }
                     saveProfile(task.getResult().getUser(), username, height, weight, gender, callback);
                 });
+    }
+
+    /** The optional profile fields; null if they are fine. Shared with ProfileService. */
+    static String checkBodyData(Double height, Double weight, String gender) {
+        if (!UserValidator.isValidHeight(height)) return "Height must be between 50 and 300 cm.";
+        if (!UserValidator.isValidWeight(weight)) return "Weight must be between 20 and 500 kg.";
+        if (!UserValidator.isValidGender(gender)) return "Gender can be at most 30 characters.";
+        return null;
     }
 
     private void saveProfile(FirebaseUser firebaseUser, String username, Double height,
