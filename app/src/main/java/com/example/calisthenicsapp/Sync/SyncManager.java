@@ -25,13 +25,16 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.MetadataChanges;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,6 +53,13 @@ import java.util.concurrent.Executors;
  * Schedules can have an event in the device calendar (FR-6.2). When a schedule's time or
  * repeat rule changes or it is removed, from this device or another, the event is moved or deleted here, so the
  * calendar follows Firestore too. Signing out leaves the events in the calendar.
+ *
+ * Deletions: Firestore normally reports them as REMOVED changes, also for documents deleted while
+ * the app was closed (its own offline cache still has them until the server says otherwise).
+ * But if the app is killed after Firestore has dropped a document and before it was removed
+ * here, or Firestore's cache is reset, no REMOVED ever comes. So every snapshot confirmed by the
+ * server is also a full list: local rows missing from it are deleted. Snapshots from the cache
+ * are never used for that, because the cache may be incomplete.
  *
  * Threading: listener state (syncedUid, registrations) is changed only on the main thread.
  * SQLite work runs on dbExecutor, and each queued task first checks that its uid is still the
@@ -135,11 +145,16 @@ public class SyncManager {
                 .addSnapshotListener(MetadataChanges.INCLUDE, (snapshots, error) -> {
                     if (error != null || snapshots == null) return;
                     List<DocumentChange> changes = snapshots.getDocumentChanges();
+                    Set<String> serverIds = serverIds(snapshots);
                     dbExecutor.execute(() -> {
                         if (!uid.equals(syncedUid)) return;
                         for (DocumentChange change : changes) {
                             onCustomWorkoutChange(sqlite, customWorkoutRepository,
                                     exerciseOrderRepository, scheduledWorkoutRepository, uid, change);
+                        }
+                        if (serverIds == null) return;
+                        for (CustomWorkout workout : customWorkoutRepository.getByUid(uid)) {
+                            if (!serverIds.contains(workout.getId())) customWorkoutRepository.delete(workout);
                         }
                     });
                 });
@@ -149,10 +164,15 @@ public class SyncManager {
                 .addSnapshotListener(MetadataChanges.INCLUDE, (snapshots, error) -> {
                     if (error != null || snapshots == null) return;
                     List<DocumentChange> changes = snapshots.getDocumentChanges();
+                    Set<String> serverIds = serverIds(snapshots);
                     dbExecutor.execute(() -> {
                         if (!uid.equals(syncedUid)) return;
                         for (DocumentChange change : changes) {
                             onWorkoutLogChange(workoutLogRepository, uid, change);
+                        }
+                        if (serverIds == null) return;
+                        for (WorkoutLog log : workoutLogRepository.getByUid(uid)) {
+                            if (!serverIds.contains(log.getId())) workoutLogRepository.delete(log);
                         }
                     });
                 });
@@ -162,14 +182,36 @@ public class SyncManager {
                 .addSnapshotListener(MetadataChanges.INCLUDE, (snapshots, error) -> {
                     if (error != null || snapshots == null) return;
                     List<DocumentChange> changes = snapshots.getDocumentChanges();
+                    Set<String> serverIds = serverIds(snapshots);
                     dbExecutor.execute(() -> {
                         if (!uid.equals(syncedUid)) return;
                         for (DocumentChange change : changes) {
                             onScheduleChange(sqlite, scheduledWorkoutRepository,
                                     customWorkoutRepository, uid, change);
                         }
+                        if (serverIds == null) return;
+                        for (ScheduledWorkout schedule : scheduledWorkoutRepository.getByUid(uid)) {
+                            if (!serverIds.contains(schedule.getId())) {
+                                removeSchedule(scheduledWorkoutRepository, schedule.getId());
+                            }
+                        }
+                        pendingSchedules.keySet().retainAll(serverIds);
                     });
                 });
+    }
+
+    /**
+     * The ids of all documents in the snapshot if the server confirmed it, or null if it comes
+     * from Firestore's cache, which may be incomplete and must not be used to delete anything.
+     * Documents written on this device but not yet sent are included either way.
+     */
+    private static Set<String> serverIds(QuerySnapshot snapshots) {
+        if (snapshots.getMetadata().isFromCache()) return null;
+        Set<String> ids = new HashSet<>();
+        for (DocumentSnapshot doc : snapshots.getDocuments()) {
+            ids.add(doc.getId());
+        }
+        return ids;
     }
 
     private void mirrorUser(UserRepository userRepository, RemoteUser remote) {
@@ -253,16 +295,7 @@ public class SyncManager {
                                    DocumentChange change) {
         DocumentSnapshot doc = change.getDocument();
         if (change.getType() == DocumentChange.Type.REMOVED) {
-            pendingSchedules.remove(doc.getId());
-            ScheduledWorkout existing = scheduledWorkoutRepository.getOne(doc.getId());
-            if (existing != null) scheduledWorkoutRepository.delete(existing);
-            // Looked up by id, not through the row: deleting a custom workout may already
-            // have cascaded the row away.
-            Long eventId = scheduledWorkoutRepository.getCalendarEventId(doc.getId());
-            if (eventId != null) {
-                DeviceCalendar.deleteEvent(appContext, eventId);
-                scheduledWorkoutRepository.clearCalendarEventId(doc.getId());
-            }
+            removeSchedule(scheduledWorkoutRepository, doc.getId());
             return;
         }
         RemoteSchedule remote = RemoteSchedule.fromSnapshot(doc);
@@ -276,6 +309,21 @@ public class SyncManager {
         }
         pendingSchedules.remove(remote.id);
         upsertSchedule(sqlite, scheduledWorkoutRepository, schedule);
+    }
+
+    /** Deletes a schedule that no longer exists: its row and its device calendar event. */
+    private void removeSchedule(ScheduledWorkoutRepository scheduledWorkoutRepository,
+                                String scheduleId) {
+        pendingSchedules.remove(scheduleId);
+        ScheduledWorkout existing = scheduledWorkoutRepository.getOne(scheduleId);
+        if (existing != null) scheduledWorkoutRepository.delete(existing);
+        // Looked up by id, not through the row: deleting a custom workout may already have
+        // cascaded the row away.
+        Long eventId = scheduledWorkoutRepository.getCalendarEventId(scheduleId);
+        if (eventId != null) {
+            DeviceCalendar.deleteEvent(appContext, eventId);
+            scheduledWorkoutRepository.clearCalendarEventId(scheduleId);
+        }
     }
 
     private void upsertSchedule(SQLiteDatabase sqlite,
