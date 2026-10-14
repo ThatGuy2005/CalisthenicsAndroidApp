@@ -125,3 +125,13 @@ CREATE TABLE IF NOT EXISTS ScheduledWorkout (
         ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_Scheduled_Uid ON ScheduledWorkout(Uid, ScheduledAt);
+
+-- The device calendar event of a scheduled workout (FR-6.2). Local only, never synced: an event
+-- id means nothing on another device. A separate table, not a ScheduledWorkout column, because
+-- the event is added right when the schedule is created, possibly before SyncManager has
+-- mirrored the schedule row, and because sync upserts must not overwrite it. No foreign key,
+-- so the link also survives the cache being cleared on sign-out.
+CREATE TABLE IF NOT EXISTS CalendarEvent (
+    ScheduleId TEXT PRIMARY KEY NOT NULL,  -- ScheduledWorkout.Id (Firestore document id)
+    EventId    INTEGER NOT NULL            -- CalendarContract.Events._ID
+);

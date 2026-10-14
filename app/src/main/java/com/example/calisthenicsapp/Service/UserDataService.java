@@ -43,6 +43,10 @@ abstract class UserDataService {
         this.appContext = context.getApplicationContext();
     }
 
+    protected Context context() {
+        return appContext;
+    }
+
     /** Only call from inside {@link #onDb}: opening the database can be slow the first time. */
     protected SQLiteDatabase db() {
         return SQLManager.getInstance(appContext).getWritableDatabase();

@@ -1,23 +1,58 @@
 package com.example.calisthenicsapp.Service;
 
+import android.content.ClipData;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
+
+import androidx.core.content.FileProvider;
 
 import com.example.calisthenicsapp.CoreComponents.ScheduledWorkout;
+import com.example.calisthenicsapp.CoreComponents.User;
 import com.example.calisthenicsapp.Repos.CustomWorkoutRepository;
 import com.example.calisthenicsapp.Repos.ScheduledWorkoutRepository;
+import com.example.calisthenicsapp.Repos.UserRepository;
 import com.example.calisthenicsapp.Repos.WorkoutRepository;
+import com.example.calisthenicsapp.Scheduling.DeviceCalendar;
+import com.example.calisthenicsapp.Scheduling.WorkoutSummary;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * The signed-in user's planned workouts (users/{uid}/schedules). A schedule points at exactly
  * one premade workout (by name) or one custom workout (by id). Times are epoch seconds.
+ *
+ * A schedule can also be an event in the device's calendar (FR-6.2). The event id is kept only
+ * in this device's SQLite, see {@link ScheduledWorkout#getCalendarEventId()}. Rescheduling or
+ * deleting a schedule, here or on another device, moves or deletes the event too (SyncManager
+ * does that when the change arrives). Calendar actions need {@link #CALENDAR_PERMISSIONS},
+ * which the screen asks for first (FR-6.5).
  */
 public class ScheduleService extends UserDataService {
+    private static final String TAG = "ScheduleService";
+
+    /** Ask for these before adding to the calendar, e.g. with RequestMultiplePermissions. */
+    public static final String[] CALENDAR_PERMISSIONS = DeviceCalendar.PERMISSIONS;
+
+    private static final String NO_CALENDAR_PERMISSION =
+            "Allow calendar access to add workouts to your calendar.";
+    private static final String GONE = "That scheduled workout no longer exists.";
+    /** Must match file_paths.xml. */
+    private static final String ICS_DIR = "ics";
 
     public ScheduleService(Context context) {
         super(context);
@@ -34,8 +69,22 @@ public class ScheduleService extends UserDataService {
         readForUser(callback, uid -> new ScheduledWorkoutRepository(db()).getUpcoming(uid, from));
     }
 
+    public boolean hasCalendarPermission() {
+        return DeviceCalendar.hasPermission(context());
+    }
+
     /** On success, returns the new schedule's id. */
     public void schedulePremade(String workoutName, long scheduledAt, ServiceCallback<String> callback) {
+        schedulePremade(workoutName, scheduledAt, false, callback);
+    }
+
+    /**
+     * With addToCalendar, also adds the event if the calendar permission is granted. A failed
+     * calendar add does not undo the schedule: its getCalendarEventId() stays null, and
+     * {@link #addToCalendar} can try again. On success, returns the new schedule's id.
+     */
+    public void schedulePremade(String workoutName, long scheduledAt, boolean addToCalendar,
+                                ServiceCallback<String> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
             fail(callback, NOT_SIGNED_IN);
@@ -46,12 +95,18 @@ public class ScheduleService extends UserDataService {
                 fail(callback, "Unknown workout: " + workoutName);
                 return;
             }
-            add(uid, "workoutName", workoutName, scheduledAt, callback);
+            add(uid, workoutName, null, scheduledAt, addToCalendar, callback);
         });
     }
 
     /** On success, returns the new schedule's id. */
     public void scheduleCustom(String customWorkoutId, long scheduledAt, ServiceCallback<String> callback) {
+        scheduleCustom(customWorkoutId, scheduledAt, false, callback);
+    }
+
+    /** See {@link #schedulePremade(String, long, boolean, ServiceCallback)}. */
+    public void scheduleCustom(String customWorkoutId, long scheduledAt, boolean addToCalendar,
+                               ServiceCallback<String> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
             fail(callback, NOT_SIGNED_IN);
@@ -63,10 +118,11 @@ public class ScheduleService extends UserDataService {
                 fail(callback, "That custom workout no longer exists.");
                 return;
             }
-            add(uid, "customWorkoutId", customWorkoutId, scheduledAt, callback);
+            add(uid, null, customWorkoutId, scheduledAt, addToCalendar, callback);
         });
     }
 
+    /** The calendar event, if any, moves with it. */
     public void reschedule(String scheduleId, long newScheduledAt, ServiceCallback<Void> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
@@ -79,7 +135,7 @@ public class ScheduleService extends UserDataService {
         }
         onDb(() -> {
             if (scheduleId == null || new ScheduledWorkoutRepository(db()).getOne(scheduleId) == null) {
-                fail(callback, "That scheduled workout no longer exists.");
+                fail(callback, GONE);
                 return;
             }
             watchWrite(schedules(uid).document(scheduleId).update("scheduledAt", newScheduledAt),
@@ -88,6 +144,7 @@ public class ScheduleService extends UserDataService {
         });
     }
 
+    /** The calendar event, if any, is deleted with it. */
     public void delete(String scheduleId, ServiceCallback<Void> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
@@ -95,26 +152,158 @@ public class ScheduleService extends UserDataService {
             return;
         }
         if (scheduleId == null) {
-            fail(callback, "That scheduled workout no longer exists.");
+            fail(callback, GONE);
             return;
         }
         watchWrite(schedules(uid).document(scheduleId).delete(), "Deleting schedule " + scheduleId);
         succeed(callback, null);
     }
 
+    /**
+     * Adds an existing schedule to the device calendar, or refreshes its event if it is already
+     * there (FR-6.2). For a schedule created a moment ago, use the addToCalendar flag of
+     * schedulePremade/scheduleCustom instead: the new schedule may not be in SQLite yet.
+     * On success, returns the calendar event id.
+     */
+    public void addToCalendar(String scheduleId, ServiceCallback<Long> callback) {
+        if (sessionManager.getCurrentUid() == null) {
+            fail(callback, NOT_SIGNED_IN);
+            return;
+        }
+        if (!hasCalendarPermission()) {
+            fail(callback, NO_CALENDAR_PERMISSION);
+            return;
+        }
+        onDb(() -> {
+            ScheduledWorkoutRepository repository = new ScheduledWorkoutRepository(db());
+            ScheduledWorkout schedule = scheduleId == null ? null : repository.getOne(scheduleId);
+            WorkoutSummary summary = schedule == null ? null : WorkoutSummary.of(db(), schedule);
+            if (summary == null) {
+                fail(callback, GONE);
+                return;
+            }
+            Long eventId = DeviceCalendar.putEvent(context(), schedule.getCalendarEventId(), summary);
+            if (eventId == null) {
+                fail(callback, "Could not add the workout to your calendar.");
+                return;
+            }
+            repository.setCalendarEventId(scheduleId, eventId);
+            succeed(callback, eventId);
+        });
+    }
+
+    /** Deletes the calendar event but keeps the schedule. */
+    public void removeFromCalendar(String scheduleId, ServiceCallback<Void> callback) {
+        if (sessionManager.getCurrentUid() == null) {
+            fail(callback, NOT_SIGNED_IN);
+            return;
+        }
+        onDb(() -> {
+            ScheduledWorkoutRepository repository = new ScheduledWorkoutRepository(db());
+            Long eventId = scheduleId == null ? null : repository.getCalendarEventId(scheduleId);
+            if (eventId != null) {
+                if (!hasCalendarPermission()) {
+                    fail(callback, "Allow calendar access to remove the workout from your calendar.");
+                    return;
+                }
+                DeviceCalendar.deleteEvent(context(), eventId);
+                repository.clearCalendarEventId(scheduleId);
+            }
+            succeed(callback, null);
+        });
+    }
+
+    /**
+     * Builds an email to the user's own address with the workout name, date, time and exercises
+     * (FR-6.3), optionally with an .ics calendar invitation attached. On success, pass the
+     * Intent to startActivity: it lets the user pick one of their email apps, which sends it.
+     */
+    public void buildEmail(String scheduleId, boolean attachIcs, ServiceCallback<Intent> callback) {
+        String uid = sessionManager.getCurrentUid();
+        if (uid == null) {
+            fail(callback, NOT_SIGNED_IN);
+            return;
+        }
+        FirebaseUser firebaseUser = sessionManager.getCurrentUser();
+        onDb(() -> {
+            ScheduledWorkout schedule = scheduleId == null
+                    ? null : new ScheduledWorkoutRepository(db()).getOne(scheduleId);
+            WorkoutSummary summary = schedule == null ? null : WorkoutSummary.of(db(), schedule);
+            if (summary == null) {
+                fail(callback, GONE);
+                return;
+            }
+            User user = new UserRepository(db()).getOne(uid);
+            String email = user != null ? user.getEmail()
+                    : firebaseUser != null ? firebaseUser.getEmail() : null;
+            if (email == null) {
+                fail(callback, "Your account has no email address.");
+                return;
+            }
+            // The selector limits the choice to email apps; SEND itself is what carries a file.
+            Intent mailApps = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"));
+            if (mailApps.resolveActivity(context().getPackageManager()) == null) {
+                fail(callback, "No email app is installed.");
+                return;
+            }
+            TimeZone zone = TimeZone.getDefault();
+            Locale locale = Locale.getDefault();
+            Intent send = new Intent(Intent.ACTION_SEND);
+            send.setType("text/plain");
+            send.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
+            send.putExtra(Intent.EXTRA_SUBJECT, summary.getEmailSubject(zone, locale));
+            send.putExtra(Intent.EXTRA_TEXT, summary.getEmailBody(zone, locale));
+            if (attachIcs) {
+                Uri ics;
+                try {
+                    ics = writeIcs(summary);
+                } catch (IOException | IllegalArgumentException e) {
+                    Log.w(TAG, "Writing the .ics file failed", e);
+                    fail(callback, "Could not create the calendar file.");
+                    return;
+                }
+                send.setType("text/calendar");
+                send.putExtra(Intent.EXTRA_STREAM, ics);
+                send.setClipData(ClipData.newRawUri("", ics));   // lets the grant reach the app
+                send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+            send.setSelector(mailApps);
+            succeed(callback, Intent.createChooser(send, "Send workout by email"));
+        });
+    }
+
     /** Writes only the one workout field, so the document has exactly one of the two. */
-    private void add(String uid, String workoutField, String workoutValue, long scheduledAt,
-                     ServiceCallback<String> callback) {
+    private void add(String uid, String workoutName, String customWorkoutId, long scheduledAt,
+                     boolean addToCalendar, ServiceCallback<String> callback) {
         if (scheduledAt <= 0) {
             fail(callback, "Pick a date and time.");
             return;
         }
         DocumentReference doc = schedules(uid).document();
         Map<String, Object> data = new HashMap<>();
-        data.put(workoutField, workoutValue);
+        if (workoutName != null) data.put("workoutName", workoutName);
+        else data.put("customWorkoutId", customWorkoutId);
         data.put("scheduledAt", scheduledAt);
         watchWrite(doc.set(data), "Creating schedule " + doc.getId());
+
+        if (addToCalendar && hasCalendarPermission()) {
+            WorkoutSummary summary = WorkoutSummary.of(db(), doc.getId(), workoutName,
+                    customWorkoutId, scheduledAt);
+            Long eventId = summary == null ? null : DeviceCalendar.putEvent(context(), null, summary);
+            if (eventId != null) new ScheduledWorkoutRepository(db()).setCalendarEventId(doc.getId(), eventId);
+        }
         succeed(callback, doc.getId());
+    }
+
+    /** cache/ics/workout-{id}.ics, shared through the FileProvider declared in the manifest. */
+    private Uri writeIcs(WorkoutSummary summary) throws IOException {
+        File dir = new File(context().getCacheDir(), ICS_DIR);
+        if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException("Cannot create " + dir);
+        File file = new File(dir, "workout-" + summary.getScheduleId() + ".ics");
+        try (Writer out = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+            out.write(summary.toIcs(now()));
+        }
+        return FileProvider.getUriForFile(context(), context().getPackageName() + ".fileprovider", file);
     }
 
     private CollectionReference schedules(String uid) {

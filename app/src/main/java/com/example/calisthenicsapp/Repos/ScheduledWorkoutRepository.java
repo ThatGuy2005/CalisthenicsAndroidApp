@@ -24,7 +24,7 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         }
     }
 
-    /** Changes the workout and/or the time. The owner (Uid) never changes. */
+    /** Changes the workout and/or the time. The owner (Uid) and the calendar event stay. */
     @Override
     public boolean update(ScheduledWorkout s) {
         if (s.getId() == null) return false;
@@ -63,22 +63,48 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
                 new String[]{uid, String.valueOf(fromEpochSeconds)});
     }
 
+    // ---------- Calendar events (local only, see CalendarEvent in schema.sql) ----------
+
+    /** Works before the schedule row itself exists. */
+    public void setCalendarEventId(String scheduleId, long eventId) {
+        ContentValues cv = new ContentValues();
+        cv.put("ScheduleId", scheduleId);
+        cv.put("EventId", eventId);
+        db.insertWithOnConflict("CalendarEvent", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public Long getCalendarEventId(String scheduleId) {
+        try (Cursor c = db.query("CalendarEvent", new String[]{"EventId"}, "ScheduleId = ?",
+                new String[]{scheduleId}, null, null, null)) {
+            return c.moveToFirst() ? c.getLong(0) : null;
+        }
+    }
+
+    public void clearCalendarEventId(String scheduleId) {
+        db.delete("CalendarEvent", "ScheduleId = ?", new String[]{scheduleId});
+    }
+
     private List<ScheduledWorkout> query(String where, String[] args) {
         List<ScheduledWorkout> list = new ArrayList<>();
-        try (Cursor c = db.query("ScheduledWorkout", null, where, args,
-                null, null, "ScheduledAt ASC")) {
+        String sql = "SELECT s.*, e.EventId AS CalendarEventId FROM ScheduledWorkout s"
+                + " LEFT JOIN CalendarEvent e ON e.ScheduleId = s.Id"
+                + (where == null ? "" : " WHERE " + where)
+                + " ORDER BY s.ScheduledAt ASC";
+        try (Cursor c = db.rawQuery(sql, args)) {
             int idCol = c.getColumnIndexOrThrow("Id");
             int uidCol = c.getColumnIndexOrThrow("Uid");
             int nameCol = c.getColumnIndexOrThrow("WorkoutName");
             int customCol = c.getColumnIndexOrThrow("CustomWorkoutId");
             int atCol = c.getColumnIndexOrThrow("ScheduledAt");
+            int eventCol = c.getColumnIndexOrThrow("CalendarEventId");
             while (c.moveToNext()) {
                 list.add(new ScheduledWorkout(
                         c.getString(idCol),
                         c.getString(uidCol),
                         c.getString(nameCol),
                         c.getString(customCol),
-                        c.getLong(atCol)));
+                        c.getLong(atCol),
+                        c.isNull(eventCol) ? null : c.getLong(eventCol)));
             }
         }
         return list;

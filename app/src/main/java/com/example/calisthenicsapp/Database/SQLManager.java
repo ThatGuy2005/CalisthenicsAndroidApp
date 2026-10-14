@@ -27,14 +27,14 @@ public class SQLManager extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "CalisthenicsApp.db";
 
     /** Increase this when schema.sql changes (see onUpgrade). */
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
 
     private static final String SCHEMA_ASSET = "schema.sql";
     private static final String SEED_ASSET = "seed.sql";
 
     /** Children before parents, so foreign keys never block a DROP. */
     private static final String[] TABLES_CHILDREN_FIRST = {
-            "ScheduledWorkout", "WorkoutLog", "CustomExerciseOrder", "CustomWorkout",
+            "CalendarEvent", "ScheduledWorkout", "WorkoutLog", "CustomExerciseOrder", "CustomWorkout",
             "ExerciseOrder", "Workout", "Exercise", "Users"
     };
 
