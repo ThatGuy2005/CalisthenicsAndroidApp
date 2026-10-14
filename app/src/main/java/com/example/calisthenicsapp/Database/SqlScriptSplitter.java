@@ -29,7 +29,7 @@ public final class SqlScriptSplitter {
     public static List<String> split(String script) {
         List<String> statements = new ArrayList<>();
         if (script == null) return statements;
-        if (script.startsWith("﻿")) script = script.substring(1);   // UTF-8 byte order mark
+        if (script.startsWith("\uFEFF")) script = script.substring(1);   // UTF-8 byte order mark
 
         StringBuilder current = new StringBuilder();
         boolean inString = false;
