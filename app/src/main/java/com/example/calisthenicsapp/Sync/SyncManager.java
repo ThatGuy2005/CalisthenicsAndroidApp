@@ -18,6 +18,7 @@ import com.example.calisthenicsapp.Repos.UserRepository;
 import com.example.calisthenicsapp.Repos.WorkoutLogRepository;
 import com.example.calisthenicsapp.Scheduling.DeviceCalendar;
 import com.example.calisthenicsapp.Scheduling.WorkoutSummary;
+import com.example.calisthenicsapp.Service.DataChanges;
 import com.example.calisthenicsapp.Service.SessionManager;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
@@ -61,6 +62,8 @@ import java.util.concurrent.Executors;
  * server is also a full list: local rows missing from it are deleted. Snapshots from the cache
  * are never used for that, because the cache may be incomplete.
  *
+ * After each batch is in SQLite, DataChanges tells the screens what changed.
+ *
  * Threading: listener state (syncedUid, registrations) is changed only on the main thread.
  * SQLite work runs on dbExecutor, and each queued task first checks that its uid is still the
  * synced one, so events queued before a sign-out or user switch never touch the new session.
@@ -74,6 +77,8 @@ public class SyncManager {
 
     private volatile String syncedUid;
     private boolean childListenersAttached;
+    /** The profile as last mirrored; main thread only. Skips snapshots that only changed metadata. */
+    private Map<String, Object> lastProfileData;
 
     /**
      * Schedules whose custom workout has not been mirrored yet (the two collections' snapshots
@@ -111,6 +116,7 @@ public class SyncManager {
         stopListeners();
         syncedUid = uid;
         childListenersAttached = false;
+        lastProfileData = null;
         dbExecutor.execute(pendingSchedules::clear);
 
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -120,10 +126,14 @@ public class SyncManager {
         profileRegistration = firestore.collection("users").document(uid)
                 .addSnapshotListener(MetadataChanges.INCLUDE, (snapshot, error) -> {
                     if (error != null || snapshot == null || !snapshot.exists()) return;
+                    Map<String, Object> data = snapshot.getData();
+                    if (data != null && data.equals(lastProfileData)) return;   // e.g. pending -> sent
+                    lastProfileData = data;
                     RemoteUser remote = RemoteUser.fromSnapshot(uid, snapshot);
                     dbExecutor.execute(() -> {
                         if (!uid.equals(syncedUid)) return;   // signed out or switched user since
                         mirrorUser(userRepository, remote);
+                        DataChanges.notifyChanged(DataChanges.Kind.PROFILE);
                         // The Users row now exists; attach the children back on the main thread.
                         mainHandler.post(() -> {
                             if (!uid.equals(syncedUid) || childListenersAttached) return;
@@ -152,9 +162,19 @@ public class SyncManager {
                             onCustomWorkoutChange(sqlite, customWorkoutRepository,
                                     exerciseOrderRepository, scheduledWorkoutRepository, uid, change);
                         }
-                        if (serverIds == null) return;
-                        for (CustomWorkout workout : customWorkoutRepository.getByUid(uid)) {
-                            if (!serverIds.contains(workout.getId())) customWorkoutRepository.delete(workout);
+                        boolean changed = !changes.isEmpty();
+                        if (serverIds != null) {
+                            for (CustomWorkout workout : customWorkoutRepository.getByUid(uid)) {
+                                if (!serverIds.contains(workout.getId())) {
+                                    customWorkoutRepository.delete(workout);
+                                    changed = true;
+                                }
+                            }
+                        }
+                        if (changed) {
+                            DataChanges.notifyChanged(DataChanges.Kind.CUSTOM_WORKOUTS);
+                            // Schedules show the workout's name, and deleting one cascades.
+                            DataChanges.notifyChanged(DataChanges.Kind.SCHEDULES);
                         }
                     });
                 });
@@ -170,10 +190,16 @@ public class SyncManager {
                         for (DocumentChange change : changes) {
                             onWorkoutLogChange(workoutLogRepository, uid, change);
                         }
-                        if (serverIds == null) return;
-                        for (WorkoutLog log : workoutLogRepository.getByUid(uid)) {
-                            if (!serverIds.contains(log.getId())) workoutLogRepository.delete(log);
+                        boolean changed = !changes.isEmpty();
+                        if (serverIds != null) {
+                            for (WorkoutLog log : workoutLogRepository.getByUid(uid)) {
+                                if (!serverIds.contains(log.getId())) {
+                                    workoutLogRepository.delete(log);
+                                    changed = true;
+                                }
+                            }
                         }
+                        if (changed) DataChanges.notifyChanged(DataChanges.Kind.WORKOUT_LOGS);
                     });
                 });
 
@@ -189,13 +215,17 @@ public class SyncManager {
                             onScheduleChange(sqlite, scheduledWorkoutRepository,
                                     customWorkoutRepository, uid, change);
                         }
-                        if (serverIds == null) return;
-                        for (ScheduledWorkout schedule : scheduledWorkoutRepository.getByUid(uid)) {
-                            if (!serverIds.contains(schedule.getId())) {
-                                removeSchedule(scheduledWorkoutRepository, schedule.getId());
+                        boolean changed = !changes.isEmpty();
+                        if (serverIds != null) {
+                            for (ScheduledWorkout schedule : scheduledWorkoutRepository.getByUid(uid)) {
+                                if (!serverIds.contains(schedule.getId())) {
+                                    removeSchedule(scheduledWorkoutRepository, schedule.getId());
+                                    changed = true;
+                                }
                             }
+                            pendingSchedules.keySet().retainAll(serverIds);
                         }
-                        pendingSchedules.keySet().retainAll(serverIds);
+                        if (changed) DataChanges.notifyChanged(DataChanges.Kind.SCHEDULES);
                     });
                 });
     }
@@ -360,6 +390,7 @@ public class SyncManager {
         String uidToClear = syncedUid;
         syncedUid = null;
         childListenersAttached = false;
+        lastProfileData = null;
         if (uidToClear == null) return;
         dbExecutor.execute(() -> {
             pendingSchedules.clear();
@@ -368,6 +399,7 @@ public class SyncManager {
             User cached = userRepository.getOne(uidToClear);
             // Deleting the Users row cascades CustomWorkout, WorkoutLog and ScheduledWorkout with it.
             if (cached != null) userRepository.delete(cached);
+            DataChanges.notifyAllChanged();
         });
     }
 

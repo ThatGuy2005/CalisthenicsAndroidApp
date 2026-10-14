@@ -57,11 +57,28 @@ console (Firestore → Rules) or with `firebase deploy --only firestore:rules`.
 5. **Writes go to Firestore.** `onSuccess` fires as soon as Firestore has the change, which also
    works offline; it is sent to the server later.
    - **A read right after a write may not show the change yet:** `SyncManager` copies it into
-     SQLite a moment later. After creating or editing something, update the screen from what you
-     already know, or reload in `onResume`.
+     SQLite a moment later. Don't reload in `onSuccess`; use `DataChanges` (below), which calls
+     you once the change can be read.
 6. **Times are Unix epoch seconds** (`long`), never milliseconds. Height is in cm, weight in kg.
 7. **Most calls need a signed-in user** and fail with "You are not signed in." otherwise.
    Exceptions: `ExerciseService` and `WorkoutService` (premade content), and the sign-in calls.
+
+### Keeping screens up to date
+
+`DataChanges` tells a screen when its data changed: after this device's own writes (once they can
+be read) and when changes arrive from another device. Call `observe` once in `onCreate`:
+
+```java
+DataChanges.observe(this, kind -> loadWorkouts(), DataChanges.Kind.CUSTOM_WORKOUTS);
+```
+
+- **It loads and reloads:** the listener runs on every `onStart`, so it is also the first load,
+  and after every change while the screen is visible. It unsubscribes by itself on `onStop`.
+- **Kinds:** `PROFILE`, `CUSTOM_WORKOUTS`, `WORKOUT_LOGS` and `SCHEDULES`. Pass several to watch
+  several. `SCHEDULES` also fires when a calendar event is added or removed.
+- **Main thread:** listeners run on the main thread. Changes that come in close together arrive
+  as one call.
+- **Sign-in and sign-out:** every kind fires on sign-out, and as the data arrives after sign-in.
 
 **What needs a connection (NFR-13):** sign-up, sign-in, password reset, changing the username,
 email or password, deleting the account, and sending email. Everything else works offline and
@@ -88,7 +105,7 @@ to sign-in and sign-out. Use it to choose between the sign-in screen and the mai
 
 | Method | Notes |
 |---|---|
-| `getMyProfile(cb)` | A `User`. **Can be null** right after sign-in, until the profile has synced. |
+| `getMyProfile(cb)` | A `User`. **Can be null** right after sign-in, until the profile has synced; observe `PROFILE` to get it when it arrives. |
 | `updateProfile(username, height, weight, gender, cb)` | Pass the current value for anything unchanged. Changing the username needs a connection. |
 
 `AccountService` (all of these ask for the current password first)
@@ -226,7 +243,5 @@ database matches a fresh install.
 - **Exercises (FR-3.2):** difficulty is a String rather than an enum.
 - **History:** the history list is not filtered by the statistics period.
 - **Export:** JSON only, no CSV.
-- **No change notifications:** a screen is not told when synced data changes (see rule 5 above);
-  reload in `onResume`.
 - **UI-only features:** the units setting (FR-1.7) and the FR-5.2 items above belong to the
   screens.

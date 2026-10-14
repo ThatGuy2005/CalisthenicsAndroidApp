@@ -278,6 +278,7 @@ public class ScheduleService extends UserDataService {
                 return;
             }
             repository.setCalendarEventId(scheduleId, eventId);
+            DataChanges.notifyChanged(DataChanges.Kind.SCHEDULES);
             succeed(callback, eventId);
         });
     }
@@ -298,6 +299,7 @@ public class ScheduleService extends UserDataService {
                 }
                 DeviceCalendar.deleteEvent(context(), eventId);
                 repository.clearCalendarEventId(scheduleId);
+                DataChanges.notifyChanged(DataChanges.Kind.SCHEDULES);
             }
             succeed(callback, null);
         });
@@ -417,7 +419,10 @@ public class ScheduleService extends UserDataService {
             WorkoutSummary summary = WorkoutSummary.of(db(), doc.getId(), workoutName,
                     customWorkoutId, scheduledAt, recurrence);
             Long eventId = summary == null ? null : DeviceCalendar.putEvent(context(), null, summary);
-            if (eventId != null) new ScheduledWorkoutRepository(db()).setCalendarEventId(doc.getId(), eventId);
+            if (eventId != null) {
+                new ScheduledWorkoutRepository(db()).setCalendarEventId(doc.getId(), eventId);
+                DataChanges.notifyChanged(DataChanges.Kind.SCHEDULES);   // the link is local, not synced
+            }
         }
         succeed(callback, doc.getId());
     }
