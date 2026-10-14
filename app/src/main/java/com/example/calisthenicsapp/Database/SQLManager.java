@@ -27,7 +27,7 @@ public class SQLManager extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "CalisthenicsApp.db";
 
     /** Increase this when schema.sql changes (see onUpgrade). */
-    public static final int DATABASE_VERSION = 5;
+    public static final int DATABASE_VERSION = 6;
 
     private static final String SCHEMA_ASSET = "schema.sql";
     private static final String SEED_ASSET = "seed.sql";

@@ -15,7 +15,9 @@ import com.example.calisthenicsapp.Repos.ScheduledWorkoutRepository;
 import com.example.calisthenicsapp.Repos.UserRepository;
 import com.example.calisthenicsapp.Repos.WorkoutRepository;
 import com.example.calisthenicsapp.Scheduling.DeviceCalendar;
+import com.example.calisthenicsapp.Scheduling.OccurrenceStatus;
 import com.example.calisthenicsapp.Scheduling.Recurrence;
+import com.example.calisthenicsapp.Scheduling.ScheduleOccurrence;
 import com.example.calisthenicsapp.Scheduling.WorkoutSummary;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -40,7 +42,8 @@ import java.util.TimeZone;
  * The signed-in user's planned workouts (users/{uid}/schedules). A schedule points at exactly
  * one premade workout (by name) or one custom workout (by id). Times are epoch seconds.
  * A schedule happens once, or repeats by a {@link Recurrence} from its first occurrence on
- * (FR-6.1).
+ * (FR-6.1). Each occurrence is pending, completed or missed ({@link OccurrenceStatus}); only
+ * the completed occurrence times are stored, in the document's "completed" array.
  *
  * A schedule can also be an event in the device's calendar (FR-6.2). The event id is kept only
  * in this device's SQLite, see {@link ScheduledWorkout#getCalendarEventId()}. Rescheduling or
@@ -57,6 +60,8 @@ public class ScheduleService extends UserDataService {
     private static final String NO_CALENDAR_PERMISSION =
             "Allow calendar access to add workouts to your calendar.";
     private static final String GONE = "That scheduled workout no longer exists.";
+    /** getOccurrences covers at most this long a period. */
+    private static final long MAX_RANGE_SECONDS = 366 * 86_400L;
     /** Must match file_paths.xml. */
     private static final String ICS_DIR = "ics";
 
@@ -84,6 +89,37 @@ public class ScheduleService extends UserDataService {
             upcoming.sort(Comparator.comparingLong(s -> s.nextOccurrence(from, zone)));
             return upcoming;
         });
+    }
+
+    /**
+     * Every occurrence in [fromSeconds, toSeconds) with its status, soonest first: what an agenda
+     * or calendar screen shows (FR-6.1, FR-6.4). The period can be at most a year long.
+     */
+    public void getOccurrences(long fromSeconds, long toSeconds,
+                               ServiceCallback<List<ScheduleOccurrence>> callback) {
+        if (toSeconds <= fromSeconds || toSeconds - fromSeconds > MAX_RANGE_SECONDS) {
+            fail(callback, "Pick a period of at most a year.");
+            return;
+        }
+        long nowSeconds = now();
+        TimeZone zone = TimeZone.getDefault();
+        readForUser(callback, uid -> ScheduleOccurrence.between(
+                new ScheduledWorkoutRepository(db()).getBetween(uid, fromSeconds, toSeconds),
+                fromSeconds, toSeconds, nowSeconds, zone));
+    }
+
+    /**
+     * Marks one occurrence as done (FR-6.1); occurrenceSeconds is its
+     * {@link ScheduleOccurrence#getStartSeconds()}. Works up to
+     * {@link OccurrenceStatus#MISSED_AFTER_SECONDS} before it starts, and any time after.
+     */
+    public void markCompleted(String scheduleId, long occurrenceSeconds, ServiceCallback<Void> callback) {
+        setCompleted(scheduleId, occurrenceSeconds, true, callback);
+    }
+
+    /** Undoes markCompleted: the occurrence is pending or missed again. */
+    public void markNotCompleted(String scheduleId, long occurrenceSeconds, ServiceCallback<Void> callback) {
+        setCompleted(scheduleId, occurrenceSeconds, false, callback);
     }
 
     public boolean hasCalendarPermission() {
@@ -323,6 +359,39 @@ public class ScheduleService extends UserDataService {
             }
             send.setSelector(mailApps);
             succeed(callback, Intent.createChooser(send, "Send workout by email"));
+        });
+    }
+
+    /** arrayUnion/arrayRemove, so offline changes from two devices merge instead of overwriting. */
+    private void setCompleted(String scheduleId, long occurrenceSeconds, boolean completed,
+                              ServiceCallback<Void> callback) {
+        String uid = sessionManager.getCurrentUid();
+        if (uid == null) {
+            fail(callback, NOT_SIGNED_IN);
+            return;
+        }
+        onDb(() -> {
+            ScheduledWorkout schedule = scheduleId == null
+                    ? null : new ScheduledWorkoutRepository(db()).getOne(scheduleId);
+            if (schedule == null) {
+                fail(callback, GONE);
+                return;
+            }
+            if (completed) {
+                if (!schedule.isOccurrence(occurrenceSeconds, TimeZone.getDefault())) {
+                    fail(callback, "The workout is not scheduled at that time.");
+                    return;
+                }
+                if (occurrenceSeconds - OccurrenceStatus.MISSED_AFTER_SECONDS > now()) {
+                    fail(callback, "That workout is not due yet.");
+                    return;
+                }
+            }
+            Object change = completed ? FieldValue.arrayUnion(occurrenceSeconds)
+                    : FieldValue.arrayRemove(occurrenceSeconds);
+            watchWrite(schedules(uid).document(scheduleId).update("completed", change),
+                    (completed ? "Completing " : "Uncompleting ") + scheduleId + " at " + occurrenceSeconds);
+            succeed(callback, null);
         });
     }
 

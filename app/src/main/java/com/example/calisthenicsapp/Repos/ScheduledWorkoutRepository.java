@@ -7,7 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.example.calisthenicsapp.CoreComponents.ScheduledWorkout;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> {
@@ -67,6 +71,15 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
                 new String[]{uid, String.valueOf(fromEpochSeconds)});
     }
 
+    /**
+     * A user's schedules that can have an occurrence in [fromEpochSeconds, toEpochSeconds):
+     * one-off schedules inside it, and repeating ones that started before its end.
+     */
+    public List<ScheduledWorkout> getBetween(String uid, long fromEpochSeconds, long toEpochSeconds) {
+        return query("Uid = ? AND ScheduledAt < ? AND (ScheduledAt >= ? OR RecurrenceRule IS NOT NULL)",
+                new String[]{uid, String.valueOf(toEpochSeconds), String.valueOf(fromEpochSeconds)});
+    }
+
     // ---------- Calendar events (local only, see CalendarEvent in schema.sql) ----------
 
     /** Works before the schedule row itself exists. */
@@ -101,6 +114,7 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
             int customCol = c.getColumnIndexOrThrow("CustomWorkoutId");
             int atCol = c.getColumnIndexOrThrow("ScheduledAt");
             int ruleCol = c.getColumnIndexOrThrow("RecurrenceRule");
+            int completedCol = c.getColumnIndexOrThrow("Completed");
             int eventCol = c.getColumnIndexOrThrow("CalendarEventId");
             while (c.moveToNext()) {
                 list.add(new ScheduledWorkout(
@@ -110,6 +124,7 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
                         c.getString(customCol),
                         c.getLong(atCol),
                         c.getString(ruleCol),
+                        completedFromJson(c.getString(completedCol)),
                         c.isNull(eventCol) ? null : c.getLong(eventCol)));
             }
         }
@@ -127,6 +142,20 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         cv.put("ScheduledAt", s.getScheduledAt());
         if (s.getRecurrenceRule() != null) cv.put("RecurrenceRule", s.getRecurrenceRule());
         else cv.putNull("RecurrenceRule");
+        if (s.getCompletedOccurrences().isEmpty()) cv.putNull("Completed");
+        else cv.put("Completed", new JSONArray(s.getCompletedOccurrences()).toString());
         return cv;
+    }
+
+    private static List<Long> completedFromJson(String json) {
+        List<Long> completed = new ArrayList<>();
+        if (json == null) return completed;
+        try {
+            JSONArray array = new JSONArray(json);
+            for (int i = 0; i < array.length(); i++) completed.add(array.getLong(i));
+        } catch (JSONException e) {
+            // Only this class writes the column; an unreadable value counts as none.
+        }
+        return completed;
     }
 }

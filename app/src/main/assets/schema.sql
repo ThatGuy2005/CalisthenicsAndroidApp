@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS ScheduledWorkout (
     CustomWorkoutId TEXT,                 -- custom workout
     ScheduledAt     INTEGER NOT NULL,     -- Unix epoch, seconds; the first occurrence
     RecurrenceRule  TEXT,                 -- RRULE, e.g. 'FREQ=WEEKLY'; NULL = once (FR-6.1)
+    Completed       TEXT,                 -- JSON array of completed occurrence start times; NULL = none
     CHECK ((WorkoutName IS NOT NULL) + (CustomWorkoutId IS NOT NULL) = 1),
     FOREIGN KEY (Uid) REFERENCES Users(Uid)
         ON DELETE CASCADE ON UPDATE CASCADE,
