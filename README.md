@@ -161,9 +161,11 @@ and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters.
 
 `WorkoutService`: `getAllWorkouts`, `getWorkout(name)`, `getExercises(workoutName)` (in order).
 A premade workout's `getLevel()` is its difficulty rating, the same `Difficulty` enum (FR-4.1);
-it is null for custom workouts. `getEstimatedSeconds()` is how long it is expected to take: every
-set plus the rests between them, counting 3 s per rep. It is the same estimate the calendar event
-uses (FR-4.1).
+it is null for custom workouts. `getCategory()` is its general category (FR-4.1), the
+`WorkoutCategory` enum: FULL_BODY, UPPER_BODY, LOWER_BODY, CORE or CARDIO, with `getLabel()` for
+the text ("Full body") and `WorkoutCategory.values()` for a filter or grouping.
+`getEstimatedSeconds()` is how long it is expected to take: every set plus the rests between
+them, counting 3 s per rep. It is the same estimate the calendar event uses (FR-4.1).
 
 ### Custom workouts (FR-4.3, FR-4.4)
 
@@ -271,7 +273,6 @@ database matches a fresh install.
 
 ## Known gaps
 
-- **Workouts (FR-4.1, FR-4.2):** premade workouts have a difficulty rating and an estimated duration but
-  no category, and there is one rest time per exercise rather than separate rest types.
+- **Workouts (FR-4.2):** there is one rest time per exercise rather than separate rest types.
 - **UI-only features:** the units setting (FR-1.7) and the FR-5.2 items above belong to the
   screens.

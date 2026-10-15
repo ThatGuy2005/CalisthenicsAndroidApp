@@ -60,6 +60,7 @@ public class SQLManagerTest {
         assertTrue(count(db, "Workout") > 0);
         assertTrue(count(db, "ExerciseOrder") > 0);
         assertTrue(columns(db, "ScheduledWorkout").contains("RecurrenceRule"));
+        assertTrue(columns(db, "Workout").contains("Category"));
         assertEquals(0, count(db, "CalendarEvent"));
     }
 
@@ -148,10 +149,13 @@ public class SQLManagerTest {
         return SQLManager.getInstance(context).getWritableDatabase();
     }
 
-    /** A version 3 database with the premade content, then the given statements. */
+    /**
+     * A version 3 database with the old premade content (seed_v6.sql: the current seed.sql may
+     * fill columns version 3 does not have), then the given statements.
+     */
     private void createVersion3(String... statements) throws IOException {
         List<String> all = new ArrayList<>();
-        for (String s : SqlScriptSplitter.split(readAsset("seed.sql"))) all.add(s);
+        for (String s : SqlScriptSplitter.split(readResource("seed_v6.sql"))) all.add(s);
         for (String s : statements) all.add(s);
         createDatabase(3, readResource("schema_v3.sql"), all.toArray(new String[0]));
     }
@@ -226,12 +230,6 @@ public class SQLManagerTest {
 
     private static long count(SQLiteDatabase db, String table) {
         return DatabaseUtils.queryNumEntries(db, table);
-    }
-
-    private String readAsset(String name) throws IOException {
-        try (InputStream in = context.getAssets().open(name)) {
-            return readAll(in);
-        }
     }
 
     private String readResource(String name) throws IOException {

@@ -11,6 +11,7 @@ import android.content.Context;
 
 import com.example.calisthenicsapp.CoreComponents.Difficulty;
 import com.example.calisthenicsapp.CoreComponents.Workout;
+import com.example.calisthenicsapp.CoreComponents.WorkoutCategory;
 import com.example.calisthenicsapp.Database.SQLManager;
 
 import org.junit.After;
@@ -41,12 +42,33 @@ public class WorkoutRepositoryTest {
         SQLManager.closeInstance();
     }
 
-    /** The Workout table has no CHECK on Level, so this guards seed.sql instead. */
+    /**
+     * The Workout table has no CHECK on Level or Category, so this guards seed.sql instead
+     * (an unknown label would already fail in fromLabel).
+     */
     @Test
-    public void everyPremadeWorkoutHasALevel() {
+    public void everyPremadeWorkoutHasALevelAndACategory() {
         List<Workout> all = repository.getAll();
         assertFalse(all.isEmpty());
-        for (Workout w : all) assertNotNull(w.getName(), w.getLevel());
+        for (Workout w : all) {
+            assertNotNull(w.getName(), w.getLevel());
+            assertNotNull(w.getName(), w.getCategory());
+        }
+        assertEquals(WorkoutCategory.CORE, repository.getOne("Core Basics").getCategory());
+    }
+
+    @Test
+    public void categoryIsStoredAsTheLabelAndReadBack() {
+        assertTrue(repository.insert(new Workout("Test Legs", Difficulty.BEGINNER,
+                WorkoutCategory.LOWER_BODY)));
+        assertEquals(WorkoutCategory.LOWER_BODY, repository.getOne("Test Legs").getCategory());
+
+        assertTrue(repository.update(new Workout("Test Legs", Difficulty.BEGINNER,
+                WorkoutCategory.CARDIO)));
+        assertEquals(WorkoutCategory.CARDIO, repository.getOne("Test Legs").getCategory());
+
+        assertTrue(repository.update(new Workout("Test Legs", Difficulty.BEGINNER)));
+        assertNull(repository.getOne("Test Legs").getCategory());
     }
 
     @Test

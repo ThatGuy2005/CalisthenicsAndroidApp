@@ -1,6 +1,7 @@
 -- Premade content, loaded once when the database is first created (see SQLManager).
 -- Muscle groups: Chest, Back, Legs, Glutes, Core, Shoulders, Arms, Full Body
 -- Levels / difficulty: Beginner, Intermediate, Advanced
+-- Workout categories: Full body, Upper body, Lower body, Core, Cardio
 -- MET values follow the Compendium of Physical Activities calisthenics categories
 -- (approximate): 3.5 light, 3.8 moderate, 8.0 vigorous. They only feed the kcal estimate.
 -- AnimationFile is NULL (placeholder) until the animation files are added.
@@ -81,13 +82,13 @@ VALUES
  0, NULL, 6, 3.8, NULL, 'Chest', 'Advanced');
 
 -- ========== PREMADE WORKOUTS ==========
-INSERT INTO Workout (Name, Level) VALUES
-('Beginner Full Body', 'Beginner'),
-('Core Basics', 'Beginner'),
-('Upper Body Strength', 'Intermediate'),
-('Lower Body Burn', 'Intermediate'),
-('Cardio Blast', 'Intermediate'),
-('Advanced Calisthenics', 'Advanced');
+INSERT INTO Workout (Name, Level, Category) VALUES
+('Beginner Full Body', 'Beginner', 'Full body'),
+('Core Basics', 'Beginner', 'Core'),
+('Upper Body Strength', 'Intermediate', 'Upper body'),
+('Lower Body Burn', 'Intermediate', 'Lower body'),
+('Cardio Blast', 'Intermediate', 'Cardio'),
+('Advanced Calisthenics', 'Advanced', 'Full body');
 
 -- ========== EXERCISES IN EACH WORKOUT ==========
 -- Reps / Seconds NULL = use the exercise default. RestSeconds is the rest after each set.

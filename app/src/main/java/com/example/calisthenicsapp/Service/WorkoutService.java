@@ -44,7 +44,7 @@ public class WorkoutService extends UserDataService {
     /** The same estimate as a scheduled workout's calendar event (FR-4.1). */
     private Workout withEstimate(Workout w) {
         int seconds = WorkoutExercises.estimateSeconds(WorkoutExercises.ofPremade(db(), w.getName()));
-        return new Workout(w.getName(), w.getLevel(), seconds);
+        return new Workout(w.getName(), w.getLevel(), w.getCategory(), seconds);
     }
 
     /**

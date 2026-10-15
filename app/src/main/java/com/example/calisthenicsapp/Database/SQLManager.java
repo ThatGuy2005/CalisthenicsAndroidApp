@@ -35,7 +35,7 @@ public class SQLManager extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "CalisthenicsApp.db";
 
     /** Increase this when schema.sql or seed.sql changes, and add the step to onUpgrade. */
-    public static final int DATABASE_VERSION = 6;
+    public static final int DATABASE_VERSION = 7;
 
     /** Older databases are dropped and recreated instead of upgraded, see onUpgrade. */
     private static final int OLDEST_UPGRADABLE_VERSION = 3;
@@ -124,6 +124,9 @@ public class SQLManager extends SQLiteOpenHelper {
         }
         if (oldVersion < 6) {   // completed occurrences (FR-6.1)
             db.execSQL("ALTER TABLE ScheduledWorkout ADD COLUMN Completed TEXT");
+        }
+        if (oldVersion < 7) {   // workout categories (FR-4.1); refreshSeed fills them in
+            db.execSQL("ALTER TABLE Workout ADD COLUMN Category TEXT");
         }
         refreshSeed(db);
     }

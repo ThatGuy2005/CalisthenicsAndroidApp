@@ -47,7 +47,8 @@ CREATE TABLE IF NOT EXISTS Exercise (
 -- ========== WORKOUT ==========
 CREATE TABLE IF NOT EXISTS Workout (
     Name TEXT PRIMARY KEY,                                 -- unique
-    Level TEXT
+    Level TEXT,
+    Category TEXT                                          -- added in version 7, so it comes last
 );
 
 -- ========== EXERCISE ORDER (Workout <-> Exercise) ==========
