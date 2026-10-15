@@ -87,7 +87,7 @@ public class ProfileService extends UserDataService {
         DocumentReference newClaimDoc = usernameDoc(newKey);
 
         // Returns null on success, or the message to show. Firestore requires all reads first.
-        firestore.runTransaction(transaction -> {
+        firestore().runTransaction(transaction -> {
                     DocumentSnapshot profile = transaction.get(profileDoc);
                     if (!profile.exists()) return USERNAME_CHANGE_FAILED;
                     DocumentSnapshot newClaim = transaction.get(newClaimDoc);
@@ -123,6 +123,6 @@ public class ProfileService extends UserDataService {
     }
 
     private DocumentReference usernameDoc(String key) {
-        return firestore.collection("usernames").document(key);
+        return firestore().collection("usernames").document(key);
     }
 }

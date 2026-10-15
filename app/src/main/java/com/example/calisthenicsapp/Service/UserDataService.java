@@ -35,7 +35,6 @@ abstract class UserDataService {
 
     protected static final String NOT_SIGNED_IN = "You are not signed in.";
 
-    protected final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     protected final SessionManager sessionManager = new SessionManager();
     private final Context appContext;
 
@@ -47,13 +46,21 @@ abstract class UserDataService {
         return appContext;
     }
 
+    /**
+     * Asked for on every use, never kept: deleting the account stops the instance to clear its
+     * offline cache, and getInstance() then hands out a fresh one.
+     */
+    protected static FirebaseFirestore firestore() {
+        return FirebaseFirestore.getInstance();
+    }
+
     /** Only call from inside {@link #onDb}: opening the database can be slow the first time. */
     protected SQLiteDatabase db() {
         return SQLManager.getInstance(appContext).getWritableDatabase();
     }
 
     protected DocumentReference userDoc(String uid) {
-        return firestore.collection("users").document(uid);
+        return firestore().collection("users").document(uid);
     }
 
     protected static long now() {

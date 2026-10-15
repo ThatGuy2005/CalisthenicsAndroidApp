@@ -154,7 +154,7 @@ public class CustomWorkoutService extends UserDataService {
                 fail(callback, error);
                 return;
             }
-            WriteBatch batch = firestore.batch();
+            WriteBatch batch = firestore().batch();
             batch.delete(workouts(uid).document(customWorkoutId));
             // Locally the schedules cascade, but in Firestore they would be left dangling.
             for (ScheduledWorkout s : new ScheduledWorkoutRepository(db()).getByUid(uid)) {

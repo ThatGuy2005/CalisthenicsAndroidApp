@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Source;
 import com.google.firebase.firestore.WriteBatch;
@@ -97,7 +98,8 @@ public class AccountService extends UserDataService {
     /**
      * Permanently deletes everything (FR-1.10): the custom workouts, logs and schedules, the
      * profile, the username claim (so the name is free again) and finally the Firebase account.
-     * Deleting the account signs the user out, and SyncManager then clears the local cache.
+     * Deleting the account signs the user out, and SyncManager then clears the local cache;
+     * Firestore's own offline copy on the device is cleared last (see clearOfflineCache).
      * If something fails part-way, the user is still signed in and can simply retry.
      */
     public void deleteAccount(String password, ServiceCallback<Void> callback) {
@@ -133,7 +135,7 @@ public class AccountService extends UserDataService {
                                 DocumentSnapshot profile, ServiceCallback<Void> callback) {
         List<Task<Void>> commits = new ArrayList<>();
         for (int start = 0; start < children.size(); start += BATCH_LIMIT) {
-            WriteBatch batch = firestore.batch();
+            WriteBatch batch = firestore().batch();
             for (DocumentReference doc
                     : children.subList(start, Math.min(start + BATCH_LIMIT, children.size()))) {
                 batch.delete(doc);
@@ -155,13 +157,13 @@ public class AccountService extends UserDataService {
                                          ServiceCallback<Void> callback) {
         String username = profile.exists() ? profile.getString("username") : null;
         DocumentReference claimDoc = username == null ? null
-                : firestore.collection("usernames").document(UserValidator.usernameKey(username));
+                : firestore().collection("usernames").document(UserValidator.usernameKey(username));
         Task<DocumentSnapshot> claimRead = claimDoc == null
                 ? Tasks.forResult(null) : claimDoc.get(Source.SERVER);
 
         claimRead.continueWithTask(readTask -> {
             DocumentSnapshot claim = readTask.getResult();     // throws if the read failed
-            WriteBatch batch = firestore.batch();
+            WriteBatch batch = firestore().batch();
             // Only release the name if it is ours; accounts made before usernames/ have none.
             if (claim != null && claim.exists() && user.getUid().equals(claim.getString("uid"))) {
                 batch.delete(claimDoc);
@@ -173,7 +175,7 @@ public class AccountService extends UserDataService {
             return user.delete();
         }).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                succeed(callback, null);
+                clearOfflineCache(callback);
             } else {
                 Log.w(TAG, "Deleting the profile or account failed", task.getException());
                 Exception e = task.getException();
@@ -181,6 +183,25 @@ public class AccountService extends UserDataService {
                         ? AuthService.describeError(e) : NO_CONNECTION);
             }
         });
+    }
+
+    /**
+     * Step 4: removes Firestore's offline copy from the device (FR-1.10). clearPersistence only
+     * works on a stopped instance, so the instance is stopped first; the services and SyncManager
+     * ask FirebaseFirestore.getInstance() on every use and get a fresh one afterwards. Listeners
+     * on the old instance become no-ops. The account is already gone by now, so a failure here is
+     * only logged and the deletion still counts as done.
+     */
+    private void clearOfflineCache(ServiceCallback<Void> callback) {
+        FirebaseFirestore stopped = firestore();
+        stopped.terminate()
+                .continueWithTask(task -> stopped.clearPersistence())
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "Clearing Firestore's offline cache failed", task.getException());
+                    }
+                    succeed(callback, null);
+                });
     }
 
     /**

@@ -42,13 +42,16 @@ public class AuthService {
     }
 
     private final FirebaseAuth firebaseAuth;
-    private final FirebaseFirestore firestore;
     private final UserRepository userRepository;
     private final ExecutorService localDbExecutor = Executors.newSingleThreadExecutor();
 
+    /** Asked for on every use, never kept: see UserDataService.firestore(). */
+    private static FirebaseFirestore firestore() {
+        return FirebaseFirestore.getInstance();
+    }
+
     public AuthService(Context context) {
         this.firebaseAuth = FirebaseAuth.getInstance();
-        this.firestore = FirebaseFirestore.getInstance();
         this.userRepository = new UserRepository(
                 SQLManager.getInstance(context).getWritableDatabase());
     }
@@ -108,13 +111,13 @@ public class AuthService {
         profile.put("createdAt", now);
         profile.put("updatedAt", now);
 
-        DocumentReference claimDoc = firestore.collection("usernames")
+        DocumentReference claimDoc = firestore().collection("usernames")
                 .document(UserValidator.usernameKey(username));
-        DocumentReference profileDoc = firestore.collection("users").document(firebaseUser.getUid());
+        DocumentReference profileDoc = firestore().collection("users").document(firebaseUser.getUid());
 
         // Claim and profile are written together, so neither can exist without the other.
         // Returns false, without writing anything, if someone else already holds the username.
-        firestore.runTransaction(transaction -> {
+        firestore().runTransaction(transaction -> {
                     DocumentSnapshot claim = transaction.get(claimDoc);
                     if (claim.exists()) return false;
                     transaction.set(claimDoc, Collections.singletonMap("uid", firebaseUser.getUid()));
@@ -172,7 +175,7 @@ public class AuthService {
      */
     private void syncProfileEmail(FirebaseUser user) {
         String email = user.getEmail();
-        DocumentReference profileDoc = firestore.collection("users").document(user.getUid());
+        DocumentReference profileDoc = firestore().collection("users").document(user.getUid());
         profileDoc.get().addOnSuccessListener(snapshot -> {
             if (email == null || !snapshot.exists() || email.equals(snapshot.getString("email"))) {
                 return;
