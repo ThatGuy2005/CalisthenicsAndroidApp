@@ -33,7 +33,7 @@ await check("custom workout of someone else rejected", assertFails(setDoc(doc(bo
 // ---------- workoutLogs (WorkoutLogService.saveSession) ----------
 const log = (extra = {}) => ({ workoutName: 'Morning', startedAt: NOW, durationSeconds: 600, kcal: 42.5,
   status: 'Completed', exercises: [{ exerciseName: 'Push-up', met: 3.8, timed: false, sets: 3,
-    completedSets: 3, reps: 10, seconds: null, activeSeconds: 90, kcal: 42.5 }], ...extra });
+    completedSets: 3, reps: 10, seconds: null, perSide: false, activeSeconds: 90, kcal: 42.5 }], ...extra });
 const logWithout = (field) => { const l = log(); delete l[field]; return l; };
 
 await check('log create', assertSucceeds(setDoc(at('workoutLogs', 'l1'), log())));

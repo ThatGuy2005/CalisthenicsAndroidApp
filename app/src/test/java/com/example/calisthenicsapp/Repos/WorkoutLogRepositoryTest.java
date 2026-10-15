@@ -1,12 +1,14 @@
 package com.example.calisthenicsapp.Repos;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.example.calisthenicsapp.CoreComponents.LoggedExercise;
 import com.example.calisthenicsapp.CoreComponents.WorkoutLog;
 import com.example.calisthenicsapp.CoreComponents.WorkoutStats;
 import com.example.calisthenicsapp.Database.SQLManager;
@@ -83,5 +85,16 @@ public class WorkoutLogRepositoryTest {
             for (WorkoutLog log : logs) seconds += log.getDurationSeconds();
             assertEquals(stats.getTotalSeconds(), seconds);
         }
+    }
+
+    @Test
+    public void snapshotKeepsPerSide() {
+        assertTrue(repository.insert(new WorkoutLog("sides", "u1", "Legs", WEEK_START, 600, 50.0,
+                "Completed", Arrays.asList(
+                        new LoggedExercise("Lunges", 3.8, false, 3, 3, 12, null, 120, 20.0, true),
+                        new LoggedExercise("Squat", 3.8, false, 3, 3, 15, null, 90, 15.0)))));
+        List<LoggedExercise> exercises = repository.getOne("sides").getExercises();
+        assertTrue(exercises.get(0).isPerSide());
+        assertFalse(exercises.get(1).isPerSide());
     }
 }

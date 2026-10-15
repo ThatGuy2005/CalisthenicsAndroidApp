@@ -42,7 +42,8 @@ public class RemoteWorkoutLog {
     }
 
     /** Firestore hands an array of maps back as a List of Maps, with numbers as Long or Double. */
-    private static List<LoggedExercise> exercisesFrom(Object raw) {
+    /** The exercises array of a log document; package-private for the tests. */
+    static List<LoggedExercise> exercisesFrom(Object raw) {
         List<LoggedExercise> list = new ArrayList<>();
         if (!(raw instanceof List)) return list;
         for (Object item : (List<?>) raw) {
@@ -58,7 +59,8 @@ public class RemoteWorkoutLog {
                     m.get("reps") instanceof Number ? ((Number) m.get("reps")).intValue() : null,
                     m.get("seconds") instanceof Number ? ((Number) m.get("seconds")).intValue() : null,
                     number(m.get("activeSeconds"), 0).intValue(),
-                    number(m.get("kcal"), 0).doubleValue()));
+                    number(m.get("kcal"), 0).doubleValue(),
+                    Boolean.TRUE.equals(m.get("perSide"))));      // absent in older logs
         }
         return list;
     }

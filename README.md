@@ -221,7 +221,9 @@ phone call.
 - `WorkoutLogService`: `getMyLogs(period, cb)` (newest first) and `delete(logId, cb)`.
   - Pass the same `StatsPeriod` as the statistics, so the list shows exactly the logs the totals
     count. `getMyLogs(cb)` without a period lists them all.
-  - Each `WorkoutLog` has its exercises as they were done (`getExercises()`).
+  - Each `WorkoutLog` has its exercises as they were done (`getExercises()`). A
+    `LoggedExercise` with `isPerSide()` shows "12 reps per side"; logs saved before the flag
+    existed read as false.
   - The status is "Completed" or "Partial".
 - `StatsService.getStats(StatsPeriod.WEEK | MONTH | ALL_TIME, cb)`: workouts, completed and
   partial counts, total time and kcal. A week starts on the first day of the week of the

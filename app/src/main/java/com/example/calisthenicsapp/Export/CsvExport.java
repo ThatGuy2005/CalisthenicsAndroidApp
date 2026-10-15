@@ -77,14 +77,14 @@ public final class CsvExport {
         CsvWriter logRows = new CsvWriter("log_id", "workout_name", "started_at", "duration_seconds",
                 "kcal", "status");
         CsvWriter logExercises = new CsvWriter("log_id", "exercise", "sets", "completed_sets", "reps",
-                "seconds", "active_seconds", "kcal", "met");
+                "seconds", "per_side", "active_seconds", "kcal", "met");
         for (WorkoutLog log : logs) {
             logRows.row(log.getId(), log.getWorkoutName(), iso(log.getStartedAt()),
                     log.getDurationSeconds(), oneDecimal(log.getKcal()), log.getStatus());
             for (LoggedExercise e : log.getExercises()) {
                 logExercises.row(log.getId(), e.getExerciseName(), e.getSets(), e.getCompletedSets(),
-                        e.getReps(), e.getSeconds(), e.getActiveSeconds(), oneDecimal(e.getKcal()),
-                        e.getMet());
+                        e.getReps(), e.getSeconds(), e.isPerSide(), e.getActiveSeconds(),
+                        oneDecimal(e.getKcal()), e.getMet());
             }
         }
         files.put(WORKOUT_LOGS, logRows.toString());

@@ -120,6 +120,7 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
             o.put("completedSets", e.getCompletedSets());
             o.put("reps", e.getReps() == null ? JSONObject.NULL : e.getReps());
             o.put("seconds", e.getSeconds() == null ? JSONObject.NULL : e.getSeconds());
+            o.put("perSide", e.isPerSide());
             o.put("activeSeconds", e.getActiveSeconds());
             o.put("kcal", e.getKcal());
             array.put(o);
@@ -153,7 +154,8 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
                         o.isNull("reps") ? null : o.optInt("reps"),
                         o.isNull("seconds") ? null : o.optInt("seconds"),
                         o.optInt("activeSeconds"),
-                        o.optDouble("kcal", 0)));
+                        o.optDouble("kcal", 0),
+                        o.optBoolean("perSide")));    // false in older snapshots
             }
         } catch (JSONException ex) {
             Log.w(TAG, "Unreadable workout log snapshot", ex);

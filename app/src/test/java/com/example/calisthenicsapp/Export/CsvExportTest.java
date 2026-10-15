@@ -78,8 +78,8 @@ public class CsvExportTest {
                 "l1,\"Legs, hard\",2026-10-15T16:00:00Z,600,42.5,Completed"),
                 lines(sample().get(CsvExport.WORKOUT_LOGS)));
         assertEquals(Arrays.asList(
-                "log_id,exercise,sets,completed_sets,reps,seconds,active_seconds,kcal,met",
-                "l1,Squat,3,3,12,,90,21.2,5.0"),
+                "log_id,exercise,sets,completed_sets,reps,seconds,per_side,active_seconds,kcal,met",
+                "l1,Squat,3,3,12,,false,90,21.2,5.0"),
                 lines(sample().get(CsvExport.WORKOUT_LOG_EXERCISES)));
     }
 
