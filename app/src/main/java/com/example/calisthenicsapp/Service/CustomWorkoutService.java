@@ -30,7 +30,9 @@ import java.util.Set;
  * Exercise lists are passed as CustomExerciseOrderEntry objects. Their customWorkoutId and
  * position are ignored: the position is taken from the list order (first = 1). A null sets or
  * restSeconds means the default (3 sets, 60 s); a null reps or seconds means "use the exercise's
- * default", as in the premade workouts.
+ * default", as in the premade workouts. restSeconds is the rest between the sets of an exercise;
+ * restAfterSeconds is the rest after its last set, before the next exercise, and null means the
+ * same as restSeconds (FR-4.2).
  */
 public class CustomWorkoutService extends UserDataService {
     private static final int NAME_MAX = 40;
@@ -88,7 +90,8 @@ public class CustomWorkoutService extends UserDataService {
             for (ExerciseOrderEntry e : new ExerciseOrderRepository(db()).getByWorkout(workoutName)) {
                 // customWorkoutId and position are ignored by create; the list order is kept.
                 copy.add(new CustomExerciseOrderEntry(null, e.getExerciseName(), e.getPosition(),
-                        e.getSets(), e.getReps(), e.getSeconds(), e.getRestSeconds()));
+                        e.getSets(), e.getReps(), e.getSeconds(), e.getRestSeconds(),
+                        e.getRestAfterSeconds()));
             }
             String name = newName == null ? uniqueName(uid, workoutName) : newName.trim();
             createOnDb(uid, name, copy, callback);
@@ -238,6 +241,9 @@ public class CustomWorkoutService extends UserDataService {
             if (e.getReps() != null && e.getReps() <= 0) return "Reps must be at least 1.";
             if (e.getSeconds() != null && e.getSeconds() <= 0) return "Seconds must be at least 1.";
             if (e.getRestSeconds() != null && e.getRestSeconds() < 0) return "Rest cannot be negative.";
+            if (e.getRestAfterSeconds() != null && e.getRestAfterSeconds() < 0) {
+                return "Rest cannot be negative.";
+            }
         }
         return null;
     }
@@ -254,6 +260,7 @@ public class CustomWorkoutService extends UserDataService {
             entry.put("seconds", e.getSeconds());                 // null = exercise default
             entry.put("restSeconds", e.getRestSeconds() == null
                     ? DEFAULT_REST_SECONDS : e.getRestSeconds());
+            entry.put("restAfterSeconds", e.getRestAfterSeconds());     // null = restSeconds
             list.add(entry);
         }
         return list;

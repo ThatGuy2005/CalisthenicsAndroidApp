@@ -278,7 +278,7 @@ public class SyncManager {
         List<CustomExerciseOrderEntry> entries = new ArrayList<>();
         for (RemoteExerciseEntry e : remote.exercises) {
             entries.add(new CustomExerciseOrderEntry(remote.id, e.exerciseName, e.position,
-                    e.sets, e.reps, e.seconds, e.restSeconds));
+                    e.sets, e.reps, e.seconds, e.restSeconds, e.restAfterSeconds));
         }
         exerciseOrderRepository.replaceForCustomWorkout(remote.id, entries);
 

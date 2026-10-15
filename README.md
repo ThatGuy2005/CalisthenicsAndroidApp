@@ -185,7 +185,9 @@ Each exercise has two rest times (FR-4.2): `getRestSeconds()` between its sets, 
 
 Build the exercise list from `CustomExerciseOrderEntry` objects. `position` is set from the list
 order. Leave `reps`/`seconds` null to use the exercise's own default, and leave `sets`/`restSeconds`
-null for 3 sets and 60 s rest.
+null for 3 sets and 60 s rest. `restSeconds` is the rest between the sets; `restAfterSeconds` (the
+eight-argument constructor) is the rest after the last set, before the next exercise, and null means
+the same as `restSeconds` (FR-4.2). Rests may be 0 but not negative.
 
 ### Doing a workout (FR-5.1 to FR-5.6)
 
@@ -277,6 +279,5 @@ database matches a fresh install.
 
 ## Known gaps
 
-- **Workouts (FR-4.2):** there is one rest time per exercise rather than separate rest types.
 - **UI-only features:** the units setting (FR-1.7) and the FR-5.2 items above belong to the
   screens.

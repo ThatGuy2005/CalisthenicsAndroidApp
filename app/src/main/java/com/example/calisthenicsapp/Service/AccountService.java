@@ -274,6 +274,7 @@ public class AccountService extends UserDataService {
                 o.put("reps", orNull(e.getReps()));
                 o.put("seconds", orNull(e.getSeconds()));
                 o.put("restSeconds", orNull(e.getRestSeconds()));
+                o.put("restAfterSeconds", orNull(e.getRestAfterSeconds()));
                 exercises.put(o);
             }
             JSONObject o = new JSONObject();
