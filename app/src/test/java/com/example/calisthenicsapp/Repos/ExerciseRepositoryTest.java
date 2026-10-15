@@ -9,6 +9,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.example.calisthenicsapp.CoreComponents.Difficulty;
+import com.example.calisthenicsapp.CoreComponents.Equipment;
 import com.example.calisthenicsapp.CoreComponents.Exercise;
 import com.example.calisthenicsapp.Database.SQLManager;
 
@@ -65,6 +66,31 @@ public class ExerciseRepositoryTest {
         List<String> perSide = new ArrayList<>();
         for (Exercise e : repository.getAll()) if (e.isPerSide()) perSide.add(e.getName());
         assertEquals(Arrays.asList("Archer Push-Up", "Lunges", "Pistol Squat"), perSide);
+    }
+
+    @Test
+    public void equipmentAndMuscleGroupsComeFromTheSeed() {
+        assertEquals(Equipment.PULL_UP_BAR, repository.getOne("Pull-Up").getEquipment());
+        assertEquals(Equipment.PARALLEL_BARS, repository.getOne("Dips").getEquipment());
+        assertEquals(Equipment.BENCH, repository.getOne("Bench Dips").getEquipment());
+        assertEquals(Equipment.WALL, repository.getOne("Wall Sit").getEquipment());
+        assertEquals(Equipment.NONE, repository.getOne("Push-Up").getEquipment());
+        assertTrue(repository.getOne("Burpees").isMultiMuscle());
+        assertFalse(repository.getOne("Crunches").isMultiMuscle());
+    }
+
+    @Test
+    public void equipmentAndMultiMuscleAreStoredAndReadBack() {
+        assertTrue(repository.insert(new Exercise("Ring Row", "Pull.", false, null, 10, 3.8,
+                null, "Back", Difficulty.INTERMEDIATE, false, Equipment.PULL_UP_BAR, true)));
+        Exercise row = repository.getOne("Ring Row");
+        assertEquals(Equipment.PULL_UP_BAR, row.getEquipment());
+        assertTrue(row.isMultiMuscle());
+        assertTrue(repository.insert(new Exercise("Calf Raise", "Rise.", false, null, 15, 3.0,
+                null, "Legs", Difficulty.BEGINNER, false, null, false)));
+        Exercise raise = repository.getOne("Calf Raise");
+        assertEquals(Equipment.NONE, raise.getEquipment());   // null means none
+        assertFalse(raise.isMultiMuscle());
     }
 
     @Test

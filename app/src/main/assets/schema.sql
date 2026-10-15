@@ -43,7 +43,11 @@ CREATE TABLE IF NOT EXISTS Exercise (
     MuscleGroup TEXT,
     Difficulty TEXT CHECK (Difficulty IN ('Beginner','Intermediate','Advanced')),
     IsPerSide   INTEGER NOT NULL DEFAULT 0
-                CHECK (IsPerSide IN (0, 1))               -- 1 = reps or seconds per side (lunges)
+                CHECK (IsPerSide IN (0, 1)),              -- 1 = reps or seconds per side (lunges)
+    Equipment   TEXT NOT NULL DEFAULT 'None'
+                CHECK (Equipment IN ('None','Wall','Bench or chair','Pull-up bar','Parallel bars')),
+    IsMultiMuscle INTEGER NOT NULL DEFAULT 0
+                CHECK (IsMultiMuscle IN (0, 1))           -- 1 = works several muscle groups
 );
 
 -- ========== WORKOUT ==========

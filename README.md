@@ -158,6 +158,11 @@ and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters.
   `Difficulty.values()`, easiest first, and `getLabel()` for the text.
 - **Animations:** `Exercise.getAnimationFile()` is null until animations are added; show a
   placeholder.
+- **Equipment and muscle groups (FR-3.2):** `Exercise.getEquipment()` is the `Equipment` enum
+  (NONE, WALL, BENCH, PULL_UP_BAR, PARALLEL_BARS; never null), with `getLabel()` for the text
+  ("Pull-up bar") and `Equipment.values()` for a filter. `isMultiMuscle()` is true for compound
+  movements that work several muscle groups (push-ups), false for those that mainly work
+  `getMuscleGroup()` (crunches).
 - **Per side (FR-4.2):** `Exercise.isPerSide()` is true when the reps or seconds count for each
   side, as in lunges; show "12 reps per side". One set does both sides, and a timed per-side set
   counts down both sides in one go. The session's `SessionExercise.isPerSide()` says the same.

@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Repos;
 
 import com.example.calisthenicsapp.CoreComponents.Difficulty;
+import com.example.calisthenicsapp.CoreComponents.Equipment;
 import com.example.calisthenicsapp.CoreComponents.Exercise;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -102,6 +103,8 @@ public class ExerciseRepository implements Repository<Exercise> {
         if (e.getDifficulty() != null) cv.put("Difficulty", e.getDifficulty().getLabel());
         else cv.putNull("Difficulty");
         cv.put("IsPerSide", e.isPerSide() ? 1 : 0);
+        cv.put("Equipment", e.getEquipment().getLabel());
+        cv.put("IsMultiMuscle", e.isMultiMuscle() ? 1 : 0);
         return cv;
     }
 
@@ -116,6 +119,8 @@ public class ExerciseRepository implements Repository<Exercise> {
                 c.getString(c.getColumnIndexOrThrow("AnimationFile")),
                 c.getString(c.getColumnIndexOrThrow("MuscleGroup")),
                 Difficulty.fromLabel(c.getString(c.getColumnIndexOrThrow("Difficulty"))),
-                c.getInt(c.getColumnIndexOrThrow("IsPerSide")) == 1);
+                c.getInt(c.getColumnIndexOrThrow("IsPerSide")) == 1,
+                Equipment.fromLabel(c.getString(c.getColumnIndexOrThrow("Equipment"))),
+                c.getInt(c.getColumnIndexOrThrow("IsMultiMuscle")) == 1);
     }
 }

@@ -16,6 +16,17 @@ public class Exercise {
                     Integer defaultSeconds, Integer defaultReps, double met,
                     String animationFile, String muscleGroup, Difficulty difficulty,
                     boolean isPerSide) {
+        this(name, instructions, isTimed, defaultSeconds, defaultReps, met, animationFile,
+                muscleGroup, difficulty, isPerSide, Equipment.NONE, false);
+    }
+    /**
+     * equipment: what it needs besides the floor; null means none. isMultiMuscle: it works
+     * several muscle groups rather than mainly one (FR-3.2).
+     */
+    public Exercise(String name, String instructions, boolean isTimed,
+                    Integer defaultSeconds, Integer defaultReps, double met,
+                    String animationFile, String muscleGroup, Difficulty difficulty,
+                    boolean isPerSide, Equipment equipment, boolean isMultiMuscle) {
         this.name = name;
         this.instructions = instructions;
         this.isTimed = isTimed;
@@ -26,6 +37,8 @@ public class Exercise {
         this.muscleGroup = muscleGroup;
         this.difficulty = difficulty;
         this.isPerSide = isPerSide;
+        this.equipment = equipment == null ? Equipment.NONE : equipment;
+        this.isMultiMuscle = isMultiMuscle;
     }
     public String getName() {
         return this.name;
@@ -63,6 +76,17 @@ public class Exercise {
     public boolean isPerSide() {
         return this.isPerSide;
     }
+    /** What it needs besides the floor; Equipment.NONE, never null. */
+    public Equipment getEquipment() {
+        return this.equipment;
+    }
+    /**
+     * True for a compound movement that works several muscle groups (push-ups, burpees), false
+     * for one that mainly works getMuscleGroup() (crunches).
+     */
+    public boolean isMultiMuscle() {
+        return this.isMultiMuscle;
+    }
     private String name;
     private String instructions;
     private boolean isTimed;
@@ -73,4 +97,6 @@ public class Exercise {
     private String muscleGroup;
     private Difficulty difficulty;
     private boolean isPerSide;
+    private Equipment equipment;
+    private boolean isMultiMuscle;
 }

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -64,6 +65,7 @@ public class SQLManagerTest {
         assertTrue(columns(db, "ExerciseOrder").contains("RestAfterSeconds"));
         assertTrue(columns(db, "CustomExerciseOrder").contains("RestAfterSeconds"));
         assertTrue(columns(db, "Exercise").contains("IsPerSide"));
+        assertTrue(columns(db, "Exercise").containsAll(Arrays.asList("Equipment", "IsMultiMuscle")));
         assertEquals(0, count(db, "CalendarEvent"));
     }
 
