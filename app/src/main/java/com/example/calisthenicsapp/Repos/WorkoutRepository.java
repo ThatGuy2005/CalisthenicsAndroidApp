@@ -20,26 +20,27 @@ public class WorkoutRepository implements Repository<Workout> {
     public boolean insert(Workout w) {
         ContentValues cv = new ContentValues();
         cv.put("Name", w.getName());
-        putLevelAndCategory(cv, w);
+        putDetails(cv, w);
         return Repository.insertDB(db, "Workout", cv);
     }
 
     @Override
     public boolean update(Workout w) {
         ContentValues cv = new ContentValues();
-        putLevelAndCategory(cv, w);
+        putDetails(cv, w);
         return Repository.updateDB(db, "Workout", cv, "Name = ?", w.getName());
     }
 
     /**
-     * Stored as their labels: the Difficulty label ("Beginner"), like Exercise.Difficulty, and
-     * the WorkoutCategory label ("Full body").
+     * Everything but the name. Level and category are stored as their labels: the Difficulty
+     * label ("Beginner"), like Exercise.Difficulty, and the WorkoutCategory label ("Full body").
      */
-    private static void putLevelAndCategory(ContentValues cv, Workout w) {
+    private static void putDetails(ContentValues cv, Workout w) {
         if (w.getLevel() != null) cv.put("Level", w.getLevel().getLabel());
         else cv.putNull("Level");
         if (w.getCategory() != null) cv.put("Category", w.getCategory().getLabel());
         else cv.putNull("Category");
+        cv.put("Description", w.getDescription());
     }
 
     public boolean rename(String oldName, String newName) {
@@ -74,6 +75,7 @@ public class WorkoutRepository implements Repository<Workout> {
     private static Workout fromCursor(Cursor c) {
         return new Workout(c.getString(c.getColumnIndexOrThrow("Name")),
                 Difficulty.fromLabel(c.getString(c.getColumnIndexOrThrow("Level"))),
-                WorkoutCategory.fromLabel(c.getString(c.getColumnIndexOrThrow("Category"))));
+                WorkoutCategory.fromLabel(c.getString(c.getColumnIndexOrThrow("Category"))),
+                c.getString(c.getColumnIndexOrThrow("Description")));
     }
 }

@@ -61,7 +61,7 @@ public class SQLManagerTest {
         assertTrue(count(db, "Workout") > 0);
         assertTrue(count(db, "ExerciseOrder") > 0);
         assertTrue(columns(db, "ScheduledWorkout").contains("RecurrenceRule"));
-        assertTrue(columns(db, "Workout").contains("Category"));
+        assertTrue(columns(db, "Workout").containsAll(Arrays.asList("Category", "Description")));
         assertTrue(columns(db, "ExerciseOrder").contains("RestAfterSeconds"));
         assertTrue(columns(db, "CustomExerciseOrder").contains("RestAfterSeconds"));
         assertTrue(columns(db, "Exercise").contains("IsPerSide"));

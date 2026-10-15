@@ -8,8 +8,11 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.Application;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.example.calisthenicsapp.CoreComponents.Difficulty;
+import com.example.calisthenicsapp.CoreComponents.Equipment;
+import com.example.calisthenicsapp.CoreComponents.ExerciseOrderEntry;
 import com.example.calisthenicsapp.CoreComponents.Workout;
 import com.example.calisthenicsapp.CoreComponents.WorkoutCategory;
 import com.example.calisthenicsapp.Database.SQLManager;
@@ -27,6 +30,7 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 @Config(application = Application.class)   // not CalisthenicsApplication: no Firebase or sync here
 public class WorkoutRepositoryTest {
+    private SQLiteDatabase db;
     private WorkoutRepository repository;
 
     @Before
@@ -34,7 +38,8 @@ public class WorkoutRepositoryTest {
         Context context = RuntimeEnvironment.getApplication();
         SQLManager.closeInstance();
         context.deleteDatabase(SQLManager.DATABASE_NAME);
-        repository = new WorkoutRepository(SQLManager.getInstance(context).getWritableDatabase());
+        db = SQLManager.getInstance(context).getWritableDatabase();
+        repository = new WorkoutRepository(db);
     }
 
     @After
@@ -55,6 +60,33 @@ public class WorkoutRepositoryTest {
             assertNotNull(w.getName(), w.getCategory());
         }
         assertEquals(WorkoutCategory.CORE, repository.getOne("Core Basics").getCategory());
+    }
+
+    /** The seed's descriptions say whether equipment is needed; this keeps them honest. */
+    @Test
+    public void everyPremadeWorkoutHasADescriptionThatMatchesItsEquipment() {
+        ExerciseRepository exercises = new ExerciseRepository(db);
+        for (Workout w : repository.getAll()) {
+            assertNotNull(w.getName(), w.getDescription());
+            boolean needsEquipment = false;
+            for (ExerciseOrderEntry e : new ExerciseOrderRepository(db).getByWorkout(w.getName())) {
+                if (exercises.getOne(e.getExerciseName()).getEquipment() != Equipment.NONE) {
+                    needsEquipment = true;
+                }
+            }
+            assertEquals(w.getName(), !needsEquipment,
+                    w.getDescription().contains("No equipment needed"));
+        }
+    }
+
+    @Test
+    public void descriptionIsStoredAndReadBack() {
+        assertTrue(repository.insert(new Workout("Test Desc", Difficulty.BEGINNER,
+                WorkoutCategory.CORE, "Short and easy.")));
+        assertEquals("Short and easy.", repository.getOne("Test Desc").getDescription());
+        assertTrue(repository.update(new Workout("Test Desc", Difficulty.BEGINNER,
+                WorkoutCategory.CORE)));
+        assertNull(repository.getOne("Test Desc").getDescription());
     }
 
     @Test

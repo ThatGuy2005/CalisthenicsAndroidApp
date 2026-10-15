@@ -11,12 +11,17 @@ public class Workout {
     public Workout(String name, Difficulty level, WorkoutCategory category) {
         this(name, level, category, null);
     }
+    /** description: a sentence or two about the workout (DR-2). */
+    public Workout(String name, Difficulty level, WorkoutCategory category, String description) {
+        this(name, level, category, description, null);
+    }
     /** estimatedSeconds: how long the workout is expected to take (FR-4.1). */
-    public Workout(String name, Difficulty level, WorkoutCategory category,
+    public Workout(String name, Difficulty level, WorkoutCategory category, String description,
                    Integer estimatedSeconds) {
         this.name = name;
         this.level = level;
         this.category = category;
+        this.description = description;
         this.estimatedSeconds = estimatedSeconds;
     }
     public Workout(String name) {
@@ -33,6 +38,10 @@ public class Workout {
     public WorkoutCategory getCategory() {
         return this.category;
     }
+    /** What it trains and what it needs, in a sentence or two; null for a custom workout. */
+    public String getDescription() {
+        return this.description;
+    }
     /**
      * Expected length in seconds: every set plus the rests between them. Filled in by
      * WorkoutService; null for a Workout read straight from the repository.
@@ -44,5 +53,6 @@ public class Workout {
     private String name;
     private Difficulty level;
     private WorkoutCategory category;
+    private String description;
     private Integer estimatedSeconds;
 }

@@ -86,13 +86,19 @@ VALUES
  0, NULL, 6, 3.8, NULL, 'Chest', 'Advanced', 1, 'None', 1);
 
 -- ========== PREMADE WORKOUTS ==========
-INSERT INTO Workout (Name, Level, Category) VALUES
-('Beginner Full Body', 'Beginner', 'Full body'),
-('Core Basics', 'Beginner', 'Core'),
-('Upper Body Strength', 'Intermediate', 'Upper body'),
-('Lower Body Burn', 'Intermediate', 'Lower body'),
-('Cardio Blast', 'Intermediate', 'Cardio'),
-('Advanced Calisthenics', 'Advanced', 'Full body');
+INSERT INTO Workout (Name, Level, Category, Description) VALUES
+('Beginner Full Body', 'Beginner', 'Full body',
+ 'A gentle start that works the whole body: jumping jacks, squats, knee push-ups, glute bridges and a plank. No equipment needed.'),
+('Core Basics', 'Beginner', 'Core',
+ 'Four floor exercises for the abs, lower back and glutes. A good first core routine. No equipment needed.'),
+('Upper Body Strength', 'Intermediate', 'Upper body',
+ 'Push-up variations and bench dips for the chest, shoulders and arms. Needs a sturdy bench or chair.'),
+('Lower Body Burn', 'Intermediate', 'Lower body',
+ 'Squats, lunges, a wall sit and glute bridges for the legs and glutes. Needs a wall.'),
+('Cardio Blast', 'Intermediate', 'Cardio',
+ 'Fast moves with short rests to raise your heart rate: jumping jacks, high knees, mountain climbers and burpees. No equipment needed.'),
+('Advanced Calisthenics', 'Advanced', 'Full body',
+ 'Hard bodyweight skills for experienced trainees: pull-ups, dips, archer push-ups, pistol squats and an L-sit. Needs a pull-up bar and parallel bars.');
 
 -- ========== EXERCISES IN EACH WORKOUT ==========
 -- Reps / Seconds NULL = use the exercise default. RestSeconds is the rest between the sets of an

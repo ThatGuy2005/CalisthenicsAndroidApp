@@ -172,6 +172,7 @@ A premade workout's `getLevel()` is its difficulty rating, the same `Difficulty`
 it is null for custom workouts. `getCategory()` is its general category (FR-4.1), the
 `WorkoutCategory` enum: FULL_BODY, UPPER_BODY, LOWER_BODY, CORE or CARDIO, with `getLabel()` for
 the text ("Full body") and `WorkoutCategory.values()` for a filter or grouping.
+`getDescription()` is a sentence or two on what it trains and what equipment it needs (DR-2).
 `getEstimatedSeconds()` is how long it is expected to take: every set plus the rests, counting
 3 s per rep. It is the same estimate the calendar event uses (FR-4.1).
 
