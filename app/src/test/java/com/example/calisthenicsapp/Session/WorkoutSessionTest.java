@@ -84,6 +84,26 @@ public class WorkoutSessionTest {
     }
 
     @Test
+    public void restBeforeTheNextExerciseFollowsTheLastSet() {
+        session = new WorkoutSession("Rests", Arrays.asList(
+                new SessionExercise("Push-Up", null, null, false, 10, null, 2, 30, 90, 3.8),
+                new SessionExercise("Squat", null, null, false, 10, null, 1, 30, 0, 3.8),
+                new SessionExercise("Plank", null, null, true, null, 20, 1, 0, 3.0)),
+                WEIGHT, () -> now, 1_700_000_000L);
+        session.completeSet();                              // push-up set 1
+        assertEquals(Integer.valueOf(30), session.getRemainingSeconds());   // between sets
+        session.skipRest();
+        session.completeSet();                              // push-up set 2, the last
+        assertEquals(Phase.REST, session.getPhase());
+        assertEquals("Squat", session.getCurrentExercise().getName());
+        assertEquals(Integer.valueOf(90), session.getRemainingSeconds());   // before the squat
+        session.skipRest();
+        session.completeSet();                              // squat: 0 s before the plank
+        assertEquals(Phase.WORK, session.getPhase());
+        assertEquals("Plank", session.getCurrentExercise().getName());
+    }
+
+    @Test
     public void pausedTimeIsNotCounted() {
         advance(10);
         session.pause();

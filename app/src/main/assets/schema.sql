@@ -59,7 +59,8 @@ CREATE TABLE IF NOT EXISTS ExerciseOrder (
     Sets        INTEGER NOT NULL DEFAULT 3 CHECK (Sets > 0),
     Reps        INTEGER CHECK (Reps > 0),
     Seconds     INTEGER CHECK (Seconds > 0),
-    RestSeconds INTEGER NOT NULL DEFAULT 60 CHECK (RestSeconds >= 0),
+    RestSeconds INTEGER NOT NULL DEFAULT 60 CHECK (RestSeconds >= 0),   -- between sets
+    RestAfterSeconds INTEGER CHECK (RestAfterSeconds >= 0),  -- before the next exercise; NULL = RestSeconds
     PRIMARY KEY (WorkoutName, Position),
     FOREIGN KEY (WorkoutName)  REFERENCES Workout(Name)
         ON DELETE CASCADE ON UPDATE CASCADE,
@@ -86,7 +87,8 @@ CREATE TABLE IF NOT EXISTS CustomExerciseOrder (
     Sets        INTEGER NOT NULL DEFAULT 3 CHECK (Sets > 0),
     Reps        INTEGER CHECK (Reps > 0),
     Seconds     INTEGER CHECK (Seconds > 0),
-    RestSeconds INTEGER NOT NULL DEFAULT 60 CHECK (RestSeconds >= 0),
+    RestSeconds INTEGER NOT NULL DEFAULT 60 CHECK (RestSeconds >= 0),   -- between sets
+    RestAfterSeconds INTEGER CHECK (RestAfterSeconds >= 0),  -- before the next exercise; NULL = RestSeconds
     PRIMARY KEY (CustomWorkoutId, Position),
     FOREIGN KEY (CustomWorkoutId) REFERENCES CustomWorkout(Id)
         ON DELETE CASCADE,

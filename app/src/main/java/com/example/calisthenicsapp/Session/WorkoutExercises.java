@@ -28,17 +28,18 @@ public final class WorkoutExercises {
     }
 
     /**
-     * How long the exercises are expected to take: every set plus the rests between them, with
-     * no rest after the very last set. A rep takes {@link #SECONDS_PER_REP} seconds.
+     * How long the exercises are expected to take: every set, the rests between the sets, and
+     * the rest after each exercise but the last. A rep takes {@link #SECONDS_PER_REP} seconds.
      */
     public static int estimateSeconds(List<WorkoutSession.SessionExercise> exercises) {
         int total = 0;
         for (WorkoutSession.SessionExercise e : exercises) {
             int work = e.isTimed() ? valueOf(e.getTargetSeconds())
                     : valueOf(e.getTargetReps()) * SECONDS_PER_REP;
-            total += e.getSets() * (work + e.getRestSeconds());
+            total += e.getSets() * work + (e.getSets() - 1) * e.getRestSeconds()
+                    + e.getRestAfterSeconds();
         }
-        if (!exercises.isEmpty()) total -= exercises.get(exercises.size() - 1).getRestSeconds();
+        if (!exercises.isEmpty()) total -= exercises.get(exercises.size() - 1).getRestAfterSeconds();
         return Math.max(total, 0);
     }
 
@@ -47,7 +48,8 @@ public final class WorkoutExercises {
         List<WorkoutSession.SessionExercise> exercises = new ArrayList<>();
         for (ExerciseOrderEntry e : new ExerciseOrderRepository(db).getByWorkout(workoutName)) {
             exercises.add(toSessionExercise(exerciseRepository.getOne(e.getExerciseName()),
-                    e.getSets(), e.getReps(), e.getSeconds(), e.getRestSeconds()));
+                    e.getSets(), e.getReps(), e.getSeconds(), e.getRestSeconds(),
+                    e.getRestAfterSeconds()));
         }
         return exercises;
     }
@@ -58,7 +60,8 @@ public final class WorkoutExercises {
         for (CustomExerciseOrderEntry e
                 : new CustomExerciseOrderRepository(db).getByCustomWorkout(customWorkoutId)) {
             exercises.add(toSessionExercise(exerciseRepository.getOne(e.getExerciseName()),
-                    e.getSets(), e.getReps(), e.getSeconds(), e.getRestSeconds()));
+                    e.getSets(), e.getReps(), e.getSeconds(), e.getRestSeconds(),
+                    e.getRestAfterSeconds()));
         }
         return exercises;
     }
@@ -66,10 +69,13 @@ public final class WorkoutExercises {
     /**
      * Uses the exercise's own default when the workout leaves reps or seconds open, and only
      * the one that fits the exercise: seconds for timed exercises, reps for the others.
+     * A missing rest before the next exercise is the same as the rest between sets.
      * The foreign keys guarantee the exercise exists.
      */
     private static WorkoutSession.SessionExercise toSessionExercise(
-            Exercise exercise, Integer sets, Integer reps, Integer seconds, Integer restSeconds) {
+            Exercise exercise, Integer sets, Integer reps, Integer seconds, Integer restSeconds,
+            Integer restAfterSeconds) {
+        int rest = restSeconds == null ? 0 : restSeconds;
         Integer targetReps = null;
         Integer targetSeconds = null;
         if (exercise.isTimed()) {
@@ -79,7 +85,8 @@ public final class WorkoutExercises {
         }
         return new WorkoutSession.SessionExercise(exercise.getName(), exercise.getInstructions(),
                 exercise.getAnimationFile(), exercise.isTimed(), targetReps, targetSeconds,
-                sets == null ? 1 : sets, restSeconds == null ? 0 : restSeconds, exercise.getMet());
+                sets == null ? 1 : sets, rest, restAfterSeconds == null ? rest : restAfterSeconds,
+                exercise.getMet());
     }
 
     private static int firstNonNull(Integer first, Integer second, int fallback) {

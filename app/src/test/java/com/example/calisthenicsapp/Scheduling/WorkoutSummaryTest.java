@@ -57,6 +57,15 @@ public class WorkoutSummaryTest {
     }
 
     @Test
+    public void aDifferentRestBeforeTheNextExerciseIsListed() {
+        WorkoutSummary summary = new WorkoutSummary("s1", "Mixed", START, Arrays.asList(
+                new SessionExercise("Push-up", null, null, false, 10, null, 3, 60, 90, 3.8),
+                new SessionExercise("Plank", null, null, true, null, 30, 2, 30, 90, 3.8)));
+        assertEquals("1. Push-up: 3 x 10 reps, 60 s rest, 90 s before the next exercise\n"
+                + "2. Plank: 2 x 30 s, 30 s rest", summary.getExerciseList());
+    }
+
+    @Test
     public void emailHasNameTimeAndExercises() {
         WorkoutSummary summary = new WorkoutSummary("s1", "Legs", START,
                 Collections.singletonList(reps("Squat", 3, 15, 45)));

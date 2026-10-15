@@ -91,38 +91,39 @@ INSERT INTO Workout (Name, Level, Category) VALUES
 ('Advanced Calisthenics', 'Advanced', 'Full body');
 
 -- ========== EXERCISES IN EACH WORKOUT ==========
--- Reps / Seconds NULL = use the exercise default. RestSeconds is the rest after each set.
+-- Reps / Seconds NULL = use the exercise default. RestSeconds is the rest between the sets of an
+-- exercise, RestAfterSeconds the rest after its last set, before the next exercise.
 INSERT INTO ExerciseOrder
-    (WorkoutName, ExerciseName, Position, Sets, Reps, Seconds, RestSeconds)
+    (WorkoutName, ExerciseName, Position, Sets, Reps, Seconds, RestSeconds, RestAfterSeconds)
 VALUES
-('Beginner Full Body', 'Jumping Jacks',     1, 3, NULL, NULL, 30),
-('Beginner Full Body', 'Bodyweight Squat',  2, 3, NULL, NULL, 45),
-('Beginner Full Body', 'Knee Push-Up',      3, 3, 8,    NULL, 45),
-('Beginner Full Body', 'Glute Bridge',      4, 3, NULL, NULL, 45),
-('Beginner Full Body', 'Plank',             5, 3, NULL, 20,   45),
+('Beginner Full Body', 'Jumping Jacks',     1, 3, NULL, NULL, 30, 60),
+('Beginner Full Body', 'Bodyweight Squat',  2, 3, NULL, NULL, 45, 60),
+('Beginner Full Body', 'Knee Push-Up',      3, 3, 8,    NULL, 45, 60),
+('Beginner Full Body', 'Glute Bridge',      4, 3, NULL, NULL, 45, 60),
+('Beginner Full Body', 'Plank',             5, 3, NULL, 20,   45, 60),
 
-('Core Basics', 'Crunches',        1, 3, NULL, NULL, 30),
-('Core Basics', 'Plank',           2, 3, NULL, NULL, 30),
-('Core Basics', 'Superman Hold',   3, 3, NULL, NULL, 30),
-('Core Basics', 'Glute Bridge',    4, 3, NULL, NULL, 30),
+('Core Basics', 'Crunches',        1, 3, NULL, NULL, 30, 60),
+('Core Basics', 'Plank',           2, 3, NULL, NULL, 30, 60),
+('Core Basics', 'Superman Hold',   3, 3, NULL, NULL, 30, 60),
+('Core Basics', 'Glute Bridge',    4, 3, NULL, NULL, 30, 60),
 
-('Upper Body Strength', 'Push-Up',          1, 4, NULL, NULL, 60),
-('Upper Body Strength', 'Diamond Push-Up',  2, 3, NULL, NULL, 60),
-('Upper Body Strength', 'Pike Push-Up',     3, 3, NULL, NULL, 60),
-('Upper Body Strength', 'Bench Dips',       4, 3, NULL, NULL, 60),
+('Upper Body Strength', 'Push-Up',          1, 4, NULL, NULL, 60, 90),
+('Upper Body Strength', 'Diamond Push-Up',  2, 3, NULL, NULL, 60, 90),
+('Upper Body Strength', 'Pike Push-Up',     3, 3, NULL, NULL, 60, 90),
+('Upper Body Strength', 'Bench Dips',       4, 3, NULL, NULL, 60, 90),
 
-('Lower Body Burn', 'Bodyweight Squat', 1, 4, NULL, NULL, 45),
-('Lower Body Burn', 'Lunges',           2, 3, NULL, NULL, 45),
-('Lower Body Burn', 'Wall Sit',         3, 3, NULL, NULL, 45),
-('Lower Body Burn', 'Glute Bridge',     4, 3, 20,   NULL, 30),
+('Lower Body Burn', 'Bodyweight Squat', 1, 4, NULL, NULL, 45, 60),
+('Lower Body Burn', 'Lunges',           2, 3, NULL, NULL, 45, 60),
+('Lower Body Burn', 'Wall Sit',         3, 3, NULL, NULL, 45, 60),
+('Lower Body Burn', 'Glute Bridge',     4, 3, 20,   NULL, 30, 60),
 
-('Cardio Blast', 'Jumping Jacks',     1, 3, NULL, NULL, 20),
-('Cardio Blast', 'High Knees',        2, 3, NULL, NULL, 20),
-('Cardio Blast', 'Mountain Climbers', 3, 3, NULL, NULL, 20),
-('Cardio Blast', 'Burpees',           4, 3, 8,    NULL, 40),
+('Cardio Blast', 'Jumping Jacks',     1, 3, NULL, NULL, 20, 60),
+('Cardio Blast', 'High Knees',        2, 3, NULL, NULL, 20, 60),
+('Cardio Blast', 'Mountain Climbers', 3, 3, NULL, NULL, 20, 60),
+('Cardio Blast', 'Burpees',           4, 3, 8,    NULL, 40, 60),
 
-('Advanced Calisthenics', 'Pull-Up',         1, 4, NULL, NULL, 90),
-('Advanced Calisthenics', 'Dips',            2, 4, NULL, NULL, 90),
-('Advanced Calisthenics', 'Archer Push-Up',  3, 3, NULL, NULL, 90),
-('Advanced Calisthenics', 'Pistol Squat',    4, 3, NULL, NULL, 90),
-('Advanced Calisthenics', 'L-Sit Hold',      5, 3, NULL, NULL, 60);
+('Advanced Calisthenics', 'Pull-Up',         1, 4, NULL, NULL, 90, 120),
+('Advanced Calisthenics', 'Dips',            2, 4, NULL, NULL, 90, 120),
+('Advanced Calisthenics', 'Archer Push-Up',  3, 3, NULL, NULL, 90, 120),
+('Advanced Calisthenics', 'Pistol Squat',    4, 3, NULL, NULL, 90, 120),
+('Advanced Calisthenics', 'L-Sit Hold',      5, 3, NULL, NULL, 60, 120);

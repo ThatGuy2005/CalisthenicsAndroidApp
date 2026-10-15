@@ -15,8 +15,9 @@ import java.util.function.LongSupplier;
  * methods, reads the getters, and calls {@link #tick()} about once a second so that timed sets
  * and rests end on their own. Build one with WorkoutSessionService; it starts right away.
  *
- * Every set of every exercise is a WORK step, followed by a REST step using that exercise's rest
- * time (no rest after the last set, none if the rest time is 0). During a REST step,
+ * Every set of every exercise is a WORK step, followed by a REST step: the exercise's rest between
+ * sets, or after its last set its rest before the next exercise (no rest after the very last set,
+ * none if the rest time is 0). During a REST step,
  * {@link #getCurrentExercise()} and {@link #getCurrentSet()} already show the set that comes next.
  * Rep-based sets end when the user taps done ({@link #completeSet()}). Timed sets end on their
  * own when the time is up, or earlier with completeSet. Rests end on their own or with
@@ -48,15 +49,24 @@ public class WorkoutSession implements Serializable {
         private final Integer targetReps;      // per set; null for timed exercises
         private final Integer targetSeconds;   // per set; null for rep-based exercises
         private final int sets;
-        private final int restSeconds;
+        private final int restSeconds;         // between its sets
+        private final Integer restAfterSeconds;    // before the next exercise; null = restSeconds
         private final double met;
 
         private int completedSets;
         private long activeMillis;
 
+        /** The same rest between the sets and before the next exercise. */
         public SessionExercise(String name, String instructions, String animationFile,
                                boolean timed, Integer targetReps, Integer targetSeconds,
                                int sets, int restSeconds, double met) {
+            this(name, instructions, animationFile, timed, targetReps, targetSeconds, sets,
+                    restSeconds, restSeconds, met);
+        }
+
+        public SessionExercise(String name, String instructions, String animationFile,
+                               boolean timed, Integer targetReps, Integer targetSeconds,
+                               int sets, int restSeconds, int restAfterSeconds, double met) {
             this.name = name;
             this.instructions = instructions;
             this.animationFile = animationFile;
@@ -65,6 +75,7 @@ public class WorkoutSession implements Serializable {
             this.targetSeconds = targetSeconds;
             this.sets = sets;
             this.restSeconds = restSeconds;
+            this.restAfterSeconds = restAfterSeconds;
             this.met = met;
         }
 
@@ -75,7 +86,15 @@ public class WorkoutSession implements Serializable {
         public Integer getTargetReps() { return targetReps; }
         public Integer getTargetSeconds() { return targetSeconds; }
         public int getSets() { return sets; }
+        /** The rest between the sets of this exercise. */
         public int getRestSeconds() { return restSeconds; }
+        /**
+         * The rest after its last set, before the next exercise. A session saved by an older
+         * app version has none stored, and uses the rest between sets.
+         */
+        public int getRestAfterSeconds() {
+            return restAfterSeconds == null ? restSeconds : restAfterSeconds;
+        }
         public double getMet() { return met; }
         public int getCompletedSets() { return completedSets; }
         public int getActiveSeconds() { return (int) (activeMillis / 1000L); }
@@ -326,14 +345,15 @@ public class WorkoutSession implements Serializable {
 
         if (setNumber < current.sets) {
             setNumber++;
+            restTargetSeconds = current.restSeconds;
         } else if (exerciseIndex + 1 < exercises.size()) {
             exerciseIndex++;
             setNumber = 1;
+            restTargetSeconds = current.getRestAfterSeconds();
         } else {
             end(Phase.FINISHED);
             return;
         }
-        restTargetSeconds = current.restSeconds;
         startStep(restTargetSeconds > 0 ? Phase.REST : Phase.WORK);
     }
 
