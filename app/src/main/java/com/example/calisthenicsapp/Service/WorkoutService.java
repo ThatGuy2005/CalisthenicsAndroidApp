@@ -6,7 +6,9 @@ import com.example.calisthenicsapp.CoreComponents.ExerciseOrderEntry;
 import com.example.calisthenicsapp.CoreComponents.Workout;
 import com.example.calisthenicsapp.Repos.ExerciseOrderRepository;
 import com.example.calisthenicsapp.Repos.WorkoutRepository;
+import com.example.calisthenicsapp.Session.WorkoutExercises;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,14 +24,27 @@ public class WorkoutService extends UserDataService {
         super(context);
     }
 
-    /** Every premade workout, sorted by name. */
+    /** Every premade workout, sorted by name, with its estimated length. */
     public void getAllWorkouts(ServiceCallback<List<Workout>> callback) {
-        onDb(() -> succeed(callback, new WorkoutRepository(db()).getAll()));
+        onDb(() -> {
+            List<Workout> workouts = new ArrayList<>();
+            for (Workout w : new WorkoutRepository(db()).getAll()) workouts.add(withEstimate(w));
+            succeed(callback, workouts);
+        });
     }
 
     /** Returns null if there is no premade workout with that name. */
     public void getWorkout(String name, ServiceCallback<Workout> callback) {
-        onDb(() -> succeed(callback, name == null ? null : new WorkoutRepository(db()).getOne(name)));
+        onDb(() -> {
+            Workout workout = name == null ? null : new WorkoutRepository(db()).getOne(name);
+            succeed(callback, workout == null ? null : withEstimate(workout));
+        });
+    }
+
+    /** The same estimate as a scheduled workout's calendar event (FR-4.1). */
+    private Workout withEstimate(Workout w) {
+        int seconds = WorkoutExercises.estimateSeconds(WorkoutExercises.ofPremade(db(), w.getName()));
+        return new Workout(w.getName(), w.getLevel(), seconds);
     }
 
     /**

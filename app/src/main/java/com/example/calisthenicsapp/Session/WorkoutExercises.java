@@ -21,7 +21,25 @@ public final class WorkoutExercises {
     private static final int FALLBACK_REPS = 10;
     private static final int FALLBACK_SECONDS = 30;
 
+    /** Rough time one rep takes, for the duration estimate. */
+    static final int SECONDS_PER_REP = 3;
+
     private WorkoutExercises() {
+    }
+
+    /**
+     * How long the exercises are expected to take: every set plus the rests between them, with
+     * no rest after the very last set. A rep takes {@link #SECONDS_PER_REP} seconds.
+     */
+    public static int estimateSeconds(List<WorkoutSession.SessionExercise> exercises) {
+        int total = 0;
+        for (WorkoutSession.SessionExercise e : exercises) {
+            int work = e.isTimed() ? valueOf(e.getTargetSeconds())
+                    : valueOf(e.getTargetReps()) * SECONDS_PER_REP;
+            total += e.getSets() * (work + e.getRestSeconds());
+        }
+        if (!exercises.isEmpty()) total -= exercises.get(exercises.size() - 1).getRestSeconds();
+        return Math.max(total, 0);
     }
 
     public static List<WorkoutSession.SessionExercise> ofPremade(SQLiteDatabase db, String workoutName) {
@@ -68,5 +86,9 @@ public final class WorkoutExercises {
         if (first != null) return first;
         if (second != null) return second;
         return fallback;
+    }
+
+    private static int valueOf(Integer value) {
+        return value == null ? 0 : value;
     }
 }

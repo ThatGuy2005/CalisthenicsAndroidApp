@@ -25,8 +25,6 @@ public final class WorkoutSummary {
     /** Reminder before the workout, in the calendar event and the .ics file. */
     public static final int REMINDER_MINUTES = 30;
 
-    /** Rough time one rep takes, for the duration estimate. */
-    static final int SECONDS_PER_REP = 3;
     static final int MIN_EVENT_SECONDS = 15 * 60;
     private static final int ROUND_TO_SECONDS = 5 * 60;
 
@@ -79,16 +77,9 @@ public final class WorkoutSummary {
     public Recurrence getRecurrence() { return recurrence; }
     public List<SessionExercise> getExercises() { return exercises; }
 
-    /** Every set plus the rests between them; no rest after the very last set. */
+    /** Every set plus the rests between them; see {@link WorkoutExercises#estimateSeconds}. */
     public int getEstimatedSeconds() {
-        int total = 0;
-        for (SessionExercise e : exercises) {
-            int work = e.isTimed() ? valueOf(e.getTargetSeconds())
-                    : valueOf(e.getTargetReps()) * SECONDS_PER_REP;
-            total += e.getSets() * (work + e.getRestSeconds());
-        }
-        if (!exercises.isEmpty()) total -= exercises.get(exercises.size() - 1).getRestSeconds();
-        return Math.max(total, 0);
+        return WorkoutExercises.estimateSeconds(exercises);
     }
 
     /** How long the calendar event lasts: the estimate rounded up to whole 5 minutes, at least 15. */
