@@ -12,6 +12,7 @@ import com.example.calisthenicsapp.Repos.ExerciseOrderRepository;
 import com.example.calisthenicsapp.Repos.ExerciseRepository;
 import com.example.calisthenicsapp.Repos.ScheduledWorkoutRepository;
 import com.example.calisthenicsapp.Repos.WorkoutRepository;
+import com.example.calisthenicsapp.Session.WorkoutExercises;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.WriteBatch;
@@ -45,8 +46,16 @@ public class CustomWorkoutService extends UserDataService {
         super(context);
     }
 
+    /** Each with its estimated length, worked out like a premade workout's (FR-4.1). */
     public void getMyCustomWorkouts(ServiceCallback<List<CustomWorkout>> callback) {
-        readForUser(callback, uid -> new CustomWorkoutRepository(db()).getByUid(uid));
+        readForUser(callback, uid -> {
+            List<CustomWorkout> workouts = new ArrayList<>();
+            for (CustomWorkout w : new CustomWorkoutRepository(db()).getByUid(uid)) {
+                int seconds = WorkoutExercises.estimateSeconds(WorkoutExercises.ofCustom(db(), w.getId()));
+                workouts.add(new CustomWorkout(w.getId(), w.getName(), w.getUid(), seconds));
+            }
+            return workouts;
+        });
     }
 
     /** The workout's exercises in order. */

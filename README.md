@@ -197,7 +197,7 @@ Each exercise has two rest times (FR-4.2): `getRestSeconds()` between its sets, 
 
 | Method | Notes |
 |---|---|
-| `getMyCustomWorkouts(cb)`, `getExercises(id, cb)` | |
+| `getMyCustomWorkouts(cb)`, `getExercises(id, cb)` | Each workout has `getEstimatedSeconds()`, worked out like a premade workout's. |
 | `create(name, exercises, cb)` | Returns the new id. 1-50 exercises; the name is at most 40 characters and unique per user. |
 | `duplicatePremade(workoutName, newName, cb)` | Copies a premade workout to edit. With a null name it reuses the premade name, made unique ("Name (2)"). |
 | `rename(id, newName, cb)`, `replaceExercises(id, exercises, cb)` | |

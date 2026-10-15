@@ -8,8 +8,10 @@ import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.example.calisthenicsapp.CoreComponents.CustomExerciseOrderEntry;
 import com.example.calisthenicsapp.CoreComponents.Workout;
 import com.example.calisthenicsapp.Database.SQLManager;
+import com.example.calisthenicsapp.Repos.CustomExerciseOrderRepository;
 import com.example.calisthenicsapp.Repos.WorkoutRepository;
 import com.example.calisthenicsapp.Session.WorkoutSession.SessionExercise;
 
@@ -82,6 +84,17 @@ public class WorkoutExercisesTest {
         // Glute Bridge 3 x 15 x 3 s + 60 = 195 (no rest after the last exercise)
         assertEquals(840, WorkoutExercises.estimateSeconds(
                 WorkoutExercises.ofPremade(db, "Core Basics")));
+    }
+
+    @Test
+    public void customWorkoutEstimateUsesItsOwnTargetsAndRests() {
+        db.execSQL("INSERT INTO Users (Uid, Email, Username) VALUES ('u1', 'a@b.c', 'alice')");
+        db.execSQL("INSERT INTO CustomWorkout (Id, Name, Uid) VALUES ('cw1', 'Mine', 'u1')");
+        new CustomExerciseOrderRepository(db).replaceForCustomWorkout("cw1", Arrays.asList(
+                new CustomExerciseOrderEntry("cw1", "Push-Up", 1, 2, 10, null, 30, 60),
+                new CustomExerciseOrderEntry("cw1", "Plank", 2, 1, null, 45, 0)));
+        // Push-Up 2 x 10 x 3 s + 30 s between sets + 60 s before the plank = 150, Plank 45
+        assertEquals(195, WorkoutExercises.estimateSeconds(WorkoutExercises.ofCustom(db, "cw1")));
     }
 
     @Test

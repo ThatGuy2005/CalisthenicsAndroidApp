@@ -44,7 +44,7 @@ public class Workout {
     }
     /**
      * Expected length in seconds: every set plus the rests between them. Filled in by
-     * WorkoutService; null for a Workout read straight from the repository.
+     * WorkoutService and CustomWorkoutService; null for one read straight from a repository.
      */
     public Integer getEstimatedSeconds() {
         return this.estimatedSeconds;
