@@ -38,7 +38,10 @@ public class Workout {
     public WorkoutCategory getCategory() {
         return this.category;
     }
-    /** What it trains and what it needs, in a sentence or two; null for a custom workout. */
+    /**
+     * What it trains and what it needs, in a sentence or two. For a custom workout it is the
+     * user's own text, or null if they wrote none.
+     */
     public String getDescription() {
         return this.description;
     }

@@ -22,6 +22,16 @@ await check('custom workout rename', assertSucceeds(updateDoc(at('customWorkouts
 await check('custom workout replace exercises', assertSucceeds(updateDoc(at('customWorkouts', 'w1'), { exercises: entries(1), updatedAt: NOW + 2 })));
 await check('custom workout with a rest before the next exercise', assertSucceeds(setDoc(at('customWorkouts', 'w6'),
   workout({ name: 'Rests', exercises: [{ ...entry(1), restAfterSeconds: 90 }, entry(2)] }))));
+await check('custom workout with a description', assertSucceeds(setDoc(at('customWorkouts', 'w7'),
+  workout({ name: 'Described', description: 'Push day, about 20 minutes.' }))));
+await check('custom workout description edit', assertSucceeds(updateDoc(at('customWorkouts', 'w7'),
+  { description: 'x'.repeat(200), updatedAt: NOW + 1 })));
+await check('custom workout description removed', assertSucceeds(updateDoc(at('customWorkouts', 'w7'),
+  { description: deleteField(), updatedAt: NOW + 2 })));
+await check('custom workout 201-character description rejected', assertFails(setDoc(at('customWorkouts', 'w2'),
+  workout({ description: 'x'.repeat(201) }))));
+await check('custom workout description as a number rejected', assertFails(setDoc(at('customWorkouts', 'w2'),
+  workout({ description: 5 }))));
 await check('custom workout with 50 exercises', assertSucceeds(setDoc(at('customWorkouts', 'w3'), workout({ name: 'Big', exercises: entries(50) }))));
 await check('custom workout empty name rejected', assertFails(setDoc(at('customWorkouts', 'w2'), workout({ name: '' }))));
 await check('custom workout 41-character name rejected', assertFails(setDoc(at('customWorkouts', 'w2'), workout({ name: 'x'.repeat(41) }))));

@@ -21,6 +21,7 @@ public class CustomWorkoutRepository implements Repository<CustomWorkout> {
         cv.put("Id", w.getId());
         cv.put("Name", w.getName());
         cv.put("Uid", w.getUid());
+        cv.put("Description", w.getDescription());
         try {
             return db.insertOrThrow("CustomWorkout", null, cv) != -1;
         } catch (SQLiteConstraintException e) {
@@ -29,9 +30,10 @@ public class CustomWorkoutRepository implements Repository<CustomWorkout> {
     }
 
     @Override
-    public boolean update(CustomWorkout w) {            // rename
+    public boolean update(CustomWorkout w) {            // name and description
         ContentValues cv = new ContentValues();
         cv.put("Name", w.getName());
+        cv.put("Description", w.getDescription());
         return Repository.updateDB(db, "CustomWorkout", cv,
                 "Id = ?", w.getId());
     }
@@ -64,7 +66,9 @@ public class CustomWorkoutRepository implements Repository<CustomWorkout> {
                 list.add(new CustomWorkout(
                         c.getString(c.getColumnIndexOrThrow("Id")),
                         c.getString(c.getColumnIndexOrThrow("Name")),
-                        c.getString(c.getColumnIndexOrThrow("Uid"))));
+                        c.getString(c.getColumnIndexOrThrow("Uid")),
+                        c.getString(c.getColumnIndexOrThrow("Description")),
+                        null));
             }
         }
         return list;

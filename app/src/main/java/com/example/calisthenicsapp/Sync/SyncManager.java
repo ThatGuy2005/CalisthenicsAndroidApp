@@ -268,7 +268,8 @@ public class SyncManager {
             return;
         }
         RemoteCustomWorkout remote = RemoteCustomWorkout.fromSnapshot(doc);
-        CustomWorkout workout = new CustomWorkout(remote.id, remote.name, uid);
+        CustomWorkout workout = new CustomWorkout(remote.id, remote.name, uid, remote.description,
+                null);
         if (workoutRepository.getOne(remote.id) == null) {
             workoutRepository.insert(workout);
         } else {

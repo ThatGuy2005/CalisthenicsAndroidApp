@@ -35,7 +35,7 @@ public class SQLManager extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "CalisthenicsApp.db";
 
     /** Increase this when schema.sql or seed.sql changes, and add the step to onUpgrade. */
-    public static final int DATABASE_VERSION = 12;
+    public static final int DATABASE_VERSION = 13;
 
     /** Older databases are dropped and recreated instead of upgraded, see onUpgrade. */
     private static final int OLDEST_UPGRADABLE_VERSION = 3;
@@ -150,6 +150,9 @@ public class SQLManager extends SQLiteOpenHelper {
         }
         if (oldVersion < 12) {  // birth year for the BMR (FR-1.2); SyncManager fills it in
             db.execSQL("ALTER TABLE Users ADD COLUMN BirthYear INTEGER CHECK (BirthYear >= 1900)");
+        }
+        if (oldVersion < 13) {  // custom workout descriptions; SyncManager fills them in
+            db.execSQL("ALTER TABLE CustomWorkout ADD COLUMN Description TEXT");
         }
         refreshSeed(db);
     }

@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS CustomWorkout (
     Id    TEXT PRIMARY KEY NOT NULL,
     Name  TEXT NOT NULL,
     Uid   TEXT NOT NULL,
+    Description TEXT,                                     -- optional; added in version 13
     UNIQUE (Uid, Name),                                   -- unique per user, not globally
     FOREIGN KEY (Uid) REFERENCES Users(Uid)
         ON DELETE CASCADE ON UPDATE CASCADE

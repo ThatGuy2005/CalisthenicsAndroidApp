@@ -302,6 +302,7 @@ public class AccountService extends UserDataService {
             JSONObject o = new JSONObject();
             o.put("id", w.getId());
             o.put("name", w.getName());
+            o.put("description", orNull(w.getDescription()));
             o.put("exercises", exercises);
             workouts.put(o);
         }

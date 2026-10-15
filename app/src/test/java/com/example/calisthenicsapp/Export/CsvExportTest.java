@@ -33,7 +33,8 @@ public class CsvExportTest {
 
     private static Map<String, String> sample() {
         User user = new User("u1", "alice", "a@b.c", 170, 0, null, T, T + 60);
-        CustomWorkout workout = new CustomWorkout("cw1", "Legs, hard", "u1");
+        CustomWorkout workout = new CustomWorkout("cw1", "Legs, hard", "u1", "Squats, then planks.",
+                null);
         List<CustomExerciseOrderEntry> entries = Arrays.asList(
                 new CustomExerciseOrderEntry("cw1", "Squat", 1, 3, 12, null, 60, 90),
                 new CustomExerciseOrderEntry("cw1", "Plank", 2, 2, null, 30, 45));
@@ -65,9 +66,10 @@ public class CsvExportTest {
     @Test
     public void customWorkoutsHaveOneRowPerExercise() {
         assertEquals(Arrays.asList(
-                "workout_id,workout_name,position,exercise,sets,reps,seconds,rest_seconds,rest_after_seconds",
-                "cw1,\"Legs, hard\",1,Squat,3,12,,60,90",
-                "cw1,\"Legs, hard\",2,Plank,2,,30,45,"),   // no rest after: same as rest_seconds
+                "workout_id,workout_name,workout_description,position,exercise,sets,reps,seconds,"
+                        + "rest_seconds,rest_after_seconds",
+                "cw1,\"Legs, hard\",\"Squats, then planks.\",1,Squat,3,12,,60,90",
+                "cw1,\"Legs, hard\",\"Squats, then planks.\",2,Plank,2,,30,45,"),   // no rest after
                 lines(sample().get(CsvExport.CUSTOM_WORKOUTS)));
     }
 

@@ -6,6 +6,7 @@ import com.example.calisthenicsapp.CoreComponents.CustomExerciseOrderEntry;
 import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
 import com.example.calisthenicsapp.CoreComponents.ExerciseOrderEntry;
 import com.example.calisthenicsapp.CoreComponents.ScheduledWorkout;
+import com.example.calisthenicsapp.CoreComponents.Workout;
 import com.example.calisthenicsapp.Repos.CustomExerciseOrderRepository;
 import com.example.calisthenicsapp.Repos.CustomWorkoutRepository;
 import com.example.calisthenicsapp.Repos.ExerciseOrderRepository;
@@ -15,6 +16,7 @@ import com.example.calisthenicsapp.Repos.WorkoutRepository;
 import com.example.calisthenicsapp.Session.WorkoutExercises;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
@@ -37,6 +39,8 @@ import java.util.Set;
  */
 public class CustomWorkoutService extends UserDataService {
     private static final int NAME_MAX = 40;
+    /** firestore.rules checks the same limit. */
+    static final int DESCRIPTION_MAX = 200;
     /** firestore.rules allows at most this many exercises in a workout or a log. */
     private static final int EXERCISES_MAX = 50;
     private static final int DEFAULT_SETS = 3;
@@ -52,7 +56,8 @@ public class CustomWorkoutService extends UserDataService {
             List<CustomWorkout> workouts = new ArrayList<>();
             for (CustomWorkout w : new CustomWorkoutRepository(db()).getByUid(uid)) {
                 int seconds = WorkoutExercises.estimateSeconds(WorkoutExercises.ofCustom(db(), w.getId()));
-                workouts.add(new CustomWorkout(w.getId(), w.getName(), w.getUid(), seconds));
+                workouts.add(new CustomWorkout(w.getId(), w.getName(), w.getUid(),
+                        w.getDescription(), seconds));
             }
             return workouts;
         });
@@ -68,20 +73,35 @@ public class CustomWorkoutService extends UserDataService {
     /** On success, returns the new workout's id. */
     public void create(String name, List<CustomExerciseOrderEntry> exercises,
                        ServiceCallback<String> callback) {
+        create(name, null, exercises, callback);
+    }
+
+    /**
+     * description is optional: null or blank for none, otherwise at most
+     * {@link #DESCRIPTION_MAX} characters. On success, returns the new workout's id.
+     */
+    public void create(String name, String description, List<CustomExerciseOrderEntry> exercises,
+                       ServiceCallback<String> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
             fail(callback, NOT_SIGNED_IN);
             return;
         }
         String trimmed = name == null ? "" : name.trim();
-        onDb(() -> createOnDb(uid, trimmed, exercises, callback));
+        String text = cleanDescription(description);
+        String error = validateDescription(text);
+        if (error != null) {
+            fail(callback, error);
+            return;
+        }
+        onDb(() -> createOnDb(uid, trimmed, text, exercises, callback));
     }
 
     /**
-     * Copies a premade workout into a new custom workout that the user can edit (FR-4.3).
-     * Pass null as newName to reuse the premade workout's name, made unique with " (2)",
-     * " (3)", ... if the user already has a workout called that. On success, returns the new
-     * workout's id. Like create, this also works offline.
+     * Copies a premade workout into a new custom workout that the user can edit (FR-4.3),
+     * description included. Pass null as newName to reuse the premade workout's name, made
+     * unique with " (2)", " (3)", ... if the user already has a workout called that. On success,
+     * returns the new workout's id. Like create, this also works offline.
      */
     public void duplicatePremade(String workoutName, String newName,
                                  ServiceCallback<String> callback) {
@@ -91,7 +111,8 @@ public class CustomWorkoutService extends UserDataService {
             return;
         }
         onDb(() -> {
-            if (workoutName == null || new WorkoutRepository(db()).getOne(workoutName) == null) {
+            Workout premade = workoutName == null ? null : new WorkoutRepository(db()).getOne(workoutName);
+            if (premade == null) {
                 fail(callback, "That workout no longer exists.");
                 return;
             }
@@ -103,7 +124,7 @@ public class CustomWorkoutService extends UserDataService {
                         e.getRestAfterSeconds()));
             }
             String name = newName == null ? uniqueName(uid, workoutName) : newName.trim();
-            createOnDb(uid, name, copy, callback);
+            createOnDb(uid, name, cleanDescription(premade.getDescription()), copy, callback);
         });
     }
 
@@ -124,6 +145,30 @@ public class CustomWorkoutService extends UserDataService {
             watchWrite(workouts(uid).document(customWorkoutId)
                             .update("name", trimmed, "updatedAt", now()),
                     "Renaming custom workout " + customWorkoutId);
+            succeed(callback, null);
+        });
+    }
+
+    /** Sets the description; null or blank removes it. At most {@link #DESCRIPTION_MAX} characters. */
+    public void setDescription(String customWorkoutId, String description,
+                               ServiceCallback<Void> callback) {
+        String uid = sessionManager.getCurrentUid();
+        if (uid == null) {
+            fail(callback, NOT_SIGNED_IN);
+            return;
+        }
+        String text = cleanDescription(description);
+        onDb(() -> {
+            String error = checkExists(customWorkoutId);
+            if (error == null) error = validateDescription(text);
+            if (error != null) {
+                fail(callback, error);
+                return;
+            }
+            watchWrite(workouts(uid).document(customWorkoutId).update(
+                            "description", text == null ? FieldValue.delete() : text,
+                            "updatedAt", now()),
+                    "Updating the description of custom workout " + customWorkoutId);
             succeed(callback, null);
         });
     }
@@ -176,8 +221,9 @@ public class CustomWorkoutService extends UserDataService {
         });
     }
 
-    /** Shared by create and duplicatePremade; must run inside onDb. */
-    private void createOnDb(String uid, String name, List<CustomExerciseOrderEntry> exercises,
+    /** Shared by create and duplicatePremade; must run inside onDb. description is cleaned. */
+    private void createOnDb(String uid, String name, String description,
+                            List<CustomExerciseOrderEntry> exercises,
                             ServiceCallback<String> callback) {
         String error = validateName(uid, name, null);
         if (error == null) error = validateExercises(exercises);
@@ -188,10 +234,26 @@ public class CustomWorkoutService extends UserDataService {
         DocumentReference doc = workouts(uid).document();     // Firestore auto id
         Map<String, Object> data = new HashMap<>();
         data.put("name", name);
+        if (description != null) data.put("description", description);
         data.put("updatedAt", now());
         data.put("exercises", toRemote(exercises));
         watchWrite(doc.set(data), "Creating custom workout " + doc.getId());
         succeed(callback, doc.getId());
+    }
+
+    /** Trimmed, or null when there is nothing left. */
+    static String cleanDescription(String description) {
+        if (description == null) return null;
+        String trimmed = description.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    /** For a cleaned description; null if it is fine. */
+    static String validateDescription(String description) {
+        if (description != null && description.length() > DESCRIPTION_MAX) {
+            return "The description can be at most " + DESCRIPTION_MAX + " characters.";
+        }
+        return null;
     }
 
     /** base, or base + " (2)", " (3)", ... : the first one none of the user's workouts uses. */

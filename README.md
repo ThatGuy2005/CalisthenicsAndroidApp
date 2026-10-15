@@ -199,9 +199,9 @@ Each exercise has two rest times (FR-4.2): `getRestSeconds()` between its sets, 
 | Method | Notes |
 |---|---|
 | `getMyCustomWorkouts(cb)`, `getExercises(id, cb)` | Each workout has `getEstimatedSeconds()`, worked out like a premade workout's. |
-| `create(name, exercises, cb)` | Returns the new id. 1-50 exercises; the name is at most 40 characters and unique per user. |
-| `duplicatePremade(workoutName, newName, cb)` | Copies a premade workout to edit. With a null name it reuses the premade name, made unique ("Name (2)"). |
-| `rename(id, newName, cb)`, `replaceExercises(id, exercises, cb)` | |
+| `create(name, exercises, cb)`, `create(name, description, exercises, cb)` | Returns the new id. 1-50 exercises; the name is at most 40 characters and unique per user. The description is optional (null or blank for none), at most 200 characters. |
+| `duplicatePremade(workoutName, newName, cb)` | Copies a premade workout to edit, description included. With a null name it reuses the premade name, made unique ("Name (2)"). |
+| `rename(id, newName, cb)`, `setDescription(id, description, cb)`, `replaceExercises(id, exercises, cb)` | `getDescription()` reads it back; null or blank removes it. |
 | `delete(id, cb)` | Also deletes the schedules that use it. |
 
 Build the exercise list from `CustomExerciseOrderEntry` objects. `position` is set from the list

@@ -10,11 +10,14 @@ import java.util.Map;
 public class RemoteCustomWorkout {
     public final String id;
     public final String name;
+    public final String description;        // null if none, also in workouts saved before it existed
     public final List<RemoteExerciseEntry> exercises;
 
-    private RemoteCustomWorkout(String id, String name, List<RemoteExerciseEntry> exercises) {
+    private RemoteCustomWorkout(String id, String name, String description,
+                                List<RemoteExerciseEntry> exercises) {
         this.id = id;
         this.name = name;
+        this.description = description;
         this.exercises = exercises;
     }
 
@@ -29,6 +32,7 @@ public class RemoteCustomWorkout {
                 }
             }
         }
-        return new RemoteCustomWorkout(doc.getId(), doc.getString("name"), exercises);
+        return new RemoteCustomWorkout(doc.getId(), doc.getString("name"),
+                doc.getString("description"), exercises);
     }
 }

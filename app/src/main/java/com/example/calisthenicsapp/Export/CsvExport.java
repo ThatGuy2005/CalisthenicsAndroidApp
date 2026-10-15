@@ -60,7 +60,8 @@ public final class CsvExport {
         }
         files.put(PROFILE, profile.toString());
 
-        CsvWriter workouts = new CsvWriter("workout_id", "workout_name", "position", "exercise",
+        CsvWriter workouts = new CsvWriter("workout_id", "workout_name", "workout_description",
+                "position", "exercise",
                 "sets", "reps", "seconds", "rest_seconds", "rest_after_seconds");
         Map<String, String> workoutNames = new HashMap<>();
         for (CustomWorkout w : customWorkouts) {
@@ -68,7 +69,8 @@ public final class CsvExport {
             List<CustomExerciseOrderEntry> entries = exercisesByWorkout.get(w.getId());
             for (CustomExerciseOrderEntry e : entries == null
                     ? Collections.<CustomExerciseOrderEntry>emptyList() : entries) {
-                workouts.row(w.getId(), w.getName(), e.getPosition(), e.getExerciseName(),
+                workouts.row(w.getId(), w.getName(), w.getDescription(), e.getPosition(),
+                        e.getExerciseName(),
                         e.getSets(), e.getReps(), e.getSeconds(), e.getRestSeconds(),
                         e.getRestAfterSeconds());
             }

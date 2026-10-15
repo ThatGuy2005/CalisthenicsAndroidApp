@@ -56,8 +56,9 @@ service cloud.firestore {
     // users/{uid}/customWorkouts/{id}, see CustomWorkoutService.
     function validCustomWorkout(data) {
       return data.keys().hasAll(['name', 'updatedAt', 'exercises'])
-          && data.keys().hasOnly(['name', 'updatedAt', 'exercises'])
+          && data.keys().hasOnly(['name', 'description', 'updatedAt', 'exercises'])
           && data.name is string && data.name.size() >= 1 && data.name.size() <= 40
+          && nullOrStringUpTo(data.get('description', null), 200)
           && data.updatedAt is int
           && validExerciseList(data.exercises);
     }
