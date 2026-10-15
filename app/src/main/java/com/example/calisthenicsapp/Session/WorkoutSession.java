@@ -121,15 +121,20 @@ public class WorkoutSession implements Serializable {
         public int getCompletedSets() { return completedSets; }
         public int getActiveSeconds() { return (int) (activeMillis / 1000L); }
 
-        /** MET x body weight (kg) x active hours. */
-        public double getKcal(double weightKg) {
-            return met * weightKg * (activeMillis / 3_600_000.0);
+        /**
+         * MET x kcalPerMetHour x active hours. kcalPerMetHour is the session's
+         * {@link WorkoutSession#getKcalPerMetHour()}: the user's BMR / 24, or the body weight in
+         * kg (the 1 kcal/kg/h shortcut).
+         */
+        public double getKcal(double kcalPerMetHour) {
+            return met * kcalPerMetHour * (activeMillis / 3_600_000.0);
         }
     }
 
     private final String workoutName;
     private final List<SessionExercise> exercises;
     private final double weightKg;
+    private Double kcalPerMetHour;             // null in sessions saved before BMR: weightKg
     private final long startedAt;              // epoch seconds, for the log
 
     private Phase phase = Phase.WORK;
@@ -154,19 +159,36 @@ public class WorkoutSession implements Serializable {
     /** customWorkoutId: the custom workout this runs, or null for a premade one. */
     public WorkoutSession(String workoutName, String customWorkoutId, List<SessionExercise> exercises,
                           double weightKg) {
+        this(workoutName, customWorkoutId, exercises, weightKg, null);
+    }
+
+    /**
+     * kcalPerMetHour: kcal burned per MET per hour, see {@link Bmr#kcalPerMetHour}; null uses
+     * weightKg (1 kcal per kg per hour).
+     */
+    public WorkoutSession(String workoutName, String customWorkoutId, List<SessionExercise> exercises,
+                          double weightKg, Double kcalPerMetHour) {
         this(workoutName, exercises, weightKg);
         this.customWorkoutId = customWorkoutId;
+        this.kcalPerMetHour = kcalPerMetHour;
     }
 
     /** For tests: clock returns milliseconds and must never go backwards. */
     WorkoutSession(String workoutName, List<SessionExercise> exercises, double weightKg,
                    LongSupplier clock, long startedAt) {
+        this(workoutName, exercises, weightKg, null, clock, startedAt);
+    }
+
+    /** For tests, with a calorie rate. */
+    WorkoutSession(String workoutName, List<SessionExercise> exercises, double weightKg,
+                   Double kcalPerMetHour, LongSupplier clock, long startedAt) {
         if (exercises == null || exercises.isEmpty()) {
             throw new IllegalArgumentException("A workout needs at least one exercise.");
         }
         this.workoutName = workoutName;
         this.exercises = new ArrayList<>(exercises);
         this.weightKg = weightKg;
+        this.kcalPerMetHour = kcalPerMetHour;
         this.clock = clock;
         this.startedAt = startedAt;
         this.runningSince = clock.getAsLong();
@@ -273,6 +295,10 @@ public class WorkoutSession implements Serializable {
     public String getCustomWorkoutId() { return customWorkoutId; }
     public long getStartedAt() { return startedAt; }
     public double getWeightKg() { return weightKg; }
+    /** kcal per MET per hour: the user's BMR / 24 when known, otherwise the weight in kg. */
+    public double getKcalPerMetHour() {
+        return kcalPerMetHour == null ? weightKg : kcalPerMetHour;
+    }
 
     /** The exercise being done, or during a rest the one coming next. Null once it is over. */
     public SessionExercise getCurrentExercise() {
@@ -330,7 +356,7 @@ public class WorkoutSession implements Serializable {
 
     public double getTotalKcal() {
         double sum = 0;
-        for (SessionExercise e : exercises) sum += e.getKcal(weightKg);
+        for (SessionExercise e : exercises) sum += e.getKcal(getKcalPerMetHour());
         return sum;
     }
 

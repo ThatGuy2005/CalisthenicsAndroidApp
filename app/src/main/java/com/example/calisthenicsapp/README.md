@@ -37,7 +37,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 
 ### 2.1 Authentication and Accounts
 - **FR-1.1:** The system shall allow a new user to sign up with a unique username, an email address and a password. Usernames must be 3–20 alphanumeric characters, case-insensitive.
-- **FR-1.2:** The system shall collect optional profile data at sign-up: height, weight and gender. Weight is used to estimate calories burned. Gender shall be used exclusively alongside height and weight to calculate Basal Metabolic Rate (BMR) for accurate Metabolic Equivalent of Task (MET) calorie calculations.
+- **FR-1.2:** The system shall collect optional profile data at sign-up: height, weight, gender and birth year. They shall be used only to calculate the Basal Metabolic Rate (BMR, Mifflin-St Jeor) for Metabolic Equivalent of Task (MET) calorie calculations: kcal = MET x BMR / 24 x hours. Without height or birth year, calories shall be estimated from the weight alone (MET x weight x hours).
 - **FR-1.3:** The system shall reject sign-up if the username or email is already in use, the email format is invalid, or the password is too weak (minimum 8 characters).
 - **FR-1.4:** The system shall allow a registered user to log in with email and password. Firebase Authentication shall keep the user signed in across app restarts until they log out.
 - **FR-1.5:** The system shall display a clear error message on failed login without revealing whether the email or the password was wrong. Repeated failed attempts are throttled by Firebase Authentication.
@@ -72,7 +72,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 - **FR-5.3:** The user shall be able to pause, resume, skip or cancel a workout in progress. Cancelled/skipped workouts where at least one set was completed shall be logged as "Partial".
 - **FR-5.4:** When a workout is completed or partially saved, the system shall automatically save a log entry containing: the workout, the date and time, the total duration, and the estimated calories burned.
 - **FR-5.5:** To preserve historical integrity, logs shall snapshot the workout data (Cascade/Soft delete rule). If a user edits or deletes a custom workout, existing logs referencing it shall remain intact.
-- **FR-5.6:** The estimated calories burned shall be computed from the workout duration, the exercise intensity and the user's body weight. For partial workouts, this is computed based on actual active time and specific MET values of completed exercises.
+- **FR-5.6:** The estimated calories burned shall be computed from the workout duration, the exercise intensity and the user's BMR (FR-1.2), or body weight when the BMR cannot be calculated. For partial workouts, this is computed based on actual active time and specific MET values of completed exercises.
 - **FR-5.7:** The user shall be able to view a history of all their past workouts, sorted from newest to oldest. Summary statistics shall show total workouts, total training time and total calories burned over a selected period (week, month, all time).
 - **FR-5.8:** The user shall be able to delete their own log entries.
 
@@ -89,7 +89,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 
 - **DR-1:** Premade exercises and workouts shall be stored only in the local SQLite database. Per-user data (profile, custom workouts, workout logs, schedules) shall be stored in Cloud Firestore under users/{uid}, which is the source of truth. Each username in use is claimed by a usernames/{lowercased username} document holding the owner's uid, which keeps usernames unique. Firestore changes shall be mirrored into SQLite, and the app shall read from SQLite.
 - **DR-2:** The database shall contain at least the following entities:
-  - **Users:** uid (Firebase Authentication id), username (unique), email, height, weight, gender, created date, updated date.
+  - **Users:** uid (Firebase Authentication id), username (unique), email, height, weight, gender, birth year, created date, updated date.
   - **Exercise:** name, description/instructions, animation reference, muscle group, difficulty, intensity (MET), rep_or_timed flag, per_side flag, equipment, single_multi_muscle flag.
   - **Workout:** name, description, type (premade or custom), owner (for custom workouts), category, difficulty_enum, estimated_duration.
   - **ExerciseOrder:** links exercises to a workout with order, sets, repetitions/duration, rest between sets, rest before the next exercise, discriminator_type (from the exercise's rep_or_timed flag).

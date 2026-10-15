@@ -7,17 +7,21 @@ import com.example.calisthenicsapp.CoreComponents.User;
 import com.example.calisthenicsapp.Repos.CustomWorkoutRepository;
 import com.example.calisthenicsapp.Repos.UserRepository;
 import com.example.calisthenicsapp.Repos.WorkoutRepository;
+import com.example.calisthenicsapp.Session.Bmr;
 import com.example.calisthenicsapp.Session.WorkoutExercises;
 import com.example.calisthenicsapp.Session.WorkoutSession;
 
+import java.util.Calendar;
 import java.util.List;
 
 /**
  * Starts workout sessions (FR-5.1). The returned {@link WorkoutSession} is already running;
  * the screen drives it from there and saves it with WorkoutLogService.saveSession when it is over.
  *
- * Everything is read from SQLite, so starting works offline. The user's weight comes from their
- * profile; if it is not set, {@link #DEFAULT_WEIGHT_KG} is used for the calorie estimate.
+ * Everything is read from SQLite, so starting works offline. The calorie estimate uses the
+ * user's BMR from their profile's weight, height, birth year and gender (FR-1.2, see {@link Bmr});
+ * without height or birth year it uses the weight alone, and without a weight
+ * {@link #DEFAULT_WEIGHT_KG}.
  */
 public class WorkoutSessionService extends UserDataService {
     public static final double DEFAULT_WEIGHT_KG = 70;
@@ -69,6 +73,9 @@ public class WorkoutSessionService extends UserDataService {
         User user = new UserRepository(db()).getOne(uid);
         Double weight = user == null ? null : user.getWeight();
         double weightKg = weight == null || weight <= 0 ? DEFAULT_WEIGHT_KG : weight;
-        succeed(callback, new WorkoutSession(workoutName, customWorkoutId, exercises, weightKg));
+        double kcalPerMetHour = Bmr.kcalPerMetHour(user, weightKg,
+                Calendar.getInstance().get(Calendar.YEAR));
+        succeed(callback, new WorkoutSession(workoutName, customWorkoutId, exercises, weightKg,
+                kcalPerMetHour));
     }
 }

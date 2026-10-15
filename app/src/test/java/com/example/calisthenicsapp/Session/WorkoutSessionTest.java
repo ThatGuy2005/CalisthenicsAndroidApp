@@ -118,6 +118,23 @@ public class WorkoutSessionTest {
     }
 
     @Test
+    public void kcalUseTheBmrRateWhenGiven() {
+        double rate = 1780 / 24.0;                          // BMR 1780 kcal/day
+        session = new WorkoutSession("Rate", Arrays.asList(
+                new SessionExercise("Push-Up", null, null, false, 10, null, 1, 0, 3.8)),
+                WEIGHT, rate, () -> now, 1_700_000_000L);
+        assertEquals(rate, session.getKcalPerMetHour(), 1e-9);
+        advance(60);
+        session.completeSet();
+        assertEquals(3.8 * rate * 60 / 3600.0, session.getTotalKcal(), 1e-9);
+    }
+
+    @Test
+    public void withoutARateTheWeightIsUsed() {
+        assertEquals(WEIGHT, session.getKcalPerMetHour(), 1e-9);
+    }
+
+    @Test
     public void pausedTimeIsNotCounted() {
         advance(10);
         session.pause();

@@ -214,6 +214,11 @@ the same as `restSeconds` (FR-4.2). Rests may be 0 but not negative.
    - `getRemainingSeconds()`, which is null for a rep-based set (a per-side timed set counts
      down both sides);
    - `getCurrentExerciseNumber()`, `getTotalSeconds()` and `getTotalKcal()`.
+   - Calories (FR-1.2, FR-5.6) are MET x the user's BMR / 24 x active hours, with the
+     Mifflin-St Jeor BMR from weight, height, birth year and gender. Without height or birth
+     year it is MET x weight x hours, and without a weight 70 kg is assumed. Gender is free text:
+     "male", "man" or "m" and "female", "woman" or "f" (any case) pick the formula, anything
+     else uses the average of the two, so a gender picker with Male / Female / Other fits best.
 5. **Save it** with `WorkoutLogService.saveSession(session, cb)` once `isOver()` is true.
    - Saving twice does not create two logs.
    - A finished session that matches a scheduled workout marks that schedule as completed.

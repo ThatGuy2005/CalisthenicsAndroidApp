@@ -83,7 +83,7 @@ public class WorkoutLogService extends UserDataService {
             entry.put("seconds", e.getTargetSeconds());
             entry.put("perSide", e.isPerSide());
             entry.put("activeSeconds", e.getActiveSeconds());
-            entry.put("kcal", e.getKcal(session.getWeightKg()));
+            entry.put("kcal", e.getKcal(session.getKcalPerMetHour()));
             exercises.add(entry);
         }
 
