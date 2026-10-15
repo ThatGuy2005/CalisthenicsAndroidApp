@@ -22,6 +22,7 @@ public class UserRepository implements Repository<User>{
         cv.put("Height", object.getHeight());
         cv.put("Weight", object.getWeight());
         cv.put("Gender", object.getGender());
+        Repository.putIntOrNull(cv, "BirthYear", object.getBirthYear());
         cv.put("CreatedAt", object.getCreatedAt());
         cv.put("UpdatedAt", object.getUpdatedAt());
         return Repository.insertDB(db,"Users",cv);
@@ -40,6 +41,7 @@ public class UserRepository implements Repository<User>{
         cv.put("Height", object.getHeight());
         cv.put("Weight", object.getWeight());
         cv.put("Gender", object.getGender());
+        Repository.putIntOrNull(cv, "BirthYear", object.getBirthYear());
         // Keep Firestore's updatedAt. If it is unchanged, the trigger bumps it to now instead.
         cv.put("UpdatedAt", object.getUpdatedAt());
         return Repository.updateDB(db, "Users", cv,
@@ -80,6 +82,7 @@ public class UserRepository implements Repository<User>{
                 c.getDouble(c.getColumnIndexOrThrow("Height")),
                 c.getDouble(c.getColumnIndexOrThrow("Weight")),
                 c.getString(c.getColumnIndexOrThrow("Gender")),
+                Repository.intOrNull(c, "BirthYear"),
                 c.getLong(c.getColumnIndexOrThrow("CreatedAt")),
                 c.getLong(c.getColumnIndexOrThrow("UpdatedAt")));
     }

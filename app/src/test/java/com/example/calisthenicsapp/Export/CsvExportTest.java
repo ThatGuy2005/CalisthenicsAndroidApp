@@ -57,8 +57,8 @@ public class CsvExportTest {
     @Test
     public void profileHasReadableTimesAndLeavesUnsetValuesEmpty() {
         assertEquals(Arrays.asList(
-                "uid,username,email,height_cm,weight_kg,gender,created_at,updated_at",
-                "u1,alice,a@b.c,170.0,,,2026-10-15T16:00:00Z,2026-10-15T16:01:00Z"),
+                "uid,username,email,height_cm,weight_kg,gender,birth_year,created_at,updated_at",
+                "u1,alice,a@b.c,170.0,,,,2026-10-15T16:00:00Z,2026-10-15T16:01:00Z"),
                 lines(sample().get(CsvExport.PROFILE)));
     }
 

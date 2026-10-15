@@ -1,5 +1,6 @@
 package com.example.calisthenicsapp.Verificate;
 
+import java.util.Calendar;
 import java.util.regex.Pattern;
 
 public final class UserValidator {
@@ -14,6 +15,7 @@ public final class UserValidator {
     private static final double HEIGHT_MIN = 50, HEIGHT_MAX = 300;   // cm
     private static final double WEIGHT_MIN = 20, WEIGHT_MAX = 500;   // kg
     private static final int GENDER_MAX = 30;
+    public static final int BIRTH_YEAR_MIN = 1900;   // up to the current year
 
     // Letters, digits, '_', '.', '-'; must start and end with a letter or digit.
     private static final Pattern USERNAME = Pattern.compile(
@@ -64,6 +66,12 @@ public final class UserValidator {
     /** Null means not given, which is fine. */
     public static boolean isValidGender(String gender) {
         return gender == null || gender.length() <= GENDER_MAX;
+    }
+
+    /** From 1900 to the current year; null means not given, which is fine. */
+    public static boolean isValidBirthYear(Integer year) {
+        return year == null
+                || (year >= BIRTH_YEAR_MIN && year <= Calendar.getInstance().get(Calendar.YEAR));
     }
 
     /**

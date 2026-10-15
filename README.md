@@ -107,7 +107,7 @@ syncs later.
 
 | Method | Notes |
 |---|---|
-| `signUp(username, email, password, height, weight, gender, cb)` | Height, weight and gender may be null. The username must be unique; "That username is taken." otherwise. |
+| `signUp(username, email, password, height, weight, gender, birthYear, cb)` | Height, weight, gender and birth year may be null. The username must be unique; "That username is taken." otherwise. |
 | `signIn(email, password, cb)` | |
 | `sendPasswordReset(email, cb)` | |
 | `signOut()` | Also clears the local copy of the user's data. |
@@ -121,7 +121,7 @@ to sign-in and sign-out. Use it to choose between the sign-in screen and the mai
 | Method | Notes |
 |---|---|
 | `getMyProfile(cb)` | A `User`. **Can be null** right after sign-in, until the profile has synced; observe `PROFILE` to get it when it arrives. |
-| `updateProfile(username, height, weight, gender, cb)` | Pass the current value for anything unchanged. Changing the username needs a connection. |
+| `updateProfile(username, height, weight, gender, birthYear, cb)` | Pass the current value for anything unchanged. Changing the username needs a connection. |
 
 `AccountService` (all of these ask for the current password first)
 
@@ -143,7 +143,8 @@ saveCsv.launch("calisthenics-data.zip");
 ```
 
 The limits: username 3-20 letters, digits, `.`, `_` or `-`; password 8-64 characters with a letter
-and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters.
+and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters; birth year from 1900
+to this year.
 `Verificate/UserValidator` has the same checks, for validating a form as the user types.
 
 ### Exercises and premade workouts (FR-3, FR-4.1, FR-4.2)

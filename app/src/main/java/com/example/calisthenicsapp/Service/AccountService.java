@@ -278,6 +278,7 @@ public class AccountService extends UserDataService {
             profile.put("heightCm", orNull(user.getHeight()));
             profile.put("weightKg", orNull(user.getWeight()));
             profile.put("gender", orNull(user.getGender()));
+            profile.put("birthYear", orNull(user.getBirthYear()));
             profile.put("createdAt", user.getCreatedAt());
             profile.put("updatedAt", user.getUpdatedAt());
         }

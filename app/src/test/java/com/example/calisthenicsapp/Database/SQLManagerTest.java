@@ -65,6 +65,7 @@ public class SQLManagerTest {
         assertTrue(columns(db, "ExerciseOrder").contains("RestAfterSeconds"));
         assertTrue(columns(db, "CustomExerciseOrder").contains("RestAfterSeconds"));
         assertTrue(columns(db, "Exercise").contains("IsPerSide"));
+        assertTrue(columns(db, "Users").contains("BirthYear"));
         assertTrue(columns(db, "Exercise").containsAll(Arrays.asList("Equipment", "IsMultiMuscle")));
         assertEquals(0, count(db, "CalendarEvent"));
     }

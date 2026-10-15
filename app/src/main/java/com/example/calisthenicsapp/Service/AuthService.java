@@ -60,8 +60,10 @@ public class AuthService {
         return firebaseAuth.getCurrentUser();
     }
 
+    /** height, weight, gender and birthYear are optional (null). */
     public void signUp(String username, String email, String password, Double height,
-                        Double weight, String gender, AuthCallback<FirebaseUser> callback) {
+                        Double weight, String gender, Integer birthYear,
+                        AuthCallback<FirebaseUser> callback) {
         String normalizedEmail = UserValidator.normalizeEmail(email);
         if (!UserValidator.isValidUsername(username)) {
             callback.onError("Username must be 3-20 letters, digits, '.', '_' or '-'.");
@@ -75,7 +77,7 @@ public class AuthService {
             callback.onError("Password must be 8-64 characters with at least one letter and one digit.");
             return;
         }
-        String error = checkBodyData(height, weight, gender);
+        String error = checkBodyData(height, weight, gender, birthYear);
         if (error != null) {
             callback.onError(error);
             return;
@@ -87,20 +89,25 @@ public class AuthService {
                         callback.onError(describeError(task.getException()));
                         return;
                     }
-                    saveProfile(task.getResult().getUser(), username, height, weight, gender, callback);
+                    saveProfile(task.getResult().getUser(), username, height, weight, gender,
+                            birthYear, callback);
                 });
     }
 
     /** The optional profile fields; null if they are fine. Shared with ProfileService. */
-    static String checkBodyData(Double height, Double weight, String gender) {
+    static String checkBodyData(Double height, Double weight, String gender, Integer birthYear) {
         if (!UserValidator.isValidHeight(height)) return "Height must be between 50 and 300 cm.";
         if (!UserValidator.isValidWeight(weight)) return "Weight must be between 20 and 500 kg.";
         if (!UserValidator.isValidGender(gender)) return "Gender can be at most 30 characters.";
+        if (!UserValidator.isValidBirthYear(birthYear)) {
+            return "Birth year must be between " + UserValidator.BIRTH_YEAR_MIN + " and this year.";
+        }
         return null;
     }
 
     private void saveProfile(FirebaseUser firebaseUser, String username, Double height,
-                              Double weight, String gender, AuthCallback<FirebaseUser> callback) {
+                              Double weight, String gender, Integer birthYear,
+                              AuthCallback<FirebaseUser> callback) {
         long now = System.currentTimeMillis() / 1000L;
         Map<String, Object> profile = new HashMap<>();
         profile.put("username", username);
@@ -108,6 +115,7 @@ public class AuthService {
         profile.put("height", height);
         profile.put("weight", weight);
         profile.put("gender", gender);
+        profile.put("birthYear", birthYear);
         profile.put("createdAt", now);
         profile.put("updatedAt", now);
 
@@ -132,7 +140,8 @@ public class AuthService {
                         return;
                     }
                     User localUser = new User(firebaseUser.getUid(), username, firebaseUser.getEmail(),
-                            height == null ? 0 : height, weight == null ? 0 : weight, gender, now, now);
+                            height == null ? 0 : height, weight == null ? 0 : weight, gender,
+                            birthYear, now, now);
                     localDbExecutor.execute(() -> {
                         userRepository.insert(localUser);   // best-effort local mirror, see class Javadoc
                         callback.onSuccess(firebaseUser);

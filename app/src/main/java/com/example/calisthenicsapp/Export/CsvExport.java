@@ -51,10 +51,11 @@ public final class CsvExport {
         Map<String, String> files = new LinkedHashMap<>();
 
         CsvWriter profile = new CsvWriter("uid", "username", "email", "height_cm", "weight_kg",
-                "gender", "created_at", "updated_at");
+                "gender", "birth_year", "created_at", "updated_at");
         if (user != null) {
             profile.row(user.getUid(), user.getUsername(), user.getEmail(), positive(user.getHeight()),
-                    positive(user.getWeight()), user.getGender(), iso(user.getCreatedAt()),
+                    positive(user.getWeight()), user.getGender(), user.getBirthYear(),
+                    iso(user.getCreatedAt()),
                     iso(user.getUpdatedAt()));
         }
         files.put(PROFILE, profile.toString());

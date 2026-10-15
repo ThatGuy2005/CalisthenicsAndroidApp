@@ -36,6 +36,11 @@ const signUps = [
   ['height as text rejected', false, profile({ height: '180' })],
   ['weight 600 rejected', false, profile({ weight: 600 })],
   ['31-character gender rejected', false, profile({ gender: 'x'.repeat(31) })],
+  ['sign-up with a birth year', true, profile({ birthYear: 1995 })],
+  ['birth year 1899 rejected', false, profile({ birthYear: 1899 })],
+  ['birth year in the future rejected', false, profile({ birthYear: new Date().getUTCFullYear() + 1 })],
+  ['fractional birth year rejected', false, profile({ birthYear: 1995.5 })],
+  ['birth year as text rejected', false, profile({ birthYear: '1995' })],
   ['fractional time rejected', false, profile({ updatedAt: NOW + 0.5 })],
   ['email over 254 characters rejected', false, profile({ email: 'a'.repeat(250) + '@x.io' })],
 ];
@@ -52,7 +57,8 @@ await env.clearFirestore();
 await assertSucceeds(signUp(profile()));
 const me = doc(db, 'users', uid);
 await check('profile edit, same username (ProfileService)', assertSucceeds(updateDoc(me,
-  { username: 'alice_1', height: 170, weight: 60.5, gender: 'Female', updatedAt: NOW + 10 })));
+  { username: 'alice_1', height: 170, weight: 60.5, gender: 'Female', birthYear: 1995,
+    updatedAt: NOW + 10 })));
 await check('email copy at sign-in (AuthService)', assertSucceeds(updateDoc(me,
   { email: 'new@example.com', updatedAt: NOW + 20 })));
 await check('changing createdAt rejected', assertFails(updateDoc(me, { createdAt: 1 })));

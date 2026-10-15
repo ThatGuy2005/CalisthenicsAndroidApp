@@ -36,12 +36,13 @@ public class ProfileService extends UserDataService {
     }
 
     /**
-     * Overwrites all four fields; pass the current value for anything that did not change.
+     * Overwrites all five fields; pass the current value for anything that did not change.
+     * height, weight, gender and birthYear may be null (not given).
      * Edits that keep the username (letter case aside) work offline like the other services.
      * Changing the username needs a connection, and onSuccess waits for the server's answer.
      */
     public void updateProfile(String username, Double height, Double weight, String gender,
-                              ServiceCallback<Void> callback) {
+                              Integer birthYear, ServiceCallback<Void> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
             fail(callback, NOT_SIGNED_IN);
@@ -51,7 +52,7 @@ public class ProfileService extends UserDataService {
             fail(callback, "Username must be 3-20 letters, digits, '.', '_' or '-'.");
             return;
         }
-        String error = AuthService.checkBodyData(height, weight, gender);
+        String error = AuthService.checkBodyData(height, weight, gender, birthYear);
         if (error != null) {
             fail(callback, error);
             return;
@@ -62,6 +63,7 @@ public class ProfileService extends UserDataService {
         changes.put("height", height);
         changes.put("weight", weight);
         changes.put("gender", gender);
+        changes.put("birthYear", birthYear);
         changes.put("updatedAt", now());
 
         String newKey = UserValidator.usernameKey(username);

@@ -18,6 +18,10 @@ service cloud.firestore {
       return value == null || (value is number && value >= min && value <= max);
     }
 
+    function nullOrIntIn(value, min, max) {
+      return value == null || (value is int && value >= min && value <= max);
+    }
+
     function nullOrStringUpTo(value, max) {
       return value == null || (value is string && value.size() <= max);
     }
@@ -29,16 +33,18 @@ service cloud.firestore {
           && !name.matches('.*[.][.].*');
     }
 
-    // users/{uid}. Height in cm and weight in kg are optional; times are epoch seconds.
+    // users/{uid}. Height in cm, weight in kg, gender and birth year are optional; times are
+    // epoch seconds.
     function validProfile(data) {
       return data.keys().hasAll(['username', 'email', 'createdAt', 'updatedAt'])
           && data.keys().hasOnly(['username', 'email', 'height', 'weight', 'gender',
-                                  'createdAt', 'updatedAt'])
+                                  'birthYear', 'createdAt', 'updatedAt'])
           && validUsername(data.username)
           && data.email is string && data.email.size() <= 254
           && nullOrNumberIn(data.get('height', null), 50, 300)
           && nullOrNumberIn(data.get('weight', null), 20, 500)
           && nullOrStringUpTo(data.get('gender', null), 30)
+          && nullOrIntIn(data.get('birthYear', null), 1900, request.time.year())
           && data.createdAt is int && data.updatedAt is int;
     }
 

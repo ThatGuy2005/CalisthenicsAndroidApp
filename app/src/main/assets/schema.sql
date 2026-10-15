@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS Users (
     CreatedAt     INTEGER NOT NULL
                   DEFAULT (CAST(strftime('%s', 'now') AS INTEGER)),  -- Unix epoch, seconds
     UpdatedAt     INTEGER NOT NULL
-                  DEFAULT (CAST(strftime('%s', 'now') AS INTEGER))   -- Unix epoch, seconds
+                  DEFAULT (CAST(strftime('%s', 'now') AS INTEGER)),  -- Unix epoch, seconds
+    BirthYear     INTEGER CHECK (BirthYear >= 1900)  -- optional, for the BMR; added in version 12
 );
 
 -- Bumps UpdatedAt on any update. The WHEN guard stops the trigger

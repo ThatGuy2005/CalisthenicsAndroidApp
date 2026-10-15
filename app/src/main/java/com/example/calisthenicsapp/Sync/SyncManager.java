@@ -248,7 +248,7 @@ public class SyncManager {
         User user = new User(remote.uid, remote.username, remote.email,
                 remote.height == null ? 0 : remote.height,
                 remote.weight == null ? 0 : remote.weight,
-                remote.gender, remote.createdAt, remote.updatedAt);
+                remote.gender, remote.birthYear, remote.createdAt, remote.updatedAt);
         if (userRepository.getOne(remote.uid) == null) {
             userRepository.insert(user);
         } else {
