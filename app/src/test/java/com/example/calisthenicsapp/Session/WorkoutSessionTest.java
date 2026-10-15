@@ -104,6 +104,20 @@ public class WorkoutSessionTest {
     }
 
     @Test
+    public void aTimedPerSideSetRunsOncePerSide() {
+        session = new WorkoutSession("Sides", Arrays.asList(
+                new SessionExercise("Side Plank", null, null, true, null, 20, 1, 0, 0, true, 3.0)),
+                WEIGHT, () -> now, 1_700_000_000L);
+        assertEquals(Integer.valueOf(40), session.getRemainingSeconds());   // 20 s each side
+        advance(30);
+        assertFalse(session.tick());
+        advance(10);
+        assertTrue(session.tick());
+        assertEquals(Phase.FINISHED, session.getPhase());
+        assertEquals(40, session.getExercises().get(0).getActiveSeconds());
+    }
+
+    @Test
     public void pausedTimeIsNotCounted() {
         advance(10);
         session.pause();

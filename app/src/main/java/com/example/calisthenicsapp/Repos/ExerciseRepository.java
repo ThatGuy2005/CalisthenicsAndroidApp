@@ -101,6 +101,7 @@ public class ExerciseRepository implements Repository<Exercise> {
         cv.put("MuscleGroup", e.getMuscleGroup());
         if (e.getDifficulty() != null) cv.put("Difficulty", e.getDifficulty().getLabel());
         else cv.putNull("Difficulty");
+        cv.put("IsPerSide", e.isPerSide() ? 1 : 0);
         return cv;
     }
 
@@ -114,6 +115,7 @@ public class ExerciseRepository implements Repository<Exercise> {
                 c.getDouble(c.getColumnIndexOrThrow("Met")),
                 c.getString(c.getColumnIndexOrThrow("AnimationFile")),
                 c.getString(c.getColumnIndexOrThrow("MuscleGroup")),
-                Difficulty.fromLabel(c.getString(c.getColumnIndexOrThrow("Difficulty"))));
+                Difficulty.fromLabel(c.getString(c.getColumnIndexOrThrow("Difficulty"))),
+                c.getInt(c.getColumnIndexOrThrow("IsPerSide")) == 1);
     }
 }

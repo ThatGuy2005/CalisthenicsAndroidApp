@@ -8,6 +8,14 @@ public class Exercise {
     public Exercise(String name, String instructions, boolean isTimed,
                     Integer defaultSeconds, Integer defaultReps, double met,
                     String animationFile, String muscleGroup, Difficulty difficulty) {
+        this(name, instructions, isTimed, defaultSeconds, defaultReps, met, animationFile,
+                muscleGroup, difficulty, false);
+    }
+    /** isPerSide: the reps or seconds are per side (each leg or arm), as in lunges (FR-4.2). */
+    public Exercise(String name, String instructions, boolean isTimed,
+                    Integer defaultSeconds, Integer defaultReps, double met,
+                    String animationFile, String muscleGroup, Difficulty difficulty,
+                    boolean isPerSide) {
         this.name = name;
         this.instructions = instructions;
         this.isTimed = isTimed;
@@ -17,6 +25,7 @@ public class Exercise {
         this.animationFile = animationFile;
         this.muscleGroup = muscleGroup;
         this.difficulty = difficulty;
+        this.isPerSide = isPerSide;
     }
     public String getName() {
         return this.name;
@@ -47,6 +56,13 @@ public class Exercise {
     public Difficulty getDifficulty() {
         return this.difficulty;
     }
+    /**
+     * True when the reps or seconds are per side, e.g. 12 lunges with each leg: one set does
+     * both sides (FR-4.2).
+     */
+    public boolean isPerSide() {
+        return this.isPerSide;
+    }
     private String name;
     private String instructions;
     private boolean isTimed;
@@ -56,4 +72,5 @@ public class Exercise {
     private String animationFile;
     private String muscleGroup;
     private Difficulty difficulty;
+    private boolean isPerSide;
 }

@@ -51,6 +51,7 @@ public class WorkoutSession implements Serializable {
         private final int sets;
         private final int restSeconds;         // between its sets
         private final Integer restAfterSeconds;    // before the next exercise; null = restSeconds
+        private final boolean perSide;         // reps or seconds per side; false in older saves
         private final double met;
 
         private int completedSets;
@@ -67,6 +68,15 @@ public class WorkoutSession implements Serializable {
         public SessionExercise(String name, String instructions, String animationFile,
                                boolean timed, Integer targetReps, Integer targetSeconds,
                                int sets, int restSeconds, int restAfterSeconds, double met) {
+            this(name, instructions, animationFile, timed, targetReps, targetSeconds, sets,
+                    restSeconds, restAfterSeconds, false, met);
+        }
+
+        /** perSide: the reps or seconds are per side, and one set does both sides (FR-4.2). */
+        public SessionExercise(String name, String instructions, String animationFile,
+                               boolean timed, Integer targetReps, Integer targetSeconds,
+                               int sets, int restSeconds, int restAfterSeconds, boolean perSide,
+                               double met) {
             this.name = name;
             this.instructions = instructions;
             this.animationFile = animationFile;
@@ -76,6 +86,7 @@ public class WorkoutSession implements Serializable {
             this.sets = sets;
             this.restSeconds = restSeconds;
             this.restAfterSeconds = restAfterSeconds;
+            this.perSide = perSide;
             this.met = met;
         }
 
@@ -84,7 +95,18 @@ public class WorkoutSession implements Serializable {
         public String getAnimationFile() { return animationFile; }
         public boolean isTimed() { return timed; }
         public Integer getTargetReps() { return targetReps; }
+        /** Per side when {@link #isPerSide()}. */
         public Integer getTargetSeconds() { return targetSeconds; }
+        /** Show the target as "12 reps per side" or "30 s per side". */
+        public boolean isPerSide() { return perSide; }
+        /**
+         * How long a timed set runs: the target seconds, twice for a per-side exercise (one
+         * countdown for both sides). Null for rep-based exercises.
+         */
+        public Integer getWorkSeconds() {
+            if (!timed || targetSeconds == null) return null;
+            return perSide ? 2 * targetSeconds : targetSeconds;
+        }
         public int getSets() { return sets; }
         /** The rest between the sets of this exercise. */
         public int getRestSeconds() { return restSeconds; }
@@ -160,8 +182,8 @@ public class WorkoutSession implements Serializable {
         if (phase != Phase.WORK) return false;
         long active = stepElapsedMillis();
         SessionExercise current = getCurrentExercise();
-        if (current.timed && current.targetSeconds != null) {
-            active = Math.min(active, current.targetSeconds * 1000L);
+        if (current.getWorkSeconds() != null) {
+            active = Math.min(active, current.getWorkSeconds() * 1000L);
         }
         finishWorkStep(active);
         return true;
@@ -220,8 +242,8 @@ public class WorkoutSession implements Serializable {
         long elapsed = stepElapsedMillis();
         if (phase == Phase.WORK) {
             SessionExercise current = getCurrentExercise();
-            if (!current.timed || current.targetSeconds == null) return false;
-            long target = current.targetSeconds * 1000L;
+            if (current.getWorkSeconds() == null) return false;
+            long target = current.getWorkSeconds() * 1000L;
             if (elapsed < target) return false;
             finishWorkStep(target);    // time beyond the target is not active time
             return true;
@@ -281,9 +303,8 @@ public class WorkoutSession implements Serializable {
         long targetMillis;
         if (phase == Phase.REST) {
             targetMillis = restTargetSeconds * 1000L;
-        } else if (phase == Phase.WORK && getCurrentExercise().timed
-                && getCurrentExercise().targetSeconds != null) {
-            targetMillis = getCurrentExercise().targetSeconds * 1000L;
+        } else if (phase == Phase.WORK && getCurrentExercise().getWorkSeconds() != null) {
+            targetMillis = getCurrentExercise().getWorkSeconds() * 1000L;
         } else {
             return null;
         }

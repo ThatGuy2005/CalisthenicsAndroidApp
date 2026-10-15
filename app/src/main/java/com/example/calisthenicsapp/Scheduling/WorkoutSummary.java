@@ -99,7 +99,8 @@ public final class WorkoutSummary {
 
     /**
      * One numbered line per exercise, e.g. "1. Push-up: 3 x 10 reps, 60 s rest", with
-     * ", 90 s before the next exercise" when that rest is different.
+     * ", 90 s before the next exercise" when that rest is different and "12 reps per side" for
+     * a per-side exercise.
      */
     public String getExerciseList() {
         StringBuilder list = new StringBuilder();
@@ -110,6 +111,7 @@ public final class WorkoutSummary {
                     .append(e.getSets()).append(" x ")
                     .append(e.isTimed() ? valueOf(e.getTargetSeconds()) + " s"
                             : valueOf(e.getTargetReps()) + " reps");
+            if (e.isPerSide()) list.append(" per side");
             if (e.getRestSeconds() > 0) list.append(", ").append(e.getRestSeconds()).append(" s rest");
             boolean last = i == exercises.size() - 1;
             if (!last && e.getRestAfterSeconds() != e.getRestSeconds()) {

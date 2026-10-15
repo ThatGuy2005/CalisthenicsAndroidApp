@@ -66,6 +66,13 @@ public class WorkoutSummaryTest {
     }
 
     @Test
+    public void perSideTargetsSaySo() {
+        WorkoutSummary summary = new WorkoutSummary("s1", "Legs", START, Arrays.asList(
+                new SessionExercise("Lunges", null, null, false, 12, null, 3, 45, 45, true, 3.8)));
+        assertEquals("1. Lunges: 3 x 12 reps per side, 45 s rest", summary.getExerciseList());
+    }
+
+    @Test
     public void emailHasNameTimeAndExercises() {
         WorkoutSummary summary = new WorkoutSummary("s1", "Legs", START,
                 Collections.singletonList(reps("Squat", 3, 15, 45)));

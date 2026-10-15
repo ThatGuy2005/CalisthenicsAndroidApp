@@ -57,6 +57,23 @@ public class WorkoutExercisesTest {
                 new SessionExercise("Plank", null, null, true, null, 30, 2, 30, 45, 3.8))));
     }
 
+    @Test
+    public void perSideExercisesCountBothSides() {
+        // 2 sets x 10 reps x 3 s x 2 sides
+        assertEquals(120, WorkoutExercises.estimateSeconds(Arrays.asList(
+                new SessionExercise("Lunges", null, null, false, 10, null, 2, 0, 0, true, 3.8))));
+        // 2 sets x 30 s x 2 sides
+        assertEquals(120, WorkoutExercises.estimateSeconds(Arrays.asList(
+                new SessionExercise("Side Plank", null, null, true, null, 30, 2, 0, 0, true, 3.0))));
+    }
+
+    @Test
+    public void perSideComesFromTheExercise() {
+        for (SessionExercise e : WorkoutExercises.ofPremade(db, "Lower Body Burn")) {
+            assertEquals(e.getName(), e.getName().equals("Lunges"), e.isPerSide());
+        }
+    }
+
     /** Fills in the exercise defaults from the seed: 15 reps of Crunches, 30 s of Plank, ... */
     @Test
     public void coreBasicsEstimateUsesTheExerciseDefaults() {

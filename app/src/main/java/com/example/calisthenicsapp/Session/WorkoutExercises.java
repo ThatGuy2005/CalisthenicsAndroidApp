@@ -29,13 +29,14 @@ public final class WorkoutExercises {
 
     /**
      * How long the exercises are expected to take: every set, the rests between the sets, and
-     * the rest after each exercise but the last. A rep takes {@link #SECONDS_PER_REP} seconds.
+     * the rest after each exercise but the last. A rep takes {@link #SECONDS_PER_REP} seconds,
+     * and a per-side exercise counts both sides.
      */
     public static int estimateSeconds(List<WorkoutSession.SessionExercise> exercises) {
         int total = 0;
         for (WorkoutSession.SessionExercise e : exercises) {
-            int work = e.isTimed() ? valueOf(e.getTargetSeconds())
-                    : valueOf(e.getTargetReps()) * SECONDS_PER_REP;
+            int work = e.isTimed() ? valueOf(e.getWorkSeconds())
+                    : valueOf(e.getTargetReps()) * SECONDS_PER_REP * (e.isPerSide() ? 2 : 1);
             total += e.getSets() * work + (e.getSets() - 1) * e.getRestSeconds()
                     + e.getRestAfterSeconds();
         }
@@ -86,7 +87,7 @@ public final class WorkoutExercises {
         return new WorkoutSession.SessionExercise(exercise.getName(), exercise.getInstructions(),
                 exercise.getAnimationFile(), exercise.isTimed(), targetReps, targetSeconds,
                 sets == null ? 1 : sets, rest, restAfterSeconds == null ? rest : restAfterSeconds,
-                exercise.getMet());
+                exercise.isPerSide(), exercise.getMet());
     }
 
     private static int firstNonNull(Integer first, Integer second, int fallback) {

@@ -3,6 +3,7 @@ package com.example.calisthenicsapp.Repos;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.app.Application;
 import android.content.Context;
@@ -19,6 +20,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
@@ -55,5 +58,22 @@ public class ExerciseRepositoryTest {
             total += found.size();
         }
         assertEquals(repository.getAll().size(), total);   // the three filters cover the library
+    }
+
+    @Test
+    public void perSideExercisesComeFromTheSeed() {
+        List<String> perSide = new ArrayList<>();
+        for (Exercise e : repository.getAll()) if (e.isPerSide()) perSide.add(e.getName());
+        assertEquals(Arrays.asList("Archer Push-Up", "Lunges", "Pistol Squat"), perSide);
+    }
+
+    @Test
+    public void perSideIsStoredAndReadBack() {
+        assertTrue(repository.insert(new Exercise("Side Plank", "Hold.", true, 20, null, 3.0,
+                null, "Core", Difficulty.INTERMEDIATE, true)));
+        assertTrue(repository.getOne("Side Plank").isPerSide());
+        assertTrue(repository.insert(new Exercise("Hollow Hold", "Hold.", true, 20, null, 3.0,
+                null, "Core", Difficulty.INTERMEDIATE)));
+        assertFalse(repository.getOne("Hollow Hold").isPerSide());
     }
 }

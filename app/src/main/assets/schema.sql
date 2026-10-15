@@ -41,7 +41,9 @@ CREATE TABLE IF NOT EXISTS Exercise (
                     CHECK (Met > 0),                      -- for calorie estimates
     AnimationFile   TEXT,                                  -- e.g. 'pushup.json'; NULL = placeholder
     MuscleGroup TEXT,
-    Difficulty TEXT CHECK (Difficulty IN ('Beginner','Intermediate','Advanced'))
+    Difficulty TEXT CHECK (Difficulty IN ('Beginner','Intermediate','Advanced')),
+    IsPerSide   INTEGER NOT NULL DEFAULT 0
+                CHECK (IsPerSide IN (0, 1))               -- 1 = reps or seconds per side (lunges)
 );
 
 -- ========== WORKOUT ==========

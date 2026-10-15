@@ -60,7 +60,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 
 ### 2.4 Workouts
 - **FR-4.1:** The app shall include a set of premade workouts (e.g. beginner, intermediate, advanced, or by muscle group). Workouts shall include a general category, difficulty rating, and estimated duration.
-- **FR-4.2:** Each workout shall list its exercises in order, with the number of sets and repetitions or the duration for each, and the rest times. ExerciseOrder models shall feature a discriminator to distinguish reps vs. duration, define two rest times (between the sets of an exercise, and after its last set before the next exercise), and flag per-side exercises (e.g., lunges).
+- **FR-4.2:** Each workout shall list its exercises in order, with the number of sets and repetitions or the duration for each, and the rest times. ExerciseOrder models shall feature a discriminator to distinguish reps vs. duration, define two rest times (between the sets of an exercise, and after its last set before the next exercise). Exercises shall be flagged as per-side (e.g., lunges), meaning their repetitions or duration count for each side.
 - **FR-4.3:** Premade workouts shall be read-only. Users shall be able to duplicate a premade workout to instantiate an editable custom copy.
 - **FR-4.4:** The user shall be able to create a custom workout by choosing a name and adding exercises from the library.
 - **FR-4.5:** The user shall be able to set the order, sets, repetitions or duration, and rest time for each exercise in a custom workout.
@@ -90,9 +90,9 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 - **DR-1:** Premade exercises and workouts shall be stored only in the local SQLite database. Per-user data (profile, custom workouts, workout logs, schedules) shall be stored in Cloud Firestore under users/{uid}, which is the source of truth. Each username in use is claimed by a usernames/{lowercased username} document holding the owner's uid, which keeps usernames unique. Firestore changes shall be mirrored into SQLite, and the app shall read from SQLite.
 - **DR-2:** The database shall contain at least the following entities:
   - **Users:** uid (Firebase Authentication id), username (unique), email, height, weight, gender, created date, updated date.
-  - **Exercise:** name, description/instructions, animation reference, muscle group, difficulty, intensity (MET), rep_or_timed flag, equipment, single_multi_muscle flag.
+  - **Exercise:** name, description/instructions, animation reference, muscle group, difficulty, intensity (MET), rep_or_timed flag, per_side flag, equipment, single_multi_muscle flag.
   - **Workout:** name, description, type (premade or custom), owner (for custom workouts), category, difficulty_enum, estimated_duration.
-  - **ExerciseOrder:** links exercises to a workout with order, sets, repetitions/duration, rest between sets, rest before the next exercise, discriminator_type, per_side_flag.
+  - **ExerciseOrder:** links exercises to a workout with order, sets, repetitions/duration, rest between sets, rest before the next exercise, discriminator_type (from the exercise's rep_or_timed flag).
   - **Workout log:** id, user, workout, date and time, duration, calories, status (completed/partial), snapshot_data.
   - **Schedule:** id, user, workout, planned date and time, recurrence_rule, calendar_event_id, status.
 

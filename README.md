@@ -158,6 +158,9 @@ and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters.
   `Difficulty.values()`, easiest first, and `getLabel()` for the text.
 - **Animations:** `Exercise.getAnimationFile()` is null until animations are added; show a
   placeholder.
+- **Per side (FR-4.2):** `Exercise.isPerSide()` is true when the reps or seconds count for each
+  side, as in lunges; show "12 reps per side". One set does both sides, and a timed per-side set
+  counts down both sides in one go. The session's `SessionExercise.isPerSide()` says the same.
 
 `WorkoutService`: `getAllWorkouts`, `getWorkout(name)`, `getExercises(workoutName)` (in order).
 A premade workout's `getLevel()` is its difficulty rating, the same `Difficulty` enum (FR-4.1);
@@ -201,7 +204,8 @@ the same as `restSeconds` (FR-4.2). Rests may be 0 but not negative.
 4. Read the screen state from the getters:
    - `getPhase()` (WORK, REST, FINISHED, CANCELLED);
    - `getCurrentExercise()`, `getCurrentSet()` and `getNextExercise()`;
-   - `getRemainingSeconds()`, which is null for a rep-based set;
+   - `getRemainingSeconds()`, which is null for a rep-based set (a per-side timed set counts
+     down both sides);
    - `getCurrentExerciseNumber()`, `getTotalSeconds()` and `getTotalKcal()`.
 5. **Save it** with `WorkoutLogService.saveSession(session, cb)` once `isOver()` is true.
    - Saving twice does not create two logs.
