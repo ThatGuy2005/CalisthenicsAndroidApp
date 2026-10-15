@@ -3,6 +3,7 @@ package com.example.calisthenicsapp.Service;
 import android.content.Context;
 
 import com.example.calisthenicsapp.CoreComponents.Difficulty;
+import com.example.calisthenicsapp.CoreComponents.Equipment;
 import com.example.calisthenicsapp.CoreComponents.Exercise;
 import com.example.calisthenicsapp.Repos.ExerciseRepository;
 
@@ -40,13 +41,16 @@ public class ExerciseService extends UserDataService {
      * Exercises matching all the given filters, sorted by name. Pass null (or "" for the text
      * filters) to skip a filter. nameQuery matches anywhere in the name ("push" finds "Knee
      * Push-Up") and muscleGroup must match a whole value, both ignoring case. For the difficulty
-     * filter options, use Difficulty.values() (easiest first) and getLabel().
+     * and equipment filter options, use Difficulty.values() (easiest first) and
+     * Equipment.values() (NONE first) with getLabel(). Equipment.NONE finds the exercises that
+     * need nothing but the floor.
      */
     public void searchExercises(String nameQuery, String muscleGroup, Difficulty difficulty,
-                                ServiceCallback<List<Exercise>> callback) {
+                                Equipment equipment, ServiceCallback<List<Exercise>> callback) {
         String name = blankToNull(nameQuery);
         String group = blankToNull(muscleGroup);
-        onDb(() -> succeed(callback, new ExerciseRepository(db()).search(name, group, difficulty)));
+        onDb(() -> succeed(callback,
+                new ExerciseRepository(db()).search(name, group, difficulty, equipment)));
     }
 
     private static String blankToNull(String value) {

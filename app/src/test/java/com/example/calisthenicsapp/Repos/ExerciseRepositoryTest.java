@@ -54,11 +54,32 @@ public class ExerciseRepositoryTest {
     public void searchByDifficultyReturnsOnlyThatDifficulty() {
         int total = 0;
         for (Difficulty difficulty : Difficulty.values()) {
-            List<Exercise> found = repository.search(null, null, difficulty);
+            List<Exercise> found = repository.search(null, null, difficulty, null);
             for (Exercise e : found) assertEquals(difficulty, e.getDifficulty());
             total += found.size();
         }
         assertEquals(repository.getAll().size(), total);   // the three filters cover the library
+    }
+
+    @Test
+    public void searchByEquipmentReturnsOnlyThatEquipment() {
+        int total = 0;
+        for (Equipment equipment : Equipment.values()) {
+            List<Exercise> found = repository.search(null, null, null, equipment);
+            for (Exercise e : found) assertEquals(equipment, e.getEquipment());
+            total += found.size();
+        }
+        assertEquals(repository.getAll().size(), total);   // every exercise has one value
+        assertEquals(Arrays.asList("Pull-Up"),
+                names(repository.search(null, null, null, Equipment.PULL_UP_BAR)));
+        assertEquals(Arrays.asList("Burpees"),                              // filters combine
+                names(repository.search("bur", "Full Body", Difficulty.INTERMEDIATE, Equipment.NONE)));
+    }
+
+    private static List<String> names(List<Exercise> exercises) {
+        List<String> names = new ArrayList<>();
+        for (Exercise e : exercises) names.add(e.getName());
+        return names;
     }
 
     @Test

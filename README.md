@@ -160,7 +160,7 @@ to this year.
 ### Exercises and premade workouts (FR-3, FR-4.1, FR-4.2)
 
 `ExerciseService`: `getAllExercises`, `getExercise(name)`, `getMuscleGroups` (for a filter),
-`searchExercises(nameQuery, muscleGroup, difficulty, cb)`.
+`searchExercises(nameQuery, muscleGroup, difficulty, equipment, cb)`.
 
 - **Search filters:** pass null or "" to skip a filter. The name matches anywhere in it and case
   is ignored.
@@ -171,7 +171,8 @@ to this year.
   placeholder.
 - **Equipment and muscle groups (FR-3.2):** `Exercise.getEquipment()` is the `Equipment` enum
   (NONE, WALL, BENCH, PULL_UP_BAR, PARALLEL_BARS; never null), with `getLabel()` for the text
-  ("Pull-up bar") and `Equipment.values()` for a filter. `isMultiMuscle()` is true for compound
+  ("Pull-up bar") and `Equipment.values()` for the filter options; `searchExercises` takes it
+  (null for any, NONE for exercises that need nothing). `isMultiMuscle()` is true for compound
   movements that work several muscle groups (push-ups), false for those that mainly work
   `getMuscleGroup()` (crunches).
 - **Per side (FR-4.2):** `Exercise.isPerSide()` is true when the reps or seconds count for each

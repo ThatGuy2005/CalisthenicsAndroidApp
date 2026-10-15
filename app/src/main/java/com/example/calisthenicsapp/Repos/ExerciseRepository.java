@@ -53,7 +53,8 @@ public class ExerciseRepository implements Repository<Exercise> {
      * Exercises matching every filter that is not null, sorted by name. nameQuery matches
      * anywhere in the name; muscleGroup and difficulty must match whole. All ignore case.
      */
-    public List<Exercise> search(String nameQuery, String muscleGroup, Difficulty difficulty) {
+    public List<Exercise> search(String nameQuery, String muscleGroup, Difficulty difficulty,
+                                 Equipment equipment) {
         List<String> conditions = new ArrayList<>();
         List<String> args = new ArrayList<>();
         if (nameQuery != null) {
@@ -68,6 +69,10 @@ public class ExerciseRepository implements Repository<Exercise> {
         if (difficulty != null) {
             conditions.add("Difficulty = ? COLLATE NOCASE");
             args.add(difficulty.getLabel());
+        }
+        if (equipment != null) {
+            conditions.add("Equipment = ?");
+            args.add(equipment.getLabel());
         }
         String where = conditions.isEmpty() ? null : TextUtils.join(" AND ", conditions);
 
