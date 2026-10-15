@@ -17,9 +17,19 @@ Open the project in Android Studio, or use Gradle:
 | `./gradlew testDebugUnitTest` | Runs the unit tests: plain JVM tests plus Robolectric tests for the database. |
 | `./gradlew lintDebug` | Android lint. It should report 0 errors. |
 
-`app/google-services.json` connects the app to the Firebase project. The Firestore security rules
-are in [`firestore.rules`](firestore.rules); after changing them, publish them in the Firebase
-console (Firestore → Rules) or with `firebase deploy --only firestore:rules`.
+`app/google-services.json` connects the app to the Firebase project `thecalisthenicsapp`. Its
+Firestore database is `(default)` in `eur3` (Europe). The security rules are in
+[`firestore.rules`](firestore.rules); after changing them (and running the rules tests below),
+publish them in one of two ways:
+
+- **Firebase console:** Firestore Database → Rules, paste the whole file, Publish.
+- **Command line:** [`firebase.json`](firebase.json) and [`.firebaserc`](.firebaserc) point the
+  Firebase CLI at the rules file and the project. With Node.js 18 or newer, from the repository root:
+  ```
+  npx firebase-tools@14.27.0 login
+  npx firebase-tools@14.27.0 deploy --only firestore:rules
+  ```
+  `login` opens the browser once per computer; use a Google account with access to the project.
 
 ### Testing the Firestore rules
 
