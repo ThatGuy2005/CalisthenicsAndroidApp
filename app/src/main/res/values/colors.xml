@@ -2,4 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Behind every screen; the theme paints it, so layouts set no root background. -->
+    <color name="screen_background">#F5F7F2</color>
 </resources>

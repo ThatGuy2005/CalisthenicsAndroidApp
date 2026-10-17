@@ -5,5 +5,7 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.CalisthenicsApp" parent="Base.Theme.CalisthenicsApp" />
+    <style name="Theme.CalisthenicsApp" parent="Base.Theme.CalisthenicsApp">
+        <item name="android:windowBackground">@color/screen_background</item>
+    </style>
 </resources>
