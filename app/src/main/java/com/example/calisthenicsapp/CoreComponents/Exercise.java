@@ -64,7 +64,6 @@ public class Exercise {
     public String getMuscleGroup() {
         return this.muscleGroup;
     }
-    /** "Beginner", "Intermediate", "Advanced", or null. */
     /** Null if the exercise has none. */
     public Difficulty getDifficulty() {
         return this.difficulty;
