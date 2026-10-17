@@ -44,36 +44,42 @@
 
         <EditText
             android:id="@+id/signupUsername"
+            android:autofillHints="newUsername"
             style="@style/SignupField"
             android:hint="@string/signup_hint_username"
             android:inputType="text" />
 
         <EditText
             android:id="@+id/signupEmail"
+            android:autofillHints="emailAddress"
             style="@style/SignupField"
             android:hint="@string/hint_email"
             android:inputType="textEmailAddress" />
 
         <EditText
             android:id="@+id/signupPassword"
+            android:autofillHints="newPassword"
             style="@style/SignupField"
             android:hint="@string/signup_hint_password"
             android:inputType="textPassword" />
 
         <EditText
             android:id="@+id/signupHeight"
+            android:importantForAutofill="no"
             style="@style/SignupField"
             android:hint="@string/signup_hint_height"
             android:inputType="numberDecimal" />
 
         <EditText
             android:id="@+id/signupWeight"
+            android:importantForAutofill="no"
             style="@style/SignupField"
             android:hint="@string/signup_hint_weight"
             android:inputType="numberDecimal" />
 
         <EditText
             android:id="@+id/signupBirthYear"
+            android:autofillHints="birthDateYear"
             style="@style/SignupField"
             android:hint="@string/signup_hint_birth_year"
             android:inputType="number"
