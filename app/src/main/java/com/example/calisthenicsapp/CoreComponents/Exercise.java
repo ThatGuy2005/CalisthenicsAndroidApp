@@ -7,7 +7,26 @@ public class Exercise {
      */
     public Exercise(String name, String instructions, boolean isTimed,
                     Integer defaultSeconds, Integer defaultReps, double met,
-                    String animationFile, String muscleGroup, String difficulty) {
+                    String animationFile, String muscleGroup, Difficulty difficulty) {
+        this(name, instructions, isTimed, defaultSeconds, defaultReps, met, animationFile,
+                muscleGroup, difficulty, false);
+    }
+    /** isPerSide: the reps or seconds are per side (each leg or arm), as in lunges (FR-4.2). */
+    public Exercise(String name, String instructions, boolean isTimed,
+                    Integer defaultSeconds, Integer defaultReps, double met,
+                    String animationFile, String muscleGroup, Difficulty difficulty,
+                    boolean isPerSide) {
+        this(name, instructions, isTimed, defaultSeconds, defaultReps, met, animationFile,
+                muscleGroup, difficulty, isPerSide, Equipment.NONE, false);
+    }
+    /**
+     * equipment: what it needs besides the floor; null means none. isMultiMuscle: it works
+     * several muscle groups rather than mainly one (FR-3.2).
+     */
+    public Exercise(String name, String instructions, boolean isTimed,
+                    Integer defaultSeconds, Integer defaultReps, double met,
+                    String animationFile, String muscleGroup, Difficulty difficulty,
+                    boolean isPerSide, Equipment equipment, boolean isMultiMuscle) {
         this.name = name;
         this.instructions = instructions;
         this.isTimed = isTimed;
@@ -17,6 +36,9 @@ public class Exercise {
         this.animationFile = animationFile;
         this.muscleGroup = muscleGroup;
         this.difficulty = difficulty;
+        this.isPerSide = isPerSide;
+        this.equipment = equipment == null ? Equipment.NONE : equipment;
+        this.isMultiMuscle = isMultiMuscle;
     }
     public String getName() {
         return this.name;
@@ -42,9 +64,27 @@ public class Exercise {
     public String getMuscleGroup() {
         return this.muscleGroup;
     }
-    /** "Beginner", "Intermediate", "Advanced", or null. */
-    public String getDifficulty() {
+    /** Null if the exercise has none. */
+    public Difficulty getDifficulty() {
         return this.difficulty;
+    }
+    /**
+     * True when the reps or seconds are per side, e.g. 12 lunges with each leg: one set does
+     * both sides (FR-4.2).
+     */
+    public boolean isPerSide() {
+        return this.isPerSide;
+    }
+    /** What it needs besides the floor; Equipment.NONE, never null. */
+    public Equipment getEquipment() {
+        return this.equipment;
+    }
+    /**
+     * True for a compound movement that works several muscle groups (push-ups, burpees), false
+     * for one that mainly works getMuscleGroup() (crunches).
+     */
+    public boolean isMultiMuscle() {
+        return this.isMultiMuscle;
     }
     private String name;
     private String instructions;
@@ -54,5 +94,8 @@ public class Exercise {
     private double met;
     private String animationFile;
     private String muscleGroup;
-    private String difficulty;
+    private Difficulty difficulty;
+    private boolean isPerSide;
+    private Equipment equipment;
+    private boolean isMultiMuscle;
 }

@@ -74,7 +74,8 @@ public class ExerciseOrderRepository implements Repository<ExerciseOrderEntry> {
                         c.getInt(c.getColumnIndexOrThrow("Sets")),
                         Repository.intOrNull(c, "Reps"),        // NULL = use the exercise default
                         Repository.intOrNull(c, "Seconds"),     // NULL = use the exercise default
-                        c.getInt(c.getColumnIndexOrThrow("RestSeconds"))));
+                        c.getInt(c.getColumnIndexOrThrow("RestSeconds")),
+                        Repository.intOrNull(c, "RestAfterSeconds")));   // NULL = RestSeconds
             }
         }
         return list;
@@ -91,6 +92,7 @@ public class ExerciseOrderRepository implements Repository<ExerciseOrderEntry> {
         Repository.putIntOrNull(cv, "Reps", e.getReps());
         Repository.putIntOrNull(cv, "Seconds", e.getSeconds());
         if (e.getRestSeconds() != null) cv.put("RestSeconds", e.getRestSeconds());
+        Repository.putIntOrNull(cv, "RestAfterSeconds", e.getRestAfterSeconds());
         return cv;
     }
 }

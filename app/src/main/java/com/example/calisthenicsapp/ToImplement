@@ -1,9 +1,13 @@
 //-----------------------------------------------------
-The animations can be found on:
-https://yuhonas.github.io/free-exercise-db/
+Still to do: the exercise animations (FR-3.5).
+- Each exercise already has an AnimationFile column (NULL = placeholder); fill it in
+  seed.sql once the files are in the app.
+- Format: .lottie or optimized .webp. Candidate sources: LottieFiles, or the images of
+  https://yuhonas.github.io/free-exercise-db/ (still images, not animations; would need
+  converting). Check each source's licence.
+- The licence credits go on the Settings screen.
 //-----------------------------------------------------
-/** Calculation for the calories burnt.
-     * double kcal(double met, double weightKg, double seconds) {
-     *     return met * weightKg * (seconds / 3600.0);
-     * }*/
-//-----------------------------------------------------
+Done (kept for the record):
+- Backend: Firebase (Auth + Firestore), chosen over Supabase.
+- Calories: Session/Bmr.java. kcal = MET x BMR / 24 x hours (Mifflin-St Jeor);
+  MET x weight x hours when height or birth year is missing.

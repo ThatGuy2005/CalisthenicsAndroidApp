@@ -1,0 +1,145 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // ---------- Data checks. They repeat the app's own checks (Verificate/UserValidator), so a
+    // ---------- buggy or tampered client cannot store data the app would not accept.
+
+    function nullOrNumberIn(value, min, max) {
+      return value == null || (value is number && value >= min && value <= max);
+    }
+
+    function nullOrIntIn(value, min, max) {
+      return value == null || (value is int && value >= min && value <= max);
+    }
+
+    function nullOrStringUpTo(value, max) {
+      return value == null || (value is string && value.size() <= max);
+    }
+
+    // 3-20 letters, digits, '.', '_' or '-'; starts and ends with a letter or digit; no "..".
+    function validUsername(name) {
+      return name is string && name.size() >= 3 && name.size() <= 20
+          && name.matches('^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$')
+          && !name.matches('.*[.][.].*');
+    }
+
+    // users/{uid}. Height in cm, weight in kg, gender and birth year are optional; times are
+    // epoch seconds.
+    function validProfile(data) {
+      return data.keys().hasAll(['username', 'email', 'createdAt', 'updatedAt'])
+          && data.keys().hasOnly(['username', 'email', 'height', 'weight', 'gender',
+                                  'birthYear', 'createdAt', 'updatedAt'])
+          && validUsername(data.username)
+          && data.email is string && data.email.size() <= 254
+          && nullOrNumberIn(data.get('height', null), 50, 300)
+          && nullOrNumberIn(data.get('weight', null), 20, 500)
+          && nullOrStringUpTo(data.get('gender', null), 30)
+          && nullOrIntIn(data.get('birthYear', null), 1900, request.time.year())
+          && data.createdAt is int && data.updatedAt is int;
+    }
+
+    // Rules cannot loop over a list, so exercise lists are checked for type and size only.
+    function validExerciseList(value) {
+      return value is list && value.size() >= 1 && value.size() <= 50;
+    }
+
+    // users/{uid}/customWorkouts/{id}, see CustomWorkoutService.
+    function validCustomWorkout(data) {
+      return data.keys().hasAll(['name', 'updatedAt', 'exercises'])
+          && data.keys().hasOnly(['name', 'description', 'updatedAt', 'exercises'])
+          && data.name is string && data.name.size() >= 1 && data.name.size() <= 40
+          && nullOrStringUpTo(data.get('description', null), 200)
+          && data.updatedAt is int
+          && validExerciseList(data.exercises);
+    }
+
+    // users/{uid}/workoutLogs/{id}, see WorkoutLogService.saveSession.
+    function validWorkoutLog(data) {
+      return data.keys().hasAll(['workoutName', 'startedAt', 'durationSeconds', 'kcal', 'status',
+                                 'exercises'])
+          && data.keys().hasOnly(['workoutName', 'startedAt', 'durationSeconds', 'kcal', 'status',
+                                  'exercises'])
+          && data.workoutName is string && data.workoutName.size() >= 1 && data.workoutName.size() <= 100
+          && data.startedAt is int
+          && data.durationSeconds is int && data.durationSeconds >= 0
+          && data.kcal is number && data.kcal >= 0
+          && data.status in ['Completed', 'Partial']
+          && validExerciseList(data.exercises);
+    }
+
+    // users/{uid}/schedules/{id}, see ScheduleService: exactly one of workoutName (premade)
+    // and customWorkoutId; recurrenceRule as Scheduling/Recurrence writes it.
+    function validSchedule(data) {
+      return data.keys().hasAll(['scheduledAt'])
+          && data.keys().hasOnly(['workoutName', 'customWorkoutId', 'scheduledAt', 'recurrenceRule',
+                                  'completed'])
+          && (('workoutName' in data) != ('customWorkoutId' in data))
+          && nullOrStringUpTo(data.get('workoutName', null), 100)
+          && nullOrStringUpTo(data.get('customWorkoutId', null), 100)
+          && data.scheduledAt is int && data.scheduledAt > 0
+          && (!('recurrenceRule' in data)
+              || data.recurrenceRule.matches('^FREQ=(DAILY|WEEKLY|MONTHLY)(;INTERVAL=[1-9][0-9]?)?$'))
+          && (!('completed' in data) || data.completed is list);
+    }
+
+    // usernames/{name}: one document per username in use, with the owner's uid. The id is the
+    // lowercased username, and document ids are unique, so creating one claims that name.
+    match /usernames/{name} {
+      // get only: signed-in users can check one name, but cannot list them all.
+      allow get: if signedIn();
+      // Only for yourself, and only for the username your profile has after this write,
+      // so nobody can hold on to names they are not using.
+      allow create: if signedIn()
+          && request.resource.data.uid == request.auth.uid
+          && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username.lower() == name;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+      // No update: a name changes owner only by being released (deleted) and claimed again.
+    }
+
+    // A signed-in user can read and write only their own data under users/{uid}.
+    match /users/{uid} {
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      // The profile's username must be claimed by this user once the write is done.
+      allow create, update: if signedIn() && request.auth.uid == uid
+          && validProfile(request.resource.data)
+          && (request.method == 'create' || request.resource.data.createdAt == resource.data.createdAt)
+          && getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username.lower())).data.uid == uid;
+
+      // Only these three subcollections exist; anything else is denied.
+      match /customWorkouts/{workoutId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validCustomWorkout(request.resource.data);
+      }
+
+      // A log is written once and never changed, only deleted.
+      match /workoutLogs/{logId} {
+        allow read, delete: if isOwner(uid);
+        allow create: if isOwner(uid) && validWorkoutLog(request.resource.data);
+      }
+
+      match /schedules/{scheduleId} {
+        allow read, delete: if isOwner(uid);
+        // A new schedule's custom workout must exist (it may be written in the same batch).
+        allow create: if isOwner(uid) && validSchedule(request.resource.data)
+            && (!('customWorkoutId' in request.resource.data)
+                || existsAfter(/databases/$(database)/documents/users/$(uid)/customWorkouts/$(request.resource.data.customWorkoutId)));
+        // The workout a schedule points at never changes; time, repeat and completions can.
+        allow update: if isOwner(uid) && validSchedule(request.resource.data)
+            && request.resource.data.get('workoutName', null) == resource.data.get('workoutName', null)
+            && request.resource.data.get('customWorkoutId', null) == resource.data.get('customWorkoutId', null);
+      }
+    }
+
+    // Everything else is denied by default.
+  }
+}

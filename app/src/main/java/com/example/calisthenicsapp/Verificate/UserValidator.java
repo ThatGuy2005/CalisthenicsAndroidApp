@@ -1,5 +1,6 @@
 package com.example.calisthenicsapp.Verificate;
 
+import java.util.Calendar;
 import java.util.regex.Pattern;
 
 public final class UserValidator {
@@ -10,6 +11,11 @@ public final class UserValidator {
     private static final int PASSWORD_MIN = 8;
     private static final int PASSWORD_MAX = 64;
     private static final int EMAIL_MAX = 254;
+    // firestore.rules checks the same limits; change both together.
+    private static final double HEIGHT_MIN = 50, HEIGHT_MAX = 300;   // cm
+    private static final double WEIGHT_MIN = 20, WEIGHT_MAX = 500;   // kg
+    private static final int GENDER_MAX = 30;
+    public static final int BIRTH_YEAR_MIN = 1900;   // up to the current year
 
     // Letters, digits, '_', '.', '-'; must start and end with a letter or digit.
     private static final Pattern USERNAME = Pattern.compile(
@@ -45,6 +51,35 @@ public final class UserValidator {
         if (email == null) return false;
         if (email.length() > EMAIL_MAX) return false;
         return EMAIL.matcher(email).matches();
+    }
+
+    /** Height in cm; null means not given, which is fine. */
+    public static boolean isValidHeight(Double height) {
+        return height == null || (height >= HEIGHT_MIN && height <= HEIGHT_MAX);
+    }
+
+    /** Weight in kg; null means not given, which is fine. */
+    public static boolean isValidWeight(Double weight) {
+        return weight == null || (weight >= WEIGHT_MIN && weight <= WEIGHT_MAX);
+    }
+
+    /** Null means not given, which is fine. */
+    public static boolean isValidGender(String gender) {
+        return gender == null || gender.length() <= GENDER_MAX;
+    }
+
+    /** From 1900 to the current year; null means not given, which is fine. */
+    public static boolean isValidBirthYear(Integer year) {
+        return year == null
+                || (year >= BIRTH_YEAR_MIN && year <= Calendar.getInstance().get(Calendar.YEAR));
+    }
+
+    /**
+     * The id of the username's usernames/{key} claim document in Firestore. Lowercased, so
+     * "Bob" and "bob" claim the same document and count as the same username.
+     */
+    public static String usernameKey(String username) {
+        return username.toLowerCase(java.util.Locale.ROOT);
     }
 
     /** Call this before validating and storing, so "Bob@X.com" and "bob@x.com" are the same account. */

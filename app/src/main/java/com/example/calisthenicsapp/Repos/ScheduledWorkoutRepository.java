@@ -7,7 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.example.calisthenicsapp.CoreComponents.ScheduledWorkout;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> {
@@ -16,33 +20,30 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
     public ScheduledWorkoutRepository(SQLiteDatabase db) { this.db = db; }
 
     @Override
-    public boolean insert(ScheduledWorkout s) {             // Id is autoincremented
+    public boolean insert(ScheduledWorkout s) {             // Id is the Firestore document id
         try {
-            long id = db.insertOrThrow("ScheduledWorkout", null, toContentValues(s));
-            if (id == -1) return false;
-            s.setId(id);                                    // caller now has the id
-            return true;
+            return db.insertOrThrow("ScheduledWorkout", null, toContentValues(s)) != -1;
         } catch (SQLiteConstraintException e) {
             return false;   // both or neither workout set, or unknown user/workout
         }
     }
 
-    /** Changes the workout and/or the time. The owner (Username) never changes. */
+    /** Changes the workout, the time and/or the repeat rule. The owner (Uid) and the calendar event stay. */
     @Override
     public boolean update(ScheduledWorkout s) {
         if (s.getId() == null) return false;
         ContentValues cv = toContentValues(s);
         cv.remove("Id");
-        cv.remove("Username");
+        cv.remove("Uid");
         return Repository.updateDB(db, "ScheduledWorkout", cv,
-                "Id = ?", String.valueOf(s.getId()));
+                "Id = ?", s.getId());
     }
 
     @Override
     public boolean delete(ScheduledWorkout s) {
         if (s.getId() == null) return false;
         return Repository.deleteDB(db, "ScheduledWorkout",
-                "Id = ?", String.valueOf(s.getId()));
+                "Id = ?", s.getId());
     }
 
     @Override
@@ -50,40 +51,81 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         return query(null, null);
     }
 
-    public ScheduledWorkout getOne(long id) {
-        List<ScheduledWorkout> r = query("Id = ?", new String[]{String.valueOf(id)});
+    public ScheduledWorkout getOne(String id) {
+        List<ScheduledWorkout> r = query("Id = ?", new String[]{id});
         return r.isEmpty() ? null : r.get(0);
     }
 
     /** All of a user's scheduled workouts, soonest first. */
-    public List<ScheduledWorkout> getByUsername(String username) {
-        return query("Username = ?", new String[]{username});
+    public List<ScheduledWorkout> getByUid(String uid) {
+        return query("Uid = ?", new String[]{uid});
     }
 
-    /** A user's workouts scheduled at or after fromEpochSeconds, soonest first. */
-    public List<ScheduledWorkout> getUpcoming(String username, long fromEpochSeconds) {
-        return query("Username = ? AND ScheduledAt >= ?",
-                new String[]{username, String.valueOf(fromEpochSeconds)});
+    /**
+     * A user's schedules that still have an occurrence at or after fromEpochSeconds: one-off
+     * schedules from then on, and every repeating one. Sorted by their first occurrence, so
+     * sort by the next one where that matters.
+     */
+    public List<ScheduledWorkout> getUpcoming(String uid, long fromEpochSeconds) {
+        return query("Uid = ? AND (ScheduledAt >= ? OR RecurrenceRule IS NOT NULL)",
+                new String[]{uid, String.valueOf(fromEpochSeconds)});
+    }
+
+    /**
+     * A user's schedules that can have an occurrence in [fromEpochSeconds, toEpochSeconds):
+     * one-off schedules inside it, and repeating ones that started before its end.
+     */
+    public List<ScheduledWorkout> getBetween(String uid, long fromEpochSeconds, long toEpochSeconds) {
+        return query("Uid = ? AND ScheduledAt < ? AND (ScheduledAt >= ? OR RecurrenceRule IS NOT NULL)",
+                new String[]{uid, String.valueOf(toEpochSeconds), String.valueOf(fromEpochSeconds)});
+    }
+
+    // ---------- Calendar events (local only, see CalendarEvent in schema.sql) ----------
+
+    /** Works before the schedule row itself exists. */
+    public void setCalendarEventId(String scheduleId, long eventId) {
+        ContentValues cv = new ContentValues();
+        cv.put("ScheduleId", scheduleId);
+        cv.put("EventId", eventId);
+        db.insertWithOnConflict("CalendarEvent", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public Long getCalendarEventId(String scheduleId) {
+        try (Cursor c = db.query("CalendarEvent", new String[]{"EventId"}, "ScheduleId = ?",
+                new String[]{scheduleId}, null, null, null)) {
+            return c.moveToFirst() ? c.getLong(0) : null;
+        }
+    }
+
+    public void clearCalendarEventId(String scheduleId) {
+        db.delete("CalendarEvent", "ScheduleId = ?", new String[]{scheduleId});
     }
 
     private List<ScheduledWorkout> query(String where, String[] args) {
         List<ScheduledWorkout> list = new ArrayList<>();
-        try (Cursor c = db.query("ScheduledWorkout", null, where, args,
-                null, null, "ScheduledAt ASC")) {
+        String sql = "SELECT s.*, e.EventId AS CalendarEventId FROM ScheduledWorkout s"
+                + " LEFT JOIN CalendarEvent e ON e.ScheduleId = s.Id"
+                + (where == null ? "" : " WHERE " + where)
+                + " ORDER BY s.ScheduledAt ASC";
+        try (Cursor c = db.rawQuery(sql, args)) {
             int idCol = c.getColumnIndexOrThrow("Id");
-            int userCol = c.getColumnIndexOrThrow("Username");
+            int uidCol = c.getColumnIndexOrThrow("Uid");
             int nameCol = c.getColumnIndexOrThrow("WorkoutName");
             int customCol = c.getColumnIndexOrThrow("CustomWorkoutId");
             int atCol = c.getColumnIndexOrThrow("ScheduledAt");
+            int ruleCol = c.getColumnIndexOrThrow("RecurrenceRule");
+            int completedCol = c.getColumnIndexOrThrow("Completed");
+            int eventCol = c.getColumnIndexOrThrow("CalendarEventId");
             while (c.moveToNext()) {
-                // getString returns null for NULL, but getInt/getLong return 0,
-                // so the nullable CustomWorkoutId needs an explicit isNull check.
                 list.add(new ScheduledWorkout(
-                        c.getLong(idCol),
-                        c.getString(userCol),
+                        c.getString(idCol),
+                        c.getString(uidCol),
                         c.getString(nameCol),
-                        c.isNull(customCol) ? null : c.getLong(customCol),
-                        c.getLong(atCol)));
+                        c.getString(customCol),
+                        c.getLong(atCol),
+                        c.getString(ruleCol),
+                        completedFromJson(c.getString(completedCol)),
+                        c.isNull(eventCol) ? null : c.getLong(eventCol)));
             }
         }
         return list;
@@ -92,12 +134,28 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
     private ContentValues toContentValues(ScheduledWorkout s) {
         ContentValues cv = new ContentValues();
         if (s.getId() != null) cv.put("Id", s.getId());
-        cv.put("Username", s.getUsername());
+        cv.put("Uid", s.getUid());
         if (s.getWorkoutName() != null) cv.put("WorkoutName", s.getWorkoutName());
         else cv.putNull("WorkoutName");
         if (s.getCustomWorkoutId() != null) cv.put("CustomWorkoutId", s.getCustomWorkoutId());
         else cv.putNull("CustomWorkoutId");
         cv.put("ScheduledAt", s.getScheduledAt());
+        if (s.getRecurrenceRule() != null) cv.put("RecurrenceRule", s.getRecurrenceRule());
+        else cv.putNull("RecurrenceRule");
+        if (s.getCompletedOccurrences().isEmpty()) cv.putNull("Completed");
+        else cv.put("Completed", new JSONArray(s.getCompletedOccurrences()).toString());
         return cv;
+    }
+
+    private static List<Long> completedFromJson(String json) {
+        List<Long> completed = new ArrayList<>();
+        if (json == null) return completed;
+        try {
+            JSONArray array = new JSONArray(json);
+            for (int i = 0; i < array.length(); i++) completed.add(array.getLong(i));
+        } catch (JSONException e) {
+            // Only this class writes the column; an unreadable value counts as none.
+        }
+        return completed;
     }
 }

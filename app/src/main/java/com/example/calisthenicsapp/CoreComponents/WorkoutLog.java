@@ -1,22 +1,33 @@
 package com.example.calisthenicsapp.CoreComponents;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class WorkoutLog {
-    public WorkoutLog(long id, String username, String workoutName,
-                      long startedAt, int durationSeconds, double kcal) {
+    public static final String STATUS_COMPLETED = "Completed";
+    public static final String STATUS_PARTIAL = "Partial";
+
+    /** exercises is the snapshot of what was done (FR-5.5); empty if none was stored. */
+    public WorkoutLog(String id, String uid, String workoutName,
+                      long startedAt, int durationSeconds, double kcal,
+                      String status, List<LoggedExercise> exercises) {
         this.id = id;
-        this.username = username;
+        this.uid = uid;
         this.workoutName = workoutName;
         this.startedAt = startedAt;
         this.durationSeconds = durationSeconds;
         this.kcal = kcal;
+        this.status = STATUS_PARTIAL.equals(status) ? STATUS_PARTIAL : STATUS_COMPLETED;
+        this.exercises = exercises == null ? new ArrayList<>() : new ArrayList<>(exercises);
     }
 
-    public long getId() {
+    public String getId() {
         return this.id;
     }
 
-    public String getUsername() {
-        return this.username;
+    public String getUid() {
+        return this.uid;
     }
 
     public String getWorkoutName() {
@@ -35,10 +46,21 @@ public class WorkoutLog {
         return this.kcal;
     }
 
-    private long id;
-    private String username;
+    /** STATUS_COMPLETED or STATUS_PARTIAL. */
+    public String getStatus() {
+        return this.status;
+    }
+
+    public List<LoggedExercise> getExercises() {
+        return Collections.unmodifiableList(this.exercises);
+    }
+
+    private String id;
+    private String uid;
     private String workoutName;
     private long startedAt;
     private int durationSeconds;
     private double kcal;
+    private String status;
+    private List<LoggedExercise> exercises;
 }

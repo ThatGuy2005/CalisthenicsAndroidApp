@@ -27,14 +27,14 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
         cv.remove("Position");
         return Repository.updateDB(db, "CustomExerciseOrder", cv,
                 "CustomWorkoutId = ? AND Position = ?",
-                String.valueOf(e.getCustomWorkoutId()), String.valueOf(e.getPosition()));
+                e.getCustomWorkoutId(), String.valueOf(e.getPosition()));
     }
 
     @Override
     public boolean delete(CustomExerciseOrderEntry e) {
         return Repository.deleteDB(db, "CustomExerciseOrder",
                 "CustomWorkoutId = ? AND Position = ?",
-                String.valueOf(e.getCustomWorkoutId()), String.valueOf(e.getPosition()));
+                e.getCustomWorkoutId(), String.valueOf(e.getPosition()));
     }
 
     @Override
@@ -42,16 +42,16 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
         return query(null, null);
     }
 
-    public List<CustomExerciseOrderEntry> getByCustomWorkout(long customWorkoutId) {
-        return query("CustomWorkoutId = ?", new String[]{String.valueOf(customWorkoutId)});
+    public List<CustomExerciseOrderEntry> getByCustomWorkout(String customWorkoutId) {
+        return query("CustomWorkoutId = ?", new String[]{customWorkoutId});
     }
 
-    public boolean replaceForCustomWorkout(long customWorkoutId,
+    public boolean replaceForCustomWorkout(String customWorkoutId,
                                            List<CustomExerciseOrderEntry> entries) {
         db.beginTransaction();
         try {
             db.delete("CustomExerciseOrder", "CustomWorkoutId = ?",
-                    new String[]{String.valueOf(customWorkoutId)});
+                    new String[]{customWorkoutId});
             for (CustomExerciseOrderEntry e : entries) {
                 if (!Repository.insertDB(db, "CustomExerciseOrder", toContentValues(e)))
                     return false;
@@ -69,13 +69,14 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
                 null, null, "CustomWorkoutId ASC, Position ASC")) {
             while (c.moveToNext()) {
                 list.add(new CustomExerciseOrderEntry(
-                        c.getLong(c.getColumnIndexOrThrow("CustomWorkoutId")),
+                        c.getString(c.getColumnIndexOrThrow("CustomWorkoutId")),
                         c.getString(c.getColumnIndexOrThrow("ExerciseName")),
                         c.getInt(c.getColumnIndexOrThrow("Position")),
                         c.getInt(c.getColumnIndexOrThrow("Sets")),
                         Repository.intOrNull(c, "Reps"),        // NULL = use the exercise default
                         Repository.intOrNull(c, "Seconds"),     // NULL = use the exercise default
-                        c.getInt(c.getColumnIndexOrThrow("RestSeconds"))));
+                        c.getInt(c.getColumnIndexOrThrow("RestSeconds")),
+                        Repository.intOrNull(c, "RestAfterSeconds")));   // NULL = RestSeconds
             }
         }
         return list;
@@ -92,6 +93,7 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
         Repository.putIntOrNull(cv, "Reps", e.getReps());
         Repository.putIntOrNull(cv, "Seconds", e.getSeconds());
         if (e.getRestSeconds() != null) cv.put("RestSeconds", e.getRestSeconds());
+        Repository.putIntOrNull(cv, "RestAfterSeconds", e.getRestAfterSeconds());
         return cv;
     }
 }
