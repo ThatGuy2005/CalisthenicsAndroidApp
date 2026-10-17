@@ -72,6 +72,13 @@
             android:hint="Weight (kg) — optional"
             android:inputType="numberDecimal" />
 
+        <EditText
+            android:id="@+id/signupBirthYear"
+            style="@style/SignupField"
+            android:hint="Birth year — optional"
+            android:inputType="number"
+            android:maxLength="4" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -43,6 +43,7 @@ public class SignupActivity extends AppCompatActivity {
         EditText password = findViewById(R.id.signupPassword);
         EditText height = findViewById(R.id.signupHeight);
         EditText weight = findViewById(R.id.signupWeight);
+        EditText birthYear = findViewById(R.id.signupBirthYear);
         Spinner gender = findViewById(R.id.signupGender);
 
         String usernameValue = username.getText().toString().trim();
@@ -71,13 +72,20 @@ public class SignupActivity extends AppCompatActivity {
                 weight.requestFocus();
                 return;
             }
+            Integer birthYearValue = parseOptionalYear(birthYear);
+            if (!birthYear.getText().toString().trim().isEmpty()
+                    && (birthYearValue == null || !UserValidator.isValidBirthYear(birthYearValue))) {
+                birthYear.setError("Enter a year between " + UserValidator.BIRTH_YEAR_MIN
+                        + " and this year");
+                birthYear.requestFocus();
+                return;
+            }
 
             String genderValue = gender.getSelectedItemPosition() == 0
                     ? null : gender.getSelectedItem().toString();
             createAccount.setEnabled(false);
-            // No birth year field yet, so it is left out (null).
             authService.signUp(usernameValue, emailValue, passwordValue, heightValue,
-                    weightValue, genderValue, null, new AuthService.AuthCallback<FirebaseUser>() {
+                    weightValue, genderValue, birthYearValue, new AuthService.AuthCallback<FirebaseUser>() {
                         @Override
                         public void onSuccess(FirebaseUser user) {
                             createAccount.setEnabled(true);
@@ -100,6 +108,16 @@ public class SignupActivity extends AppCompatActivity {
         if (value.isEmpty()) return null;
         try {
             return Double.parseDouble(value);
+        } catch (NumberFormatException exception) {
+            return null;
+        }
+    }
+
+    private Integer parseOptionalYear(EditText field) {
+        String value = field.getText().toString().trim();
+        if (value.isEmpty()) return null;
+        try {
+            return Integer.parseInt(value);
         } catch (NumberFormatException exception) {
             return null;
         }
