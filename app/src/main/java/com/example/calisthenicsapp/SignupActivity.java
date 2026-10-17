@@ -11,24 +11,17 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.calisthenicsapp.Database.AppDatabase;
-import com.example.calisthenicsapp.Repos.UserRepository;
-import com.example.calisthenicsapp.Service.UserService;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.example.calisthenicsapp.Service.AuthService;
+import com.example.calisthenicsapp.Verificate.UserValidator;
+import com.google.firebase.auth.FirebaseUser;
 
 public class SignupActivity extends AppCompatActivity {
-    private AppDatabase database;
-    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
-        database = new AppDatabase(this);
-        UserService userService = new UserService(
-                new UserRepository(database.getWritableDatabase()));
+        AuthService authService = new AuthService(this);
 
         String[] genders = {"Select gender", "Female", "Male", "Non-binary", "Prefer not to say"};
         Spinner genderSpinner = findViewById(R.id.signupGender);
@@ -41,10 +34,10 @@ public class SignupActivity extends AppCompatActivity {
         backToLogin.setOnClickListener(view -> finish());
 
         Button createAccount = findViewById(R.id.createAccountButton);
-        createAccount.setOnClickListener(view -> validateForm(userService, createAccount));
+        createAccount.setOnClickListener(view -> validateForm(authService, createAccount));
     }
 
-    private void validateForm(UserService userService, Button createAccount) {
+    private void validateForm(AuthService authService, Button createAccount) {
         EditText username = findViewById(R.id.signupUsername);
         EditText email = findViewById(R.id.signupEmail);
         EditText password = findViewById(R.id.signupPassword);
@@ -62,8 +55,8 @@ public class SignupActivity extends AppCompatActivity {
         } else if (emailValue.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()) {
             email.setError("Enter a valid email address");
             email.requestFocus();
-        } else if (passwordValue.length() < 8) {
-            password.setError("Use at least 8 characters");
+        } else if (!UserValidator.isValidPassword(passwordValue)) {
+            password.setError("Use 8-64 characters with at least one letter and one digit");
             password.requestFocus();
         } else {
             Double heightValue = parseOptionalNumber(height);
@@ -82,22 +75,23 @@ public class SignupActivity extends AppCompatActivity {
             String genderValue = gender.getSelectedItemPosition() == 0
                     ? null : gender.getSelectedItem().toString();
             createAccount.setEnabled(false);
-            databaseExecutor.execute(() -> {
-                boolean success = userService.signUp(usernameValue, emailValue, passwordValue,
-                        heightValue, weightValue, genderValue, "User");
-                runOnUiThread(() -> {
-                    createAccount.setEnabled(true);
-                    if (success) {
-                        Toast.makeText(this, "Account created. You can now log in.",
-                                Toast.LENGTH_LONG).show();
-                        finish();
-                    } else {
-                        Toast.makeText(this,
-                                "Could not create account. Check the details or use another username/email.",
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-            });
+            // No birth year field yet, so it is left out (null).
+            authService.signUp(usernameValue, emailValue, passwordValue, heightValue,
+                    weightValue, genderValue, null, new AuthService.AuthCallback<FirebaseUser>() {
+                        @Override
+                        public void onSuccess(FirebaseUser user) {
+                            createAccount.setEnabled(true);
+                            Toast.makeText(SignupActivity.this, "Account created.",
+                                    Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            createAccount.setEnabled(true);
+                            Toast.makeText(SignupActivity.this, message, Toast.LENGTH_LONG).show();
+                        }
+                    });
         }
     }
 
@@ -109,12 +103,5 @@ public class SignupActivity extends AppCompatActivity {
         } catch (NumberFormatException exception) {
             return null;
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        databaseExecutor.shutdown();
-        if (database != null) database.close();
-        super.onDestroy();
     }
 }

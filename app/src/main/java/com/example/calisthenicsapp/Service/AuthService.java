@@ -1,6 +1,8 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.example.calisthenicsapp.CoreComponents.User;
@@ -22,8 +24,8 @@ import java.util.concurrent.Executors;
 
 /**
  * Wraps FirebaseAuth (email/password) and the users/{uid} Firestore profile document.
- * Every method is asynchronous and reports back through an {@link AuthCallback}; nothing here
- * blocks the calling thread. Sign-up claims the username in usernames/{lowercased name} and
+ * Every method is asynchronous and reports back through an {@link AuthCallback} on the main
+ * thread; nothing here blocks the calling thread. Sign-up claims the username in usernames/{lowercased name} and
  * writes the profile in one transaction; if that fails (name taken, no connection) the new
  * Auth account is deleted again. On a successful sign-up, the Firestore profile write is followed
  * by a local SQLite insert (on a background thread) so the per-user tables that foreign-key to
@@ -35,6 +37,7 @@ public class AuthService {
 
     private static final String TAG = "AuthService";
     private static final String USERNAME_TAKEN = "That username is taken.";
+    private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
     public interface AuthCallback<T> {
         void onSuccess(T result);
@@ -144,7 +147,7 @@ public class AuthService {
                             birthYear, now, now);
                     localDbExecutor.execute(() -> {
                         userRepository.insert(localUser);   // best-effort local mirror, see class Javadoc
-                        callback.onSuccess(firebaseUser);
+                        MAIN.post(() -> callback.onSuccess(firebaseUser));
                     });
                 });
     }

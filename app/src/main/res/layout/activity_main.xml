@@ -43,13 +43,13 @@
             android:textSize="16sp" />
 
         <EditText
-            android:id="@+id/usernameInput"
+            android:id="@+id/emailInput"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="36dp"
             android:background="@drawable/input_background"
-            android:hint="Username"
-            android:inputType="text"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:singleLine="true" />
