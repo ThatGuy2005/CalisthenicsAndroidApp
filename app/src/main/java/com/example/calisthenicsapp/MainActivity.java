@@ -32,8 +32,14 @@ public class MainActivity extends AppCompatActivity {
         signupButton.setOnClickListener(view ->
                 startActivity(new android.content.Intent(this, SignupActivity.class)));
 
-        Button loginButton = findViewById(R.id.loginButton);
         EditText emailInput = findViewById(R.id.emailInput);
+        Button forgotPasswordButton = findViewById(R.id.forgotPasswordButton);
+        forgotPasswordButton.setOnClickListener(view -> startActivity(
+                new android.content.Intent(this, ForgotPasswordActivity.class)
+                        .putExtra(ForgotPasswordActivity.EXTRA_EMAIL,
+                                emailInput.getText().toString().trim())));
+
+        Button loginButton = findViewById(R.id.loginButton);
         EditText passwordInput = findViewById(R.id.passwordInput);
         loginButton.setOnClickListener(view -> {
             String email = emailInput.getText().toString().trim();
