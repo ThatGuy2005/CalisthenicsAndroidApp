@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CALISTHENICS"
+            android:text="@string/login_brand"
             android:textColor="#376B4B"
             android:textSize="13sp"
             android:textStyle="bold"
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Welcome back"
+            android:text="@string/login_title"
             android:textColor="#1D2B22"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Log in to continue your training"
+            android:text="@string/login_subtitle"
             android:textColor="#68746B"
             android:textSize="16sp" />
 
@@ -48,7 +48,7 @@
             android:layout_height="56dp"
             android:layout_marginTop="36dp"
             android:background="@drawable/input_background"
-            android:hint="Email"
+            android:hint="@string/hint_email"
             android:inputType="textEmailAddress"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
@@ -60,7 +60,7 @@
             android:layout_height="56dp"
             android:layout_marginTop="14dp"
             android:background="@drawable/input_background"
-            android:hint="Password"
+            android:hint="@string/login_hint_password"
             android:inputType="textPassword"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
@@ -72,7 +72,7 @@
             android:layout_height="56dp"
             android:layout_marginTop="24dp"
             android:backgroundTint="#376B4B"
-            android:text="Log in"
+            android:text="@string/login_button"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
@@ -81,7 +81,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="26dp"
-            android:text="New to Calisthenics?"
+            android:text="@string/login_new_here"
             android:textColor="#68746B"
             android:textSize="15sp" />
 
@@ -90,7 +90,7 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:text="Create an account"
+            android:text="@string/login_create_account"
             android:textAllCaps="false"
             android:textColor="#376B4B"
             android:textSize="15sp" />

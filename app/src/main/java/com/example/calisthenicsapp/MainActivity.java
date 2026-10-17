@@ -39,14 +39,14 @@ public class MainActivity extends AppCompatActivity {
             String email = emailInput.getText().toString().trim();
             String password = passwordInput.getText().toString();
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Enter your email and password.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.login_error_empty, Toast.LENGTH_SHORT).show();
             } else {
                 loginButton.setEnabled(false);
                 authService.signIn(email, password, new AuthService.AuthCallback<FirebaseUser>() {
                     @Override
                     public void onSuccess(FirebaseUser user) {
                         loginButton.setEnabled(true);
-                        Toast.makeText(MainActivity.this, "Login successful.",
+                        Toast.makeText(MainActivity.this, R.string.login_success,
                                 Toast.LENGTH_SHORT).show();
                     }
 

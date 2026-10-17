@@ -1,3 +1,44 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">CalisthenicsApp</string>
+
+    <!-- Shared by the login and sign-up screens -->
+    <string name="hint_email">Email</string>
+
+    <!-- Login (activity_main) -->
+    <string name="login_brand">CALISTHENICS</string>
+    <string name="login_title">Welcome back</string>
+    <string name="login_subtitle">Log in to continue your training</string>
+    <string name="login_hint_password">Password</string>
+    <string name="login_button">Log in</string>
+    <string name="login_new_here">New to Calisthenics?</string>
+    <string name="login_create_account">Create an account</string>
+    <string name="login_error_empty">Enter your email and password.</string>
+    <string name="login_success">Login successful.</string>
+
+    <!-- Sign-up (activity_signup) -->
+    <string name="signup_back">"‹  Back to login"</string>
+    <string name="signup_create_account">Create account</string>
+    <string name="signup_subtitle">A few details to get your training started</string>
+    <string name="signup_hint_username">Username</string>
+    <string name="signup_hint_password">Password (8+ characters, a letter and a digit)</string>
+    <string name="signup_hint_height">Height (cm) — optional</string>
+    <string name="signup_hint_weight">Weight (kg) — optional</string>
+    <string name="signup_hint_birth_year">Birth year — optional</string>
+    <string name="signup_gender_label">Gender (optional)</string>
+    <!-- The first item means none; the others are saved as the user's gender. -->
+    <string-array name="signup_genders">
+        <item>Select gender</item>
+        <item>Female</item>
+        <item>Male</item>
+        <item>Non-binary</item>
+        <item>Prefer not to say</item>
+    </string-array>
+    <string name="signup_error_username">Username is required</string>
+    <string name="signup_error_email">Enter a valid email address</string>
+    <string name="signup_error_password">Use 8–64 characters with at least one letter and one digit</string>
+    <string name="signup_error_height">Enter a valid height</string>
+    <string name="signup_error_weight">Enter a valid weight</string>
+    <!-- %1$d is the earliest year, not a count, so no plural. -->
+    <string name="signup_error_birth_year" tools:ignore="PluralsCandidate">Enter a year between %1$d and this year</string>
+    <string name="signup_success">Account created.</string>
 </resources>

@@ -23,7 +23,7 @@ public class SignupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
         AuthService authService = new AuthService(this);
 
-        String[] genders = {"Select gender", "Female", "Male", "Non-binary", "Prefer not to say"};
+        String[] genders = getResources().getStringArray(R.array.signup_genders);
         Spinner genderSpinner = findViewById(R.id.signupGender);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, genders);
@@ -51,32 +51,32 @@ public class SignupActivity extends AppCompatActivity {
         String passwordValue = password.getText().toString();
 
         if (usernameValue.isEmpty()) {
-            username.setError("Username is required");
+            username.setError(getString(R.string.signup_error_username));
             username.requestFocus();
         } else if (emailValue.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()) {
-            email.setError("Enter a valid email address");
+            email.setError(getString(R.string.signup_error_email));
             email.requestFocus();
         } else if (!UserValidator.isValidPassword(passwordValue)) {
-            password.setError("Use 8-64 characters with at least one letter and one digit");
+            password.setError(getString(R.string.signup_error_password));
             password.requestFocus();
         } else {
             Double heightValue = parseOptionalNumber(height);
             Double weightValue = parseOptionalNumber(weight);
             if (!height.getText().toString().trim().isEmpty() && heightValue == null) {
-                height.setError("Enter a valid height");
+                height.setError(getString(R.string.signup_error_height));
                 height.requestFocus();
                 return;
             }
             if (!weight.getText().toString().trim().isEmpty() && weightValue == null) {
-                weight.setError("Enter a valid weight");
+                weight.setError(getString(R.string.signup_error_weight));
                 weight.requestFocus();
                 return;
             }
             Integer birthYearValue = parseOptionalYear(birthYear);
             if (!birthYear.getText().toString().trim().isEmpty()
                     && (birthYearValue == null || !UserValidator.isValidBirthYear(birthYearValue))) {
-                birthYear.setError("Enter a year between " + UserValidator.BIRTH_YEAR_MIN
-                        + " and this year");
+                birthYear.setError(getString(R.string.signup_error_birth_year,
+                        UserValidator.BIRTH_YEAR_MIN));
                 birthYear.requestFocus();
                 return;
             }
@@ -89,7 +89,7 @@ public class SignupActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(FirebaseUser user) {
                             createAccount.setEnabled(true);
-                            Toast.makeText(SignupActivity.this, "Account created.",
+                            Toast.makeText(SignupActivity.this, R.string.signup_success,
                                     Toast.LENGTH_LONG).show();
                             finish();
                         }

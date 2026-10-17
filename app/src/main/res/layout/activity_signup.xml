@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:gravity="center_vertical"
-            android:text="‹  Back to login"
+            android:text="@string/signup_back"
             android:textColor="#376B4B"
             android:textSize="15sp" />
 
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Create account"
+            android:text="@string/signup_create_account"
             android:textColor="#1D2B22"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -38,44 +38,44 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="22dp"
-            android:text="A few details to get your training started"
+            android:text="@string/signup_subtitle"
             android:textColor="#68746B"
             android:textSize="15sp" />
 
         <EditText
             android:id="@+id/signupUsername"
             style="@style/SignupField"
-            android:hint="Username"
+            android:hint="@string/signup_hint_username"
             android:inputType="text" />
 
         <EditText
             android:id="@+id/signupEmail"
             style="@style/SignupField"
-            android:hint="Email"
+            android:hint="@string/hint_email"
             android:inputType="textEmailAddress" />
 
         <EditText
             android:id="@+id/signupPassword"
             style="@style/SignupField"
-            android:hint="Password (at least 8 characters)"
+            android:hint="@string/signup_hint_password"
             android:inputType="textPassword" />
 
         <EditText
             android:id="@+id/signupHeight"
             style="@style/SignupField"
-            android:hint="Height (cm) — optional"
+            android:hint="@string/signup_hint_height"
             android:inputType="numberDecimal" />
 
         <EditText
             android:id="@+id/signupWeight"
             style="@style/SignupField"
-            android:hint="Weight (kg) — optional"
+            android:hint="@string/signup_hint_weight"
             android:inputType="numberDecimal" />
 
         <EditText
             android:id="@+id/signupBirthYear"
             style="@style/SignupField"
-            android:hint="Birth year — optional"
+            android:hint="@string/signup_hint_birth_year"
             android:inputType="number"
             android:maxLength="4" />
 
@@ -85,7 +85,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="18dp"
             android:layout_marginBottom="6dp"
-            android:text="Gender (optional)"
+            android:text="@string/signup_gender_label"
             android:textColor="#526057"
             android:textSize="14sp" />
 
@@ -103,7 +103,7 @@
             android:layout_height="56dp"
             android:layout_marginTop="24dp"
             android:backgroundTint="#376B4B"
-            android:text="Create account"
+            android:text="@string/signup_create_account"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
