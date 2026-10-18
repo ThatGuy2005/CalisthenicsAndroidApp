@@ -3,7 +3,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7F2"
+    android:background="@color/performance_canvas"
     android:fillViewport="true">
 
     <LinearLayout
@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="CALISTHENICS"
-            android:textColor="#376B4B"
+            android:textColor="@color/performance_orange_dark"
             android:textSize="13sp"
             android:textStyle="bold"
             android:letterSpacing="0.16" />
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Welcome back"
-            android:textColor="#1D2B22"
+            android:textColor="@color/performance_graphite"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -39,17 +39,18 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Log in to continue your training"
-            android:textColor="#68746B"
+            android:textColor="@color/performance_muted"
             android:textSize="16sp" />
 
         <EditText
-            android:id="@+id/usernameInput"
+            android:id="@+id/emailInput"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="36dp"
             android:background="@drawable/input_background"
-            android:hint="Username"
-            android:inputType="text"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:maxLength="254"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:singleLine="true" />
@@ -62,19 +63,30 @@
             android:background="@drawable/input_background"
             android:hint="Password"
             android:inputType="textPassword"
+            android:maxLength="64"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:singleLine="true" />
+
+        <CheckBox
+            android:id="@+id/showPasswordCheck"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:buttonTint="@color/performance_orange"
+            android:text="Show password"
+            android:textColor="@color/performance_muted"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/loginButton"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="24dp"
-            android:backgroundTint="#376B4B"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/performance_orange"
             android:text="Log in"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/performance_graphite"
             android:textSize="16sp" />
 
         <TextView
@@ -82,7 +94,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="26dp"
             android:text="New to Calisthenics?"
-            android:textColor="#68746B"
+            android:textColor="@color/performance_muted"
             android:textSize="15sp" />
 
         <Button
@@ -92,8 +104,19 @@
             android:layout_height="48dp"
             android:text="Create an account"
             android:textAllCaps="false"
-            android:textColor="#376B4B"
+            android:textColor="@color/performance_orange_dark"
             android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/previewHomeButton"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:text="Preview Home (sample data)"
+            android:textAllCaps="false"
+            android:textColor="@color/performance_orange_dark"
+            android:visibility="gone" />
 
     </LinearLayout>
 </ScrollView>

@@ -2,4 +2,18 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="performance_orange">#FFFF5A36</color>
+    <color name="performance_orange_dark">#FFB83E22</color>
+    <color name="performance_graphite">#FF171B1A</color>
+    <color name="performance_muted">#FF68706D</color>
+    <color name="performance_canvas">#FFF5F5F2</color>
+    <color name="performance_surface">#FFFFFFFF</color>
+    <color name="performance_border">#FFE3E4DF</color>
+    <color name="performance_orange_tint">#FFFCE6E0</color>
+    <color name="performance_surface_alt">#FFEFEFEB</color>
+    <color name="performance_success">#FF2F7D4B</color>
+    <color name="performance_success_tint">#FFE5F0E6</color>
+    <color name="performance_warning">#FF8C6631</color>
+    <color name="performance_warning_tint">#FFFFF1DB</color>
+    <color name="performance_danger">#FFB23B32</color>
 </resources>

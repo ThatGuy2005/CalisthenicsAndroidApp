@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!-- Scheduled workouts as device calendar events (FR-6.2); asked for at runtime (FR-6.5). -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
@@ -27,6 +28,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CalisthenicsApp">
+        <activity
+            android:name=".HomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ExerciseListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ExerciseDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ScheduleActivity"
+            android:exported="false" />
+        <activity android:name=".HistoryActivity" android:exported="false" />
+        <activity android:name=".WorkoutListActivity" android:exported="false" />
+        <activity android:name=".WorkoutDetailActivity" android:exported="false" />
+        <activity android:name=".WorkoutSessionActivity" android:exported="false"
+            android:screenOrientation="unspecified" />
+        <activity android:name=".WorkoutSummaryActivity" android:exported="false" />
+        <activity android:name=".SettingsActivity" android:exported="false" />
         <activity
             android:name=".SignupActivity"
             android:exported="false"

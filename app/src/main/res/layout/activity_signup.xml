@@ -3,7 +3,7 @@
     android:id="@+id/signupRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7F2"
+    android:background="@color/performance_canvas"
     android:fillViewport="true">
 
     <LinearLayout
@@ -21,7 +21,7 @@
             android:layout_height="48dp"
             android:gravity="center_vertical"
             android:text="‹  Back to login"
-            android:textColor="#376B4B"
+            android:textColor="@color/performance_orange_dark"
             android:textSize="15sp" />
 
         <TextView
@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="Create account"
-            android:textColor="#1D2B22"
+            android:textColor="@color/performance_graphite"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -39,26 +39,50 @@
             android:layout_marginTop="6dp"
             android:layout_marginBottom="22dp"
             android:text="A few details to get your training started"
-            android:textColor="#68746B"
+            android:textColor="@color/performance_muted"
             android:textSize="15sp" />
 
         <EditText
             android:id="@+id/signupUsername"
             style="@style/SignupField"
             android:hint="Username"
-            android:inputType="text" />
+            android:inputType="text"
+            android:maxLength="20" />
 
         <EditText
             android:id="@+id/signupEmail"
             style="@style/SignupField"
             android:hint="Email"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:maxLength="254" />
 
         <EditText
             android:id="@+id/signupPassword"
             style="@style/SignupField"
             android:hint="Password (at least 8 characters)"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:maxLength="64" />
+
+        <CheckBox
+            android:id="@+id/signupShowPasswordCheck"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-8dp"
+            android:layout_marginBottom="8dp"
+            android:buttonTint="@color/performance_orange"
+            android:text="Show password"
+            android:textColor="@color/performance_muted"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="10dp"
+            android:text="Optional profile details · weight improves calorie estimates (70 kg assumed if omitted)"
+            android:textColor="@color/performance_muted"
+            android:textSize="13sp" />
 
         <EditText
             android:id="@+id/signupHeight"
@@ -79,7 +103,7 @@
             android:layout_marginTop="18dp"
             android:layout_marginBottom="6dp"
             android:text="Gender (optional)"
-            android:textColor="#526057"
+            android:textColor="@color/performance_muted"
             android:textSize="14sp" />
 
         <Spinner
@@ -95,10 +119,10 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="24dp"
-            android:backgroundTint="#376B4B"
+            android:backgroundTint="@color/performance_orange"
             android:text="Create account"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/performance_graphite"
             android:textSize="16sp" />
     </LinearLayout>
 </ScrollView>
