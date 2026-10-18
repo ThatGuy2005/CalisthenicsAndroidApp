@@ -9,6 +9,7 @@ import com.example.calisthenicsapp.CoreComponents.User;
 import com.example.calisthenicsapp.Database.SQLManager;
 import com.example.calisthenicsapp.Repos.UserRepository;
 import com.example.calisthenicsapp.Verificate.UserValidator;
+import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
@@ -216,9 +217,15 @@ public class AuthService {
      * Translates a FirebaseAuthException into a message safe to show the user.
      * Wrong-password and no-such-user both read as "Incorrect email or password" on purpose,
      * so a failed sign-in never reveals whether the email or the password was the problem.
+     * The message hides the cause, so the exception itself is logged (adb logcat -s AuthService).
      * Also used by AccountService.
      */
     static String describeError(Exception exception) {
+        Log.w(TAG, "Firebase call failed", exception);
+        // Auth reports a lost connection as FirebaseNetworkException, not FirebaseAuthException.
+        if (exception instanceof FirebaseNetworkException) {
+            return "Network error. Please check your connection.";
+        }
         if (!(exception instanceof FirebaseAuthException)) {
             return "Something went wrong. Please check your connection and try again.";
         }
