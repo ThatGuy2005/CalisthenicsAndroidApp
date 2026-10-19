@@ -25,6 +25,7 @@
     <string name="signup_hint_height">Height (cm) — optional</string>
     <string name="signup_hint_weight">Weight (kg) — optional</string>
     <string name="signup_hint_birth_year">Birth year — optional</string>
+    <string name="signup_optional_note">Optional profile details · weight improves calorie estimates (70 kg assumed if omitted)</string>
     <string name="signup_gender_label">Gender (optional)</string>
     <!-- The first item means none; the others are saved as the user's gender. -->
     <string-array name="signup_genders">

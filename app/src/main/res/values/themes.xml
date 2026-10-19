@@ -1,11 +1,21 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.CalisthenicsApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/performance_orange_dark</item>
+        <item name="colorOnPrimary">@color/performance_surface</item>
+        <item name="colorPrimaryContainer">@color/performance_orange_tint</item>
+        <item name="colorOnPrimaryContainer">@color/performance_graphite</item>
+        <item name="colorSecondary">@color/performance_graphite</item>
+        <item name="colorOnSecondary">@color/performance_surface</item>
+        <item name="colorSecondaryContainer">@color/performance_orange_tint</item>
+        <item name="colorOnSecondaryContainer">@color/performance_graphite</item>
+        <item name="colorSurface">@color/performance_surface</item>
+        <item name="colorOnSurface">@color/performance_graphite</item>
+        <item name="colorOutline">@color/performance_border</item>
+        <item name="android:colorAccent">@color/performance_orange_dark</item>
     </style>
 
     <style name="Theme.CalisthenicsApp" parent="Base.Theme.CalisthenicsApp">
-        <item name="android:windowBackground">@color/screen_background</item>
+        <item name="android:windowBackground">@color/performance_canvas</item>
     </style>
 </resources>
