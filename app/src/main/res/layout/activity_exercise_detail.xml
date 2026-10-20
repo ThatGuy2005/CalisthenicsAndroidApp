@@ -61,7 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="@color/performance_surface"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="1dp"
                 app:strokeColor="@color/performance_border"
@@ -129,7 +129,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="6dp"
                                 android:text="@string/exercise_detail_preview_title"
-                                android:textColor="@color/performance_graphite"
+                                android:textColor="@color/performance_ink"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
 
@@ -139,7 +139,7 @@
                                 android:layout_marginTop="4dp"
                                 android:gravity="center"
                                 android:text="@string/exercise_detail_preview_empty"
-                                android:textColor="@color/performance_muted"
+                                android:textColor="@color/performance_animation_muted"
                                 android:textSize="13sp" />
                         </LinearLayout>
                     </FrameLayout>
@@ -263,7 +263,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="6dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardBackgroundColor="@color/performance_surface"
                     app:cardCornerRadius="18dp"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/performance_border"
@@ -301,7 +301,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardBackgroundColor="@color/performance_surface"
                     app:cardCornerRadius="18dp"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/performance_border"

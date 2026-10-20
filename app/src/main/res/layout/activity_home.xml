@@ -288,7 +288,7 @@
                     android:backgroundTint="@color/performance_orange"
                     android:text="@string/home_browse_workouts"
                     android:textAllCaps="false"
-                    android:textColor="@color/performance_graphite" />
+                    android:textColor="@color/performance_ink" />
 
                 <Button
                     android:id="@+id/homeExercisesAction"
@@ -308,9 +308,9 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        app:itemIconTint="@color/performance_orange_dark"
-        app:itemTextColor="@color/performance_muted"
+        android:background="@color/performance_surface"
+        app:itemIconTint="@color/performance_nav_colors"
+        app:itemTextColor="@color/performance_nav_colors"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/home_bottom_navigation" />
 </LinearLayout>

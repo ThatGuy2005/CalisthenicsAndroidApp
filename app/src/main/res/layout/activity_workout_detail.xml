@@ -28,7 +28,7 @@
             <TextView android:id="@+id/startWorkoutButton" android:layout_width="match_parent"
                 android:layout_height="54dp" android:layout_marginBottom="18dp"
                 android:background="@drawable/workout_primary_button" android:gravity="center"
-                android:text="@string/workout_detail_start" android:textColor="@color/performance_graphite" android:textSize="16sp"
+                android:text="@string/workout_detail_start" android:textColor="@color/performance_ink" android:textSize="16sp"
                 android:textStyle="bold" android:clickable="true" android:focusable="true" />
             <LinearLayout android:id="@+id/workoutExerciseList" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:orientation="vertical" />

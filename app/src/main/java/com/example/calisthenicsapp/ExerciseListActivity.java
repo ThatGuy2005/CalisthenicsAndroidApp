@@ -113,8 +113,8 @@ public class ExerciseListActivity extends AppCompatActivity {
         levels.add(ALL_LEVELS);
         for (Difficulty difficulty : Difficulty.values()) levels.add(difficulty.getLabel());
         difficultyFilter.setAdapter(new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, levels) {{
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.spinner_item_selected, levels) {{
+            setDropDownViewResource(R.layout.spinner_item_dropdown);
         }});
         difficultyFilter.setOnItemSelectedListener(new SimpleSelectionListener(() -> scheduleSearch()));
     }
@@ -137,8 +137,8 @@ public class ExerciseListActivity extends AppCompatActivity {
                 options.add(ALL_GROUPS);
                 options.addAll(groups);
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(ExerciseListActivity.this,
-                        android.R.layout.simple_spinner_item, options);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        R.layout.spinner_item_selected, options);
+                adapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
                 muscleGroupFilter.setAdapter(adapter);
                 muscleGroupFilter.setOnItemSelectedListener(
                         new SimpleSelectionListener(ExerciseListActivity.this::scheduleSearch));
@@ -209,7 +209,7 @@ public class ExerciseListActivity extends AppCompatActivity {
         cardParams.bottomMargin = dp(12);
         card.setLayoutParams(cardParams);
         card.setRadius(dp(22));
-        card.setCardBackgroundColor(Color.WHITE);
+        card.setCardBackgroundColor(UiColors.SURFACE);
         card.setStrokeColor(UiColors.BORDER);
         card.setStrokeWidth(dp(1));
         card.setCardElevation(dp(1));
@@ -219,7 +219,7 @@ public class ExerciseListActivity extends AppCompatActivity {
         LinearLayout shell = new LinearLayout(this);
         shell.setOrientation(LinearLayout.HORIZONTAL);
         View accent = new View(this);
-        accent.setBackgroundColor(muscleAccent(exercise.getMuscleGroup()));
+        accent.setBackgroundColor(difficultyAccent(exercise.getDifficulty()));
         shell.addView(accent, new LinearLayout.LayoutParams(dp(4), ViewGroup.LayoutParams.MATCH_PARENT));
 
         LinearLayout content = new LinearLayout(this);
@@ -320,6 +320,20 @@ public class ExerciseListActivity extends AppCompatActivity {
 
     private int muscleAccent(String group) {
         return UiColors.ORANGE_DARK;
+    }
+
+    private int difficultyAccent(Difficulty difficulty) {
+        if (difficulty == null) return UiColors.ORANGE_DARK;
+        switch (difficulty) {
+            case BEGINNER:
+                return UiColors.DIFFICULTY_BEGINNER;
+            case INTERMEDIATE:
+                return UiColors.DIFFICULTY_INTERMEDIATE;
+            case ADVANCED:
+                return UiColors.DIFFICULTY_ADVANCED;
+            default:
+                return UiColors.ORANGE_DARK;
+        }
     }
 
     private int muscleTint(String group) {

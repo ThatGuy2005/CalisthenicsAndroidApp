@@ -171,14 +171,14 @@ public class ScheduleActivity extends AppCompatActivity {
             TextView dayName = new TextView(this);
             dayName.setText(new SimpleDateFormat("EE", Locale.getDefault()).format(day.getTime())
                     .replace(".", "").toUpperCase(Locale.getDefault()));
-            dayName.setTextColor(selected ? UiColors.GRAPHITE : UiColors.MUTED);
+            dayName.setTextColor(selected ? UiColors.INK : UiColors.MUTED);
             dayName.setTextSize(9);
             dayName.setTypeface(null, android.graphics.Typeface.BOLD);
             tile.addView(dayName);
 
             TextView dayNumber = new TextView(this);
             dayNumber.setText(String.valueOf(day.get(Calendar.DAY_OF_MONTH)));
-            dayNumber.setTextColor(UiColors.GRAPHITE);
+            dayNumber.setTextColor(selected ? UiColors.INK : UiColors.GRAPHITE);
             dayNumber.setTextSize(16);
             dayNumber.setTypeface(null, android.graphics.Typeface.BOLD);
             LinearLayout.LayoutParams numberParams = new LinearLayout.LayoutParams(-2, -2);
@@ -186,7 +186,7 @@ public class ScheduleActivity extends AppCompatActivity {
             tile.addView(dayNumber, numberParams);
 
             View dot = new View(this);
-            dot.setBackground(rounded(selected ? 0xFFB8D9BE : 0xFF5A9368, dp(4)));
+            dot.setBackground(rounded(selected ? 0xFFC35CFF : 0xFFD08BFF, dp(4)));
             LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(dp(4), dp(4));
             dotParams.topMargin = dp(4);
             dot.setVisibility(hasOccurrenceOn(day) ? View.VISIBLE : View.INVISIBLE);
@@ -253,7 +253,7 @@ public class ScheduleActivity extends AppCompatActivity {
         agenda.removeAllViews();
         MaterialCardView card = new MaterialCardView(this);
         card.setRadius(dp(20));
-        card.setCardBackgroundColor(Color.WHITE);
+        card.setCardBackgroundColor(UiColors.SURFACE);
         card.setStrokeColor(UiColors.BORDER);
         card.setStrokeWidth(dp(1));
         card.setCardElevation(0);
@@ -301,7 +301,7 @@ public class ScheduleActivity extends AppCompatActivity {
         cardParams.bottomMargin = dp(10);
         card.setLayoutParams(cardParams);
         card.setRadius(dp(20));
-        card.setCardBackgroundColor(Color.WHITE);
+        card.setCardBackgroundColor(UiColors.SURFACE);
         card.setStrokeColor(UiColors.BORDER);
         card.setStrokeWidth(dp(1));
         card.setCardElevation(dp(1));
@@ -579,9 +579,10 @@ public class ScheduleActivity extends AppCompatActivity {
         form.setPadding(dp(22), dp(8), dp(22), dp(4));
         addFormLabel(form, "WORKOUT");
         Spinner workoutSpinner = new Spinner(this);
+        workoutSpinner.setPopupBackgroundResource(R.color.performance_surface);
         ArrayAdapter<WorkoutOption> workoutAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, workoutOptions);
-        workoutAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.spinner_item_selected, workoutOptions);
+        workoutAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
         workoutSpinner.setAdapter(workoutAdapter);
         form.addView(workoutSpinner, new LinearLayout.LayoutParams(-1, dp(48)));
 
@@ -603,9 +604,10 @@ public class ScheduleActivity extends AppCompatActivity {
 
         addFormLabel(form, "REPEAT");
         Spinner repeatSpinner = new Spinner(this);
+        repeatSpinner.setPopupBackgroundResource(R.color.performance_surface);
         ArrayAdapter<String> repeatAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, REPEAT_OPTIONS);
-        repeatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.spinner_item_selected, REPEAT_OPTIONS);
+        repeatAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
         repeatSpinner.setAdapter(repeatAdapter);
         form.addView(repeatSpinner, new LinearLayout.LayoutParams(-1, dp(48)));
 

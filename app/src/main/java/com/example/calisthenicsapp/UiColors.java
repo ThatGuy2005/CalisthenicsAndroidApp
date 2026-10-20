@@ -2,18 +2,23 @@ package com.example.calisthenicsapp;
 
 /** Shared colors for programmatically built cards and controls. */
 final class UiColors {
-    static final int ORANGE = 0xFFFF5A36;
-    static final int ORANGE_DARK = 0xFFB83E22;
-    static final int GRAPHITE = 0xFF171B1A;
-    static final int MUTED = 0xFF68706D;
-    static final int CANVAS = 0xFFF5F5F2;
-    static final int BORDER = 0xFFE3E4DF;
-    static final int ORANGE_TINT = 0xFFFCE6E0;
-    static final int SURFACE_ALT = 0xFFEFEFEB;
-    static final int SUCCESS = 0xFF2F7D4B;
-    static final int SUCCESS_TINT = 0xFFE5F0E6;
-    static final int WARNING = 0xFF8C6631;
-    static final int WARNING_TINT = 0xFFFFF1DB;
+    static final int ORANGE = 0xFFC35CFF;
+    static final int ORANGE_DARK = 0xFFB84DFF;
+    static final int GRAPHITE = 0xFFF2F4F1;
+    static final int MUTED = 0xFFA0AAA5;
+    static final int CANVAS = 0xFF090B0D;
+    static final int BORDER = 0xFF30363B;
+    static final int ORANGE_TINT = 0xFF321A42;
+    static final int SURFACE_ALT = 0xFF24292E;
+    static final int SURFACE = 0xFF191D21;
+    static final int INK = 0xFF10140B;
+    static final int SUCCESS = 0xFFD08BFF;
+    static final int SUCCESS_TINT = 0xFF321943;
+    static final int WARNING = 0xFFFFC66E;
+    static final int WARNING_TINT = 0xFF3A2D1B;
+    static final int DIFFICULTY_BEGINNER = 0xFF4DDE91;
+    static final int DIFFICULTY_INTERMEDIATE = 0xFFFFD166;
+    static final int DIFFICULTY_ADVANCED = 0xFFFF6B72;
 
     private UiColors() { }
 }

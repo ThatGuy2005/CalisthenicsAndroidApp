@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="performance_orange">#FFFF5A36</color>
-    <color name="performance_orange_dark">#FFB83E22</color>
-    <color name="performance_graphite">#FF171B1A</color>
-    <color name="performance_muted">#FF68706D</color>
-    <!-- Behind every screen; the theme paints it, so layouts set no root background. -->
-    <color name="performance_canvas">#FFF5F5F2</color>
-    <color name="performance_surface">#FFFFFFFF</color>
-    <color name="performance_border">#FFE3E4DF</color>
-    <color name="performance_orange_tint">#FFFCE6E0</color>
+    <color name="performance_orange">#FFC35CFF</color>
+    <color name="performance_orange_dark">#FFB84DFF</color>
+    <color name="performance_graphite">#FFF2F4F1</color>
+    <color name="performance_muted">#FFA0AAA5</color>
+    <color name="performance_canvas">#FF090B0D</color>
+    <color name="performance_surface">#FF191D21</color>
+    <color name="performance_border">#FF30363B</color>
+    <color name="performance_orange_tint">#FF321A42</color>
+    <color name="performance_success">#FFD08BFF</color>
+    <color name="performance_ink">#FF10140B</color>
+    <color name="performance_feature">#FF17101F</color>
+    <color name="performance_nav_inactive">#FF87918C</color>
+    <color name="performance_animation_muted">#FF69736E</color>
 </resources>
