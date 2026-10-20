@@ -104,7 +104,7 @@ public class HomeActivity extends AppCompatActivity {
 
         findViewById(R.id.homeScheduleAction).setOnClickListener(view -> openSchedule());
         findViewById(R.id.homeWorkoutsAction).setOnClickListener(view -> openWorkouts());
-        findViewById(R.id.homeExercisesAction).setOnClickListener(view -> showComingSoon());
+        findViewById(R.id.homeExercisesAction).setOnClickListener(view -> openExercises());
 
         BottomNavigationView navigation = findViewById(R.id.bottomNavigation);
         navigation.setSelectedItemId(R.id.nav_home);
@@ -140,9 +140,7 @@ public class HomeActivity extends AppCompatActivity {
     private boolean onNavigationSelected(MenuItem item) {
         if (item.getItemId() == R.id.nav_home) return true;
         if (item.getItemId() == R.id.nav_exercises) {
-            Intent intent = new Intent(this, ExerciseListActivity.class);
-            intent.putExtra(ExerciseListActivity.EXTRA_PREVIEW_MODE, previewMode);
-            startActivity(intent);
+            openExercises();
             return true;
         }
         if (item.getItemId() == R.id.nav_workouts) {
@@ -159,7 +157,6 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         }
-        showComingSoon();
         return false;
     }
 
@@ -272,8 +269,10 @@ public class HomeActivity extends AppCompatActivity {
         return hours + " h " + remainingMinutes + " min";
     }
 
-    private void showComingSoon() {
-        showMessage("This section is coming next.");
+    private void openExercises() {
+        Intent intent = new Intent(this, ExerciseListActivity.class);
+        intent.putExtra(ExerciseListActivity.EXTRA_PREVIEW_MODE, previewMode);
+        startActivity(intent);
     }
 
     private void openWorkouts() {
