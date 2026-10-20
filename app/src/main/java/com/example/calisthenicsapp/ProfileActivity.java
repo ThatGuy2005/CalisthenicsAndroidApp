@@ -30,6 +30,13 @@ public class ProfileActivity extends AppCompatActivity {
         birthYear = findViewById(R.id.profileBirthYear);
         gender = findViewById(R.id.profileGender);
         save = findViewById(R.id.profileSave);
+        boolean imperial = UnitSystem.isImperial(this);
+        ((android.widget.TextView) findViewById(R.id.profileHeightLabel)).setText(
+                "Height (" + UnitSystem.heightUnit(this) + ") · optional");
+        ((android.widget.TextView) findViewById(R.id.profileWeightLabel)).setText(
+                "Weight (" + UnitSystem.weightUnit(this) + ") · optional");
+        height.setHint(imperial ? "Height in feet, e.g. 5.75" : "Height in cm");
+        weight.setHint(imperial ? "Weight in lb" : "Weight in kg");
         findViewById(R.id.profileBack).setOnClickListener(v -> finish());
         setupGender();
         save.setOnClickListener(v -> saveProfile());
@@ -58,8 +65,10 @@ public class ProfileActivity extends AppCompatActivity {
                 username.setText(user.getUsername() == null ? "" : user.getUsername());
                 ((android.widget.TextView) findViewById(R.id.profileEmail)).setText(
                         user.getEmail() == null ? "Not set" : user.getEmail());
-                if (user.getHeight() != null && user.getHeight() > 0) height.setText(number(user.getHeight()));
-                if (user.getWeight() != null && user.getWeight() > 0) weight.setText(number(user.getWeight()));
+                if (user.getHeight() != null && user.getHeight() > 0)
+                    height.setText(UnitSystem.formatInputValue(UnitSystem.heightFromStorage(user.getHeight(), ProfileActivity.this)));
+                if (user.getWeight() != null && user.getWeight() > 0)
+                    weight.setText(UnitSystem.formatInputValue(UnitSystem.weightFromStorage(user.getWeight(), ProfileActivity.this)));
                 if (user.getBirthYear() != null) birthYear.setText(String.valueOf(user.getBirthYear()));
                 String value = user.getGender();
                 if (value != null) {
@@ -81,16 +90,20 @@ public class ProfileActivity extends AppCompatActivity {
         if (!UserValidator.isValidUsername(usernameValue)) {
             username.setError("Use 3–20 letters, digits, '.', '_' or '-'."); username.requestFocus(); return;
         }
-        Double heightValue = parseNumber(height);
+        Double heightInput = parseNumber(height);
         if (!height.getText().toString().trim().isEmpty()
-                && (heightValue == null || !UserValidator.isValidHeight(heightValue))) {
-            height.setError("Height must be between 50 and 300 cm."); height.requestFocus(); return;
+                && (heightInput == null || !UserValidator.isValidHeight(UnitSystem.heightToStorage(heightInput, this)))) {
+            height.setError(UnitSystem.isImperial(this) ? "Height must be between 1.64 and 9.84 ft."
+                    : "Height must be between 50 and 300 cm."); height.requestFocus(); return;
         }
-        Double weightValue = parseNumber(weight);
+        Double weightInput = parseNumber(weight);
         if (!weight.getText().toString().trim().isEmpty()
-                && (weightValue == null || !UserValidator.isValidWeight(weightValue))) {
-            weight.setError("Weight must be between 20 and 500 kg."); weight.requestFocus(); return;
+                && (weightInput == null || !UserValidator.isValidWeight(UnitSystem.weightToStorage(weightInput, this)))) {
+            weight.setError(UnitSystem.isImperial(this) ? "Weight must be between 44 and 1102 lb."
+                    : "Weight must be between 20 and 500 kg."); weight.requestFocus(); return;
         }
+        Double heightValue = heightInput == null ? null : UnitSystem.heightToStorage(heightInput, this);
+        Double weightValue = weightInput == null ? null : UnitSystem.weightToStorage(weightInput, this);
         String genderValue = gender.getSelectedItemPosition() == 0
                 ? null : gender.getSelectedItem().toString();
         if (!UserValidator.isValidGender(genderValue)) { show("Gender can be at most 30 characters."); return; }

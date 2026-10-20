@@ -75,12 +75,13 @@
             android:textSize="14sp" />
 
         <TextView
+            android:id="@+id/signupProfileNote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="10dp"
-            android:text="Optional profile details · weight improves calorie estimates (70 kg assumed if omitted)"
+            android:text="Optional profile details · height and weight help estimate calories"
             android:textColor="@color/performance_muted"
             android:textSize="13sp" />
 

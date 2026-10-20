@@ -24,6 +24,14 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         authService = new AuthService(this);
+        boolean imperial = UnitSystem.isImperial(this);
+        ((EditText) findViewById(R.id.signupHeight)).setHint(
+                imperial ? "Height in feet, e.g. 5.75 — optional" : "Height in cm — optional");
+        ((EditText) findViewById(R.id.signupWeight)).setHint(
+                imperial ? "Weight in lb — optional" : "Weight in kg — optional");
+        ((TextView) findViewById(R.id.signupProfileNote)).setText(imperial
+                ? "Optional details · weight helps estimate calories (154 lb assumed if omitted)"
+                : "Optional details · weight helps estimate calories (70 kg assumed if omitted)");
 
         String[] genders = {"Select gender (optional)", "Male", "Female", "Other"};
         Spinner genderSpinner = findViewById(R.id.signupGender);
@@ -72,20 +80,24 @@ public class SignupActivity extends AppCompatActivity {
             password.setError("Password must be 8-64 characters with at least one letter and one digit.");
             password.requestFocus();
         } else {
-            Double heightValue = parseOptionalNumber(height);
-            Double weightValue = parseOptionalNumber(weight);
+            Double heightInput = parseOptionalNumber(height);
             if (!height.getText().toString().trim().isEmpty()
-                    && (heightValue == null || !UserValidator.isValidHeight(heightValue))) {
-                height.setError("Height must be between 50 and 300 cm.");
+                    && (heightInput == null || !UserValidator.isValidHeight(UnitSystem.heightToStorage(heightInput, this)))) {
+                height.setError(UnitSystem.isImperial(this) ? "Height must be between 1.64 and 9.84 ft."
+                        : "Height must be between 50 and 300 cm.");
                 height.requestFocus();
                 return;
             }
+            Double weightInput = parseOptionalNumber(weight);
             if (!weight.getText().toString().trim().isEmpty()
-                    && (weightValue == null || !UserValidator.isValidWeight(weightValue))) {
-                weight.setError("Weight must be between 20 and 500 kg.");
+                    && (weightInput == null || !UserValidator.isValidWeight(UnitSystem.weightToStorage(weightInput, this)))) {
+                weight.setError(UnitSystem.isImperial(this) ? "Weight must be between 44 and 1102 lb."
+                        : "Weight must be between 20 and 500 kg.");
                 weight.requestFocus();
                 return;
             }
+            Double heightValue = heightInput == null ? null : UnitSystem.heightToStorage(heightInput, this);
+            Double weightValue = weightInput == null ? null : UnitSystem.weightToStorage(weightInput, this);
 
             String genderValue = gender.getSelectedItemPosition() == 0
                     ? null : gender.getSelectedItem().toString();

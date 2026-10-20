@@ -101,6 +101,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="18dp"
             android:layout_marginBottom="7dp"
+            android:id="@+id/profileHeightLabel"
             android:text="Height · optional"
             android:textColor="@color/performance_muted"
             android:textSize="13sp" />
@@ -116,6 +117,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="7dp"
+            android:id="@+id/profileWeightLabel"
             android:text="Weight · optional"
             android:textColor="@color/performance_muted"
             android:textSize="13sp" />
