@@ -167,8 +167,9 @@ to this year.
 - **Difficulty:** the `Difficulty` enum (BEGINNER, INTERMEDIATE, ADVANCED). `Exercise.getDifficulty()`
   returns it, and `searchExercises` takes it (null for any). For the filter options use
   `Difficulty.values()`, easiest first, and `getLabel()` for the text.
-- **Animations:** `Exercise.getAnimationFile()` is null until animations are added; show a
-  placeholder.
+- **Animations:** `Exercise.getAnimationFile()` is a path under `app/src/main/assets`, such as
+  `animations/push_up.webp` (animated WebP; `.lottie` also plays). Every premade exercise has
+  one; on null, show a placeholder.
 - **Equipment and muscle groups (FR-3.2):** `Exercise.getEquipment()` is the `Equipment` enum
   (NONE, WALL, BENCH, PULL_UP_BAR, PARALLEL_BARS; never null), with `getLabel()` for the text
   ("Pull-up bar") and `Equipment.values()` for the filter options; `searchExercises` takes it
