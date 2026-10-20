@@ -18,6 +18,12 @@
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginTop="4dp" android:text="Choose a ready-made routine for today."
                 android:textColor="@color/performance_muted" android:textSize="15sp" />
+            <TextView android:id="@+id/myWorkoutsButton" android:layout_width="match_parent"
+                android:layout_height="48dp" android:layout_marginTop="16dp"
+                android:background="@drawable/workout_secondary_button" android:gravity="center_vertical"
+                android:paddingStart="16dp" android:paddingEnd="16dp"
+                android:text="My workouts  →" android:textColor="@color/performance_orange_dark"
+                android:textSize="14sp" android:textStyle="bold" />
             <Spinner android:id="@+id/workoutCategoryFilter" android:layout_width="match_parent"
                 android:layout_height="52dp" android:layout_marginTop="18dp"
                 android:background="@drawable/input_background" android:popupBackground="@color/performance_surface" android:paddingStart="12dp"

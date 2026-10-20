@@ -42,6 +42,9 @@
             android:exported="false" />
         <activity android:name=".HistoryActivity" android:exported="false" />
         <activity android:name=".WorkoutListActivity" android:exported="false" />
+        <activity android:name=".CustomWorkoutsActivity" android:exported="false" />
+        <activity android:name=".CustomWorkoutEditorActivity" android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".WorkoutDetailActivity" android:exported="false" />
         <activity android:name=".WorkoutSessionActivity" android:exported="false"
             android:screenOrientation="unspecified" />

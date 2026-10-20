@@ -167,21 +167,26 @@ public class ScheduleActivity extends AppCompatActivity {
             tile.setOrientation(LinearLayout.VERTICAL);
             tile.setGravity(Gravity.CENTER);
             tile.setBackground(rounded(selected ? UiColors.ORANGE : Color.TRANSPARENT, dp(15)));
-            tile.setPadding(0, dp(7), 0, dp(5));
+            // Keep the two-letter weekday labels inside narrow tiles on small screens.
+            tile.setPadding(dp(3), dp(7), dp(3), dp(5));
             TextView dayName = new TextView(this);
             dayName.setText(new SimpleDateFormat("EE", Locale.getDefault()).format(day.getTime())
                     .replace(".", "").toUpperCase(Locale.getDefault()));
             dayName.setTextColor(selected ? UiColors.INK : UiColors.MUTED);
             dayName.setTextSize(9);
             dayName.setTypeface(null, android.graphics.Typeface.BOLD);
-            tile.addView(dayName);
+            dayName.setGravity(Gravity.CENTER);
+            tile.addView(dayName, new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
             TextView dayNumber = new TextView(this);
             dayNumber.setText(String.valueOf(day.get(Calendar.DAY_OF_MONTH)));
             dayNumber.setTextColor(selected ? UiColors.INK : UiColors.GRAPHITE);
             dayNumber.setTextSize(16);
             dayNumber.setTypeface(null, android.graphics.Typeface.BOLD);
-            LinearLayout.LayoutParams numberParams = new LinearLayout.LayoutParams(-2, -2);
+            dayNumber.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams numberParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             numberParams.topMargin = dp(4);
             tile.addView(dayNumber, numberParams);
 

@@ -110,7 +110,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:text="Your next planned workout"
-                    android:textColor="@color/performance_orange_tint"
+                    android:textColor="@color/performance_highlight_soft"
                     android:textSize="14sp" />
 
                 <Button
