@@ -148,7 +148,7 @@ public class ExerciseListActivity extends AppCompatActivity {
 
             @Override
             public void onError(String message) {
-                exerciseCount.setText("Couldn't load the exercise filters.");
+                exerciseCount.setText(R.string.exercise_list_filters_failed);
                 Snackbar.make(findViewById(R.id.exerciseListRoot), message,
                         Snackbar.LENGTH_LONG).show();
             }
@@ -178,7 +178,7 @@ public class ExerciseListActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(String message) {
-                        exerciseCount.setText("Exercises unavailable.");
+                        exerciseCount.setText(R.string.exercise_list_failed);
                         exerciseList.removeAllViews();
                         Snackbar.make(findViewById(R.id.exerciseListRoot), message,
                                 Snackbar.LENGTH_LONG).show();
@@ -188,11 +188,11 @@ public class ExerciseListActivity extends AppCompatActivity {
 
     private void renderExercises(List<Exercise> exercises) {
         exerciseList.removeAllViews();
-        exerciseCount.setText(exercises.size() == 1
-                ? "1 exercise" : exercises.size() + " exercises");
+        exerciseCount.setText(getResources().getQuantityString(R.plurals.exercise_list_count,
+                exercises.size(), exercises.size()));
         if (exercises.isEmpty()) {
             TextView empty = new TextView(this);
-            empty.setText("No exercises match these filters.");
+            empty.setText(R.string.exercise_list_no_match);
             empty.setTextColor(UiColors.MUTED);
             empty.setTextSize(15);
             empty.setPadding(4, 20, 4, 20);
@@ -282,7 +282,7 @@ public class ExerciseListActivity extends AppCompatActivity {
         targetParams.leftMargin = dp(7);
         footer.addView(targetPill, targetParams);
         TextView action = new TextView(this);
-        action.setText("Form  →");
+        action.setText(R.string.exercise_list_form);
         action.setTextColor(UiColors.ORANGE_DARK);
         action.setTextSize(12);
         action.setTypeface(null, android.graphics.Typeface.BOLD);

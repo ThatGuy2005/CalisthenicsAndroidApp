@@ -356,7 +356,8 @@ public class ScheduleActivity extends AppCompatActivity {
         String repeat = schedule.getRecurrence() == null ? "One-time workout"
                 : schedule.getRecurrence().describe();
         TextView repeatView = new TextView(this);
-        repeatView.setText(repeat + (schedule.isCustom() ? "  ·  CUSTOM" : "  ·  WORKOUT"));
+        repeatView.setText(getString(schedule.isCustom()
+                ? R.string.schedule_repeat_custom : R.string.schedule_repeat_workout, repeat));
         repeatView.setTextColor(UiColors.MUTED);
         repeatView.setTextSize(11);
         repeatView.setLetterSpacing(0.04f);
@@ -368,7 +369,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 || (occurrence.getStatus() == OccurrenceStatus.PENDING
                 && occurrence.getStartSeconds() <= System.currentTimeMillis() / 1000L + 12 * 3600L)) {
             TextView complete = new TextView(this);
-            complete.setText("Mark as complete  ✓");
+            complete.setText(R.string.schedule_mark_complete);
             complete.setTextColor(UiColors.SUCCESS);
             complete.setTextSize(12);
             complete.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -609,7 +610,7 @@ public class ScheduleActivity extends AppCompatActivity {
         form.addView(repeatSpinner, new LinearLayout.LayoutParams(-1, dp(48)));
 
         CheckBox calendarCheck = new CheckBox(this);
-        calendarCheck.setText("Add to my phone calendar");
+        calendarCheck.setText(R.string.schedule_add_to_calendar);
         calendarCheck.setTextColor(UiColors.MUTED);
         calendarCheck.setTextSize(13);
         LinearLayout.LayoutParams checkParams = new LinearLayout.LayoutParams(-1, -2);

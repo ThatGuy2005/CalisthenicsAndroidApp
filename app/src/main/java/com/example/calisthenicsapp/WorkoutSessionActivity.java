@@ -116,32 +116,32 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         int allSets = 0;
         for (WorkoutSession.SessionExercise e : session.getExercises()) allSets += e.getSets();
         int done = session.getCompletedSets();
-        progress.setText("Exercise " + session.getCurrentExerciseNumber() + " of " + totalExercises
-                + "  ·  Set " + session.getCurrentSet() + " of " + current.getSets());
+        progress.setText(getString(R.string.session_progress, session.getCurrentExerciseNumber(),
+                totalExercises, session.getCurrentSet(), current.getSets()));
         progressBar.setMax(Math.max(1, allSets));
         progressBar.setProgress(done, true);
         instructions.setText(current.getInstructions() == null || current.getInstructions().trim().isEmpty()
-                ? "Move with control and keep a comfortable range of motion."
+                ? getString(R.string.session_default_instructions)
                 : current.getInstructions().trim());
         target.setText(targetText(current));
-        elapsed.setText(formatTime(session.getTotalSeconds()) + " elapsed  ·  "
-                + String.format(Locale.getDefault(), "%.0f kcal", session.getTotalKcal()));
+        elapsed.setText(getString(R.string.session_elapsed, formatTime(session.getTotalSeconds()),
+                session.getTotalKcal()));
         if (session.getPhase() == WorkoutSession.Phase.REST) {
-            phaseLabel.setText("REST · RECOVER FOR THE NEXT SET");
+            phaseLabel.setText(R.string.session_phase_rest);
             timer.setText(formatTime(session.getRemainingSeconds() == null ? 0 : session.getRemainingSeconds()));
-            mainAction.setText("Skip rest");
-            next.setText("Get ready for " + current.getName() + " · Set " + session.getCurrentSet());
+            mainAction.setText(R.string.session_skip_rest);
+            next.setText(getString(R.string.session_get_ready, current.getName(), session.getCurrentSet()));
         } else {
-            phaseLabel.setText(session.isPaused() ? "PAUSED" : "YOUR SET");
+            phaseLabel.setText(session.isPaused() ? R.string.session_phase_paused : R.string.session_phase_set);
             Integer remaining = session.getRemainingSeconds();
             if (current.isTimed() && remaining != null) timer.setText(formatTime(remaining));
             else timer.setText(targetText(current));
-            mainAction.setText(current.isTimed() ? "Finish set" : "Set done");
+            mainAction.setText(current.isTimed() ? R.string.session_finish_set : R.string.session_set_done);
             WorkoutSession.SessionExercise following = session.getNextExercise();
-            next.setText(following == null ? "Last exercise · you’re doing great"
-                    : "Next up · " + following.getName());
+            next.setText(following == null ? getString(R.string.session_last_exercise)
+                    : getString(R.string.session_next_up, following.getName()));
         }
-        pauseAction.setText(session.isPaused() ? "Resume" : "Pause");
+        pauseAction.setText(session.isPaused() ? R.string.session_resume : R.string.session_pause);
         if (askingPhonePermission) {
             pauseAction.setEnabled(false);
             mainAction.setEnabled(false);

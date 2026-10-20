@@ -53,7 +53,7 @@ public class WorkoutListActivity extends AppCompatActivity {
                 render();
             }
             @Override public void onError(String message) {
-                count.setText("Workouts couldn't be loaded.");
+                count.setText(R.string.workout_list_failed);
                 Snackbar.make(findViewById(R.id.workoutListRoot), message, Snackbar.LENGTH_LONG).show();
             }
         });
@@ -86,8 +86,8 @@ public class WorkoutListActivity extends AppCompatActivity {
             list.addView(createCard(workout));
             shown++;
         }
-        count.setText(shown == 1 ? "1 workout" : shown + " workouts");
-        if (shown == 0 && !allWorkouts.isEmpty()) count.setText("No workouts in this category.");
+        count.setText(getResources().getQuantityString(R.plurals.workout_list_count, shown, shown));
+        if (shown == 0 && !allWorkouts.isEmpty()) count.setText(R.string.workout_list_empty_category);
     }
 
     private MaterialCardView createCard(Workout workout) {
@@ -125,7 +125,7 @@ public class WorkoutListActivity extends AppCompatActivity {
         topRow.addView(categoryBadge, new LinearLayout.LayoutParams(dp(38), dp(38)));
 
         TextView eyebrow = new TextView(this);
-        eyebrow.setText(category.toUpperCase(java.util.Locale.ROOT) + " ROUTINE");
+        eyebrow.setText(getString(R.string.workout_list_routine, category.toUpperCase(java.util.Locale.ROOT)));
         eyebrow.setTextColor(UiColors.MUTED);
         eyebrow.setTextSize(10);
         eyebrow.setLetterSpacing(0.07f);
@@ -173,7 +173,7 @@ public class WorkoutListActivity extends AppCompatActivity {
         durationParams.leftMargin = dp(7);
         footer.addView(duration, durationParams);
         TextView action = new TextView(this);
-        action.setText("View plan  →");
+        action.setText(R.string.workout_list_view_plan);
         action.setTextColor(UiColors.ORANGE_DARK);
         action.setTextSize(12);
         action.setTypeface(null, android.graphics.Typeface.BOLD);

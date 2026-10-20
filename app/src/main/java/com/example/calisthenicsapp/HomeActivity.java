@@ -1,5 +1,6 @@
 package com.example.calisthenicsapp;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -119,6 +120,8 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Made-up sample data for the preview mode, so not worth string resources.
+    @SuppressLint("SetTextI18n")
     private void showPreviewData(Button signOut) {
         signOut.setText("Exit preview");
         ((TextView) findViewById(R.id.homeSubtitle))
@@ -165,15 +168,15 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onSuccess(List<ScheduledWorkout> upcoming) {
                 if (upcoming.isEmpty()) {
-                    nextWorkoutName.setText("Nothing scheduled yet");
-                    nextWorkoutDate.setText("Choose a workout and plan your next session.");
+                    nextWorkoutName.setText(R.string.home_nothing_scheduled);
+                    nextWorkoutDate.setText(R.string.home_nothing_scheduled_hint);
                     return;
                 }
 
                 ScheduledWorkout next = upcoming.get(0);
                 Long nextAt = next.nextOccurrence(System.currentTimeMillis() / 1000L,
                         TimeZone.getDefault());
-                nextWorkoutDate.setText(nextAt == null ? "Upcoming workout"
+                nextWorkoutDate.setText(nextAt == null ? getString(R.string.home_upcoming_workout)
                         : DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
                                 .format(new Date(nextAt * 1000L)));
 
@@ -182,7 +185,7 @@ public class HomeActivity extends AppCompatActivity {
                     return;
                 }
 
-                nextWorkoutName.setText("Your custom workout");
+                nextWorkoutName.setText(R.string.home_custom_workout);
                 customWorkouts.getMyCustomWorkouts(new ServiceCallback<List<CustomWorkout>>() {
                     @Override
                     public void onSuccess(List<CustomWorkout> workouts) {
@@ -203,7 +206,7 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onError(String message) {
-                nextWorkoutName.setText("Upcoming workout unavailable");
+                nextWorkoutName.setText(R.string.home_upcoming_unavailable);
                 nextWorkoutDate.setText(message);
             }
         });
@@ -221,9 +224,9 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onError(String message) {
-                weeklyWorkoutCount.setText("—");
-                weeklyTrainingTime.setText("—");
-                weeklyCalories.setText("—");
+                weeklyWorkoutCount.setText(R.string.home_stat_placeholder);
+                weeklyTrainingTime.setText(R.string.home_stat_placeholder);
+                weeklyCalories.setText(R.string.home_stat_placeholder);
                 showMessage(message);
             }
         });
@@ -234,8 +237,8 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onSuccess(List<WorkoutLog> logs) {
                 if (logs.isEmpty()) {
-                    lastWorkoutName.setText("No workouts logged yet");
-                    lastWorkoutDetails.setText("Complete your first workout to see it here.");
+                    lastWorkoutName.setText(R.string.home_no_workouts);
+                    lastWorkoutDetails.setText(R.string.home_no_workouts_hint);
                     lastWorkoutStatus.setText("");
                     return;
                 }
@@ -244,9 +247,8 @@ public class HomeActivity extends AppCompatActivity {
                 lastWorkoutName.setText(latest.getWorkoutName());
                 String date = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
                         DateFormat.SHORT).format(new Date(latest.getStartedAt() * 1000L));
-                lastWorkoutDetails.setText(date + " · " + formatDuration(latest.getDurationSeconds())
-                        + " · " + String.format(java.util.Locale.getDefault(), "%.0f kcal",
-                        latest.getKcal()));
+                lastWorkoutDetails.setText(getString(R.string.home_last_workout_details, date,
+                        formatDuration(latest.getDurationSeconds()), latest.getKcal()));
                 lastWorkoutStatus.setText(latest.getStatus());
                 lastWorkoutStatus.setTextColor(WorkoutLog.STATUS_COMPLETED.equals(latest.getStatus())
                         ? UiColors.SUCCESS : UiColors.ORANGE_DARK);
@@ -254,7 +256,7 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onError(String message) {
-                lastWorkoutName.setText("Workout history unavailable");
+                lastWorkoutName.setText(R.string.home_history_unavailable);
                 lastWorkoutDetails.setText(message);
                 lastWorkoutStatus.setText("");
             }

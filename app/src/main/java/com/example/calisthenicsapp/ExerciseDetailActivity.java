@@ -92,8 +92,9 @@ public class ExerciseDetailActivity extends AppCompatActivity {
 
     private void showExercise(Exercise exercise) {
         nameView.setText(exercise.getName());
-        summaryView.setText(exercise.getMuscleGroup() + " · " +
-                (exercise.isMultiMuscle() ? "Compound movement" : "Focused movement"));
+        summaryView.setText(getString(exercise.isMultiMuscle()
+                ? R.string.exercise_detail_compound : R.string.exercise_detail_focused,
+                exercise.getMuscleGroup()));
         muscleGroupView.setText(exercise.getMuscleGroup());
         difficultyView.setText(exercise.getDifficulty().getLabel());
         animationView.setContentDescription(exercise.getName() + " movement animation");

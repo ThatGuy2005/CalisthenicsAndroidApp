@@ -54,18 +54,18 @@ public class WorkoutDetailActivity extends AppCompatActivity {
     private void startWorkout(String workoutName) {
         if (workoutName == null) { showError("Workout not found."); return; }
         startButton.setEnabled(false);
-        ((TextView) startButton).setText("Preparing workout…");
+        ((TextView) startButton).setText(R.string.workout_detail_preparing);
         new WorkoutSessionService(this).startPremade(workoutName, new ServiceCallback<WorkoutSession>() {
             @Override public void onSuccess(WorkoutSession session) {
                 Intent intent = new Intent(WorkoutDetailActivity.this, WorkoutSessionActivity.class);
                 intent.putExtra(WorkoutSessionActivity.EXTRA_SESSION, session);
                 startActivity(intent);
                 startButton.setEnabled(true);
-                ((TextView) startButton).setText("Start workout");
+                ((TextView) startButton).setText(R.string.workout_detail_start);
             }
             @Override public void onError(String message) {
                 startButton.setEnabled(true);
-                ((TextView) startButton).setText("Start workout");
+                ((TextView) startButton).setText(R.string.workout_detail_start);
                 showError(message);
             }
         });
@@ -79,7 +79,8 @@ public class WorkoutDetailActivity extends AppCompatActivity {
                 name.setText(workout.getName());
                 String category = workout.getCategory() == null ? "Workout" : workout.getCategory().getLabel();
                 String level = workout.getLevel() == null ? "All levels" : workout.getLevel().getLabel();
-                meta.setText(category + "  ·  " + level + "  ·  " + formatDuration(workout.getEstimatedSeconds()));
+                meta.setText(getString(R.string.workout_detail_meta, category, level,
+                        formatDuration(workout.getEstimatedSeconds())));
                 description.setText(workout.getDescription() == null ? "" : workout.getDescription());
                 loadEntries(workoutName);
             }
@@ -90,7 +91,7 @@ public class WorkoutDetailActivity extends AppCompatActivity {
     private void loadEntries(String workoutName) {
         workouts.getExercises(workoutName, new ServiceCallback<List<ExerciseOrderEntry>>() {
             @Override public void onSuccess(List<ExerciseOrderEntry> entries) {
-                count.setText("EXERCISES  ·  " + entries.size());
+                count.setText(getString(R.string.workout_detail_exercise_count, entries.size()));
                 exerciseList.removeAllViews();
                 if (entries.isEmpty()) return;
                 List<String> details = new ArrayList<>();
@@ -205,7 +206,7 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             }
 
             TextView action = new TextView(this);
-            action.setText("View instructions & animation  →");
+            action.setText(R.string.workout_detail_view_exercise);
             action.setTextColor(UiColors.ORANGE_DARK);
             action.setTextSize(12);
             action.setTypeface(null, android.graphics.Typeface.BOLD);

@@ -70,6 +70,16 @@
     <string name="home_quick_access">Quick access</string>
     <string name="home_browse_workouts">Browse workouts</string>
     <string name="home_exercises">Exercises</string>
+    <string name="home_nothing_scheduled">Nothing scheduled yet</string>
+    <string name="home_nothing_scheduled_hint">Choose a workout and plan your next session.</string>
+    <string name="home_upcoming_workout">Upcoming workout</string>
+    <string name="home_custom_workout">Your custom workout</string>
+    <string name="home_upcoming_unavailable">Upcoming workout unavailable</string>
+    <string name="home_no_workouts">No workouts logged yet</string>
+    <string name="home_no_workouts_hint">Complete your first workout to see it here.</string>
+    <!-- Date and time, duration ("42 min"), kcal. -->
+    <string name="home_last_workout_details">%1$s · %2$s · %3$.0f kcal</string>
+    <string name="home_history_unavailable">Workout history unavailable</string>
 
     <!-- Bottom navigation (menu/home_bottom_navigation) -->
     <string name="nav_home">Home</string>
@@ -83,6 +93,14 @@
     <string name="exercise_list_subtitle">Find a movement and learn the right form.</string>
     <string name="exercise_list_search_hint">Search exercises</string>
     <string name="exercise_list_loading">Loading exercises…</string>
+    <string name="exercise_list_filters_failed">Couldn\'t load the exercise filters.</string>
+    <string name="exercise_list_failed">Exercises unavailable.</string>
+    <plurals name="exercise_list_count">
+        <item quantity="one">%d exercise</item>
+        <item quantity="other">%d exercises</item>
+    </plurals>
+    <string name="exercise_list_no_match">No exercises match these filters.</string>
+    <string name="exercise_list_form">"Form  →"</string>
 
     <!-- Exercise detail (activity_exercise_detail) -->
     <string name="exercise_detail_back">"‹  Exercises"</string>
@@ -98,11 +116,23 @@
     <string name="exercise_detail_details_title">Exercise details</string>
     <string name="exercise_detail_equipment">EQUIPMENT</string>
     <string name="exercise_detail_target">SUGGESTED TARGET</string>
+    <!-- %1$s is the muscle group. -->
+    <string name="exercise_detail_compound">%1$s · Compound movement</string>
+    <string name="exercise_detail_focused">%1$s · Focused movement</string>
 
     <!-- Workout list (activity_workout_list) -->
     <string name="workout_list_title">Workouts</string>
     <string name="workout_list_subtitle">Choose a ready-made routine for today.</string>
     <string name="workout_list_loading">Loading workouts…</string>
+    <string name="workout_list_failed">Workouts couldn\'t be loaded.</string>
+    <plurals name="workout_list_count">
+        <item quantity="one">%d workout</item>
+        <item quantity="other">%d workouts</item>
+    </plurals>
+    <string name="workout_list_empty_category">No workouts in this category.</string>
+    <!-- %1$s is the category in capitals. -->
+    <string name="workout_list_routine">%1$s ROUTINE</string>
+    <string name="workout_list_view_plan">"View plan  →"</string>
 
     <!-- Workout detail (activity_workout_detail) -->
     <string name="workout_detail_back">"‹  All workouts"</string>
@@ -111,6 +141,11 @@
     <string name="workout_detail_exercises">EXERCISES</string>
     <string name="workout_detail_start">Start workout</string>
     <string name="workout_detail_hint">Tap any exercise to review its movement and form.</string>
+    <string name="workout_detail_preparing">Preparing workout…</string>
+    <!-- Category, level, estimated duration. -->
+    <string name="workout_detail_meta">"%1$s  ·  %2$s  ·  %3$s"</string>
+    <string name="workout_detail_exercise_count">"EXERCISES  ·  %1$d"</string>
+    <string name="workout_detail_view_exercise">"View instructions &amp; animation  →"</string>
 
     <!-- Workout session (activity_workout_session) -->
     <string name="session_exit">"‹  Exit workout"</string>
@@ -119,6 +154,22 @@
     <string name="session_no_animation">Follow the movement guide below</string>
     <string name="session_form_guide">FORM GUIDE</string>
     <string name="session_skip_exercise">Skip exercise</string>
+    <string name="session_progress">"Exercise %1$d of %2$d  ·  Set %3$d of %4$d"</string>
+    <string name="session_default_instructions">Move with control and keep a comfortable range of motion.</string>
+    <!-- %1$s is the elapsed time ("12:34"). -->
+    <string name="session_elapsed">"%1$s elapsed  ·  %2$.0f kcal"</string>
+    <string name="session_phase_rest">REST · RECOVER FOR THE NEXT SET</string>
+    <string name="session_phase_paused">PAUSED</string>
+    <string name="session_phase_set">YOUR SET</string>
+    <string name="session_skip_rest">Skip rest</string>
+    <string name="session_finish_set">Finish set</string>
+    <string name="session_set_done">Set done</string>
+    <!-- Exercise name, set number. -->
+    <string name="session_get_ready">Get ready for %1$s · Set %2$d</string>
+    <string name="session_last_exercise">Last exercise · you’re doing great</string>
+    <string name="session_next_up">Next up · %1$s</string>
+    <string name="session_pause">Pause</string>
+    <string name="session_resume">Resume</string>
 
     <!-- Workout summary (activity_workout_summary) -->
     <string name="summary_eyebrow">WORKOUT COMPLETE</string>
@@ -127,6 +178,23 @@
     <string name="summary_exercises_label">YOUR EXERCISES</string>
     <string name="summary_home">Back to home</string>
     <string name="summary_workouts">Choose another workout</string>
+    <string name="summary_title_complete">Nice work!</string>
+    <string name="summary_title_partial">Good effort!</string>
+    <string name="summary_workout_completed">%1$s · Completed</string>
+    <string name="summary_workout_partial">%1$s · Partial workout</string>
+    <!-- Completed sets of all sets; the quantity is the total. -->
+    <plurals name="summary_sets">
+        <item quantity="one">%1$d of %2$d set completed</item>
+        <item quantity="other">%1$d of %2$d sets completed</item>
+    </plurals>
+    <plurals name="summary_exercise_sets">
+        <item quantity="one">%1$d / %2$d set</item>
+        <item quantity="other">%1$d / %2$d sets</item>
+    </plurals>
+    <string name="summary_nothing_to_save">No completed sets to save.</string>
+    <string name="summary_saving">Saving your workout…</string>
+    <string name="summary_saved">Workout saved to your history.</string>
+    <string name="summary_save_failed">Could not save yet. Tap here to retry.</string>
 
     <!-- Schedule (activity_schedule) -->
     <string name="schedule_title">Your schedule</string>
@@ -135,6 +203,11 @@
     <string name="schedule_next_week" translatable="false">›</string>
     <string name="schedule_add">"＋  Plan a workout"</string>
     <string name="schedule_today">Today</string>
+    <!-- %1$s is how it repeats ("Every Monday", "One-time workout"). -->
+    <string name="schedule_repeat_custom">"%1$s  ·  CUSTOM"</string>
+    <string name="schedule_repeat_workout">"%1$s  ·  WORKOUT"</string>
+    <string name="schedule_mark_complete">"Mark as complete  ✓"</string>
+    <string name="schedule_add_to_calendar">Add to my phone calendar</string>
 
     <!-- History (activity_history); the zeros show until the stats load. -->
     <string name="history_title">Training history</string>
@@ -152,6 +225,21 @@
     <string name="history_recent">Recent workouts</string>
     <string name="history_log_count_placeholder">0 workouts</string>
     <string name="history_loading">Loading your workouts…</string>
+    <string name="history_stats_failed">Could not load statistics. Pull down or choose a period to retry.</string>
+    <string name="history_logs_failed">Workout history could not be loaded. Choose a period to retry.</string>
+    <string name="history_empty">No workouts in this period yet. Complete a workout and it will appear here.</string>
+    <!-- "completed" and "partial" stay the same for any count, so no plural. -->
+    <string name="history_completion" tools:ignore="PluralsCandidate">"%1$d completed  ·  %2$d partial"</string>
+    <plurals name="history_log_count">
+        <item quantity="one">%d workout</item>
+        <item quantity="other">%d workouts</item>
+    </plurals>
+    <string name="history_card_hint">"Tap for workout details  ·  Hold to delete"</string>
+    <!-- Date and time, then duration, kcal and status. -->
+    <string name="history_log_summary">%1$s\n%2$s · %3$.0f kcal · %4$s</string>
+    <string name="history_exercises_header">EXERCISES</string>
+    <!-- Exercise name, then sets and target. -->
+    <string name="history_exercise_line">%1$s\n%2$s</string>
 
     <!-- Settings (activity_settings) -->
     <string name="settings_back">"‹  Home"</string>

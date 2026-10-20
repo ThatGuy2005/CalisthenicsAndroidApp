@@ -101,11 +101,11 @@ public class HistoryActivity extends AppCompatActivity {
 
     private void loadData() {
         loading.setVisibility(View.VISIBLE);
-        loading.setText("Loading your workouts…");
+        loading.setText(R.string.history_loading);
         statsService.getStats(period, new ServiceCallback<WorkoutStats>() {
             @Override public void onSuccess(WorkoutStats stats) { showStats(stats); }
             @Override public void onError(String message) {
-                loading.setText("Could not load statistics. Pull down or choose a period to retry.");
+                loading.setText(R.string.history_stats_failed);
                 showMessage(message);
             }
         });
@@ -116,7 +116,7 @@ public class HistoryActivity extends AppCompatActivity {
             }
             @Override public void onError(String message) {
                 loading.setVisibility(View.VISIBLE);
-                loading.setText("Workout history could not be loaded. Choose a period to retry.");
+                loading.setText(R.string.history_logs_failed);
                 logList.removeAllViews();
                 showMessage(message);
             }
@@ -127,17 +127,18 @@ public class HistoryActivity extends AppCompatActivity {
         workoutsTotal.setText(String.valueOf(stats.getWorkouts()));
         timeTotal.setText(formatDuration(stats.getTotalSeconds()));
         caloriesTotal.setText(String.format(Locale.getDefault(), "%.0f kcal", stats.getTotalKcal()));
-        completionLine.setText(stats.getCompletedWorkouts() + " completed  ·  "
-                + stats.getPartialWorkouts() + " partial");
+        completionLine.setText(getString(R.string.history_completion,
+                stats.getCompletedWorkouts(), stats.getPartialWorkouts()));
     }
 
     private void renderLogs() {
         logList.removeAllViews();
         loading.setVisibility(logs.isEmpty() ? View.VISIBLE : View.GONE);
         if (logs.isEmpty()) {
-            loading.setText("No workouts in this period yet. Complete a workout and it will appear here.");
+            loading.setText(R.string.history_empty);
         }
-        logCount.setText(logs.size() + (logs.size() == 1 ? " workout" : " workouts"));
+        logCount.setText(getResources().getQuantityString(R.plurals.history_log_count,
+                logs.size(), logs.size()));
         for (WorkoutLog log : logs) logList.addView(createLogCard(log));
     }
 
@@ -201,7 +202,7 @@ public class HistoryActivity extends AppCompatActivity {
         addMetric(metrics, log.getExercises().size() + " exercises");
 
         TextView hint = new TextView(this);
-        hint.setText("Tap for workout details  ·  Hold to delete");
+        hint.setText(R.string.history_card_hint);
         hint.setTextColor(UiColors.ORANGE_DARK);
         hint.setTextSize(11);
         hint.setTypeface(null, Typeface.BOLD);
@@ -242,15 +243,15 @@ public class HistoryActivity extends AppCompatActivity {
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(dp(20), dp(6), dp(20), dp(8));
         TextView summary = new TextView(this);
-        summary.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
-                .format(new Date(log.getStartedAt() * 1000L)) + "\n" + formatDuration(log.getDurationSeconds())
-                + " · " + String.format(Locale.getDefault(), "%.0f kcal", log.getKcal())
-                + " · " + log.getStatus());
+        summary.setText(getString(R.string.history_log_summary,
+                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+                        .format(new Date(log.getStartedAt() * 1000L)),
+                formatDuration(log.getDurationSeconds()), log.getKcal(), log.getStatus()));
         summary.setTextColor(UiColors.MUTED);
         summary.setTextSize(13);
         content.addView(summary);
         TextView exercisesHeader = new TextView(this);
-        exercisesHeader.setText("EXERCISES");
+        exercisesHeader.setText(R.string.history_exercises_header);
         exercisesHeader.setTextColor(UiColors.ORANGE_DARK);
         exercisesHeader.setTextSize(11);
         exercisesHeader.setTypeface(null, Typeface.BOLD);
@@ -259,7 +260,8 @@ public class HistoryActivity extends AppCompatActivity {
         content.addView(exercisesHeader, headerParams);
         for (LoggedExercise exercise : log.getExercises()) {
             TextView line = new TextView(this);
-            line.setText(exercise.getExerciseName() + "\n" + exerciseDescription(exercise));
+            line.setText(getString(R.string.history_exercise_line,
+                    exercise.getExerciseName(), exerciseDescription(exercise)));
             line.setTextColor(UiColors.GRAPHITE);
             line.setTextSize(14);
             line.setLineSpacing(dp(3), 1f);

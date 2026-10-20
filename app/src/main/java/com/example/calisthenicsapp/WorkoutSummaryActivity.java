@@ -50,14 +50,16 @@ public class WorkoutSummaryActivity extends AppCompatActivity {
 
     private void bindSummary() {
         boolean complete = WorkoutSession.STATUS_COMPLETED.equals(session.getStatus());
-        ((TextView) findViewById(R.id.summaryTitle)).setText(complete ? "Nice work!" : "Good effort!");
-        ((TextView) findViewById(R.id.summaryWorkoutName)).setText(session.getWorkoutName()
-                + (complete ? " · Completed" : " · Partial workout"));
+        ((TextView) findViewById(R.id.summaryTitle)).setText(complete ? R.string.summary_title_complete : R.string.summary_title_partial);
+        ((TextView) findViewById(R.id.summaryWorkoutName)).setText(getString(complete
+                ? R.string.summary_workout_completed : R.string.summary_workout_partial,
+                session.getWorkoutName()));
         ((TextView) findViewById(R.id.summaryDuration)).setText(formatTime(session.getTotalSeconds()));
         ((TextView) findViewById(R.id.summaryCalories)).setText(String.format(Locale.getDefault(), "%.0f kcal", session.getTotalKcal()));
         int totalSets = 0;
         for (WorkoutSession.SessionExercise e : session.getExercises()) totalSets += e.getSets();
-        ((TextView) findViewById(R.id.summarySets)).setText(session.getCompletedSets() + " of " + totalSets + " sets completed");
+        ((TextView) findViewById(R.id.summarySets)).setText(getResources().getQuantityString(
+                R.plurals.summary_sets, totalSets, session.getCompletedSets(), totalSets));
         LinearLayout list = findViewById(R.id.summaryExerciseList);
         list.removeAllViews();
         for (WorkoutSession.SessionExercise exercise : session.getExercises()) {
@@ -79,7 +81,8 @@ public class WorkoutSummaryActivity extends AppCompatActivity {
             title.setTypeface(null, android.graphics.Typeface.BOLD);
             row.addView(title, new LinearLayout.LayoutParams(0, -2, 1f));
             TextView sets = new TextView(this);
-            sets.setText(exercise.getCompletedSets() + " / " + exercise.getSets() + " sets");
+            sets.setText(getResources().getQuantityString(R.plurals.summary_exercise_sets,
+                    exercise.getSets(), exercise.getCompletedSets(), exercise.getSets()));
             sets.setTextColor(exercise.getCompletedSets() == exercise.getSets() ? UiColors.SUCCESS : UiColors.MUTED);
             sets.setTextSize(13);
             sets.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -91,20 +94,20 @@ public class WorkoutSummaryActivity extends AppCompatActivity {
 
     private void saveIfNeeded() {
         if (!session.isLoggable()) {
-            saved.setText("No completed sets to save.");
+            saved.setText(R.string.summary_nothing_to_save);
             return;
         }
         if (session.getLogId() != null) {
-            saved.setText("Workout saved to your history.");
+            saved.setText(R.string.summary_saved);
             return;
         }
-        saved.setText("Saving your workout…");
+        saved.setText(R.string.summary_saving);
         new WorkoutLogService(this).saveSession(session, new ServiceCallback<String>() {
             @Override public void onSuccess(String logId) {
-                saved.setText("Workout saved to your history.");
+                saved.setText(R.string.summary_saved);
             }
             @Override public void onError(String message) {
-                saved.setText("Could not save yet. Tap here to retry.");
+                saved.setText(R.string.summary_save_failed);
                 saved.setOnClickListener(v -> saveIfNeeded());
             }
         });
