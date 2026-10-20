@@ -41,6 +41,7 @@
     <!-- %1$d is the earliest year, not a count, so no plural. -->
     <string name="signup_error_birth_year" tools:ignore="PluralsCandidate">Enter a year between %1$d and this year</string>
     <string name="signup_success">Account created.</string>
+    <string name="signup_in_progress">Creating your account, please wait.</string>
 
     <!-- Forgot password (activity_forgot_password); the back link is signup_back. -->
     <string name="forgot_title">Reset password</string>

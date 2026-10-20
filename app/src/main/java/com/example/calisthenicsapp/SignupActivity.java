@@ -9,6 +9,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.calisthenicsapp.Service.AuthService;
@@ -16,6 +17,20 @@ import com.example.calisthenicsapp.Verificate.UserValidator;
 import com.google.firebase.auth.FirebaseUser;
 
 public class SignupActivity extends AppCompatActivity {
+    private TextView backToLogin;
+
+    /**
+     * Blocks back while the account is being created. Firebase signs the new account in before
+     * the profile is saved, so the login screen would open Home for an account that may still be
+     * discarded.
+     */
+    private final OnBackPressedCallback backWhileSigningUp = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            Toast.makeText(SignupActivity.this, R.string.signup_in_progress,
+                    Toast.LENGTH_SHORT).show();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +45,9 @@ public class SignupActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         genderSpinner.setAdapter(adapter);
 
-        TextView backToLogin = findViewById(R.id.backToLogin);
+        backToLogin = findViewById(R.id.backToLogin);
         backToLogin.setOnClickListener(view -> finish());
+        getOnBackPressedDispatcher().addCallback(this, backWhileSigningUp);
 
         Button createAccount = findViewById(R.id.createAccountButton);
         createAccount.setOnClickListener(view -> validateForm(authService, createAccount));
@@ -83,12 +99,12 @@ public class SignupActivity extends AppCompatActivity {
 
             String genderValue = gender.getSelectedItemPosition() == 0
                     ? null : gender.getSelectedItem().toString();
-            createAccount.setEnabled(false);
+            setSigningUp(createAccount, true);
             authService.signUp(usernameValue, emailValue, passwordValue, heightValue,
                     weightValue, genderValue, birthYearValue, new AuthService.AuthCallback<FirebaseUser>() {
                         @Override
                         public void onSuccess(FirebaseUser user) {
-                            createAccount.setEnabled(true);
+                            setSigningUp(createAccount, false);
                             Toast.makeText(SignupActivity.this, R.string.signup_success,
                                     Toast.LENGTH_LONG).show();
                             finish();
@@ -96,7 +112,7 @@ public class SignupActivity extends AppCompatActivity {
 
                         @Override
                         public void onError(String message) {
-                            createAccount.setEnabled(true);
+                            setSigningUp(createAccount, false);
                             Toast.makeText(SignupActivity.this, message, Toast.LENGTH_LONG).show();
                         }
                     });
@@ -121,5 +137,11 @@ public class SignupActivity extends AppCompatActivity {
         } catch (NumberFormatException exception) {
             return null;
         }
+    }
+
+    private void setSigningUp(Button createAccount, boolean signingUp) {
+        createAccount.setEnabled(!signingUp);
+        backToLogin.setEnabled(!signingUp);
+        backWhileSigningUp.setEnabled(signingUp);
     }
 }
