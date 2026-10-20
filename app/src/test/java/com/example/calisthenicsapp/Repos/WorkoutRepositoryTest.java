@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Application;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -80,38 +81,41 @@ public class WorkoutRepositoryTest {
     }
 
     @Test
-    public void descriptionIsStoredAndReadBack() {
-        assertTrue(repository.insert(new Workout("Test Desc", Difficulty.BEGINNER,
-                WorkoutCategory.CORE, "Short and easy.")));
+    public void descriptionIsReadBack() {
+        insertWorkout("Test Desc", Difficulty.BEGINNER, WorkoutCategory.CORE, "Short and easy.");
         assertEquals("Short and easy.", repository.getOne("Test Desc").getDescription());
-        assertTrue(repository.update(new Workout("Test Desc", Difficulty.BEGINNER,
-                WorkoutCategory.CORE)));
-        assertNull(repository.getOne("Test Desc").getDescription());
+        insertWorkout("Test No Desc", Difficulty.BEGINNER, WorkoutCategory.CORE, null);
+        assertNull(repository.getOne("Test No Desc").getDescription());
     }
 
     @Test
-    public void categoryIsStoredAsTheLabelAndReadBack() {
-        assertTrue(repository.insert(new Workout("Test Legs", Difficulty.BEGINNER,
-                WorkoutCategory.LOWER_BODY)));
+    public void categoryIsReadFromTheLabel() {
+        insertWorkout("Test Legs", Difficulty.BEGINNER, WorkoutCategory.LOWER_BODY, null);
         assertEquals(WorkoutCategory.LOWER_BODY, repository.getOne("Test Legs").getCategory());
-
-        assertTrue(repository.update(new Workout("Test Legs", Difficulty.BEGINNER,
-                WorkoutCategory.CARDIO)));
-        assertEquals(WorkoutCategory.CARDIO, repository.getOne("Test Legs").getCategory());
-
-        assertTrue(repository.update(new Workout("Test Legs", Difficulty.BEGINNER)));
-        assertNull(repository.getOne("Test Legs").getCategory());
+        insertWorkout("Test Cardio", Difficulty.BEGINNER, WorkoutCategory.CARDIO, null);
+        assertEquals(WorkoutCategory.CARDIO, repository.getOne("Test Cardio").getCategory());
+        insertWorkout("Test No Category", Difficulty.BEGINNER, null, null);
+        assertNull(repository.getOne("Test No Category").getCategory());
     }
 
     @Test
-    public void levelIsStoredAsTheLabelAndReadBack() {
-        assertTrue(repository.insert(new Workout("Test Hard", Difficulty.ADVANCED)));
+    public void levelIsReadFromTheLabel() {
+        insertWorkout("Test Hard", Difficulty.ADVANCED, null, null);
         assertEquals(Difficulty.ADVANCED, repository.getOne("Test Hard").getLevel());
-
-        assertTrue(repository.update(new Workout("Test Hard", Difficulty.INTERMEDIATE)));
-        assertEquals(Difficulty.INTERMEDIATE, repository.getOne("Test Hard").getLevel());
-
-        assertTrue(repository.insert(new Workout("Test None", (Difficulty) null)));
+        insertWorkout("Test Medium", Difficulty.INTERMEDIATE, null, null);
+        assertEquals(Difficulty.INTERMEDIATE, repository.getOne("Test Medium").getLevel());
+        insertWorkout("Test None", null, null, null);
         assertNull(repository.getOne("Test None").getLevel());
+    }
+
+    /** The app never writes workouts; seed.sql does, with the labels, so the test does too. */
+    private void insertWorkout(String name, Difficulty level, WorkoutCategory category,
+                               String description) {
+        ContentValues cv = new ContentValues();
+        cv.put("Name", name);
+        cv.put("Level", level == null ? null : level.getLabel());
+        cv.put("Category", category == null ? null : category.getLabel());
+        cv.put("Description", description);
+        assertTrue(db.insert("Workout", null, cv) != -1);
     }
 }

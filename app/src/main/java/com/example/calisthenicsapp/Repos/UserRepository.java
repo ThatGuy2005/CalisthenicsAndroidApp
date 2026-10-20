@@ -22,15 +22,15 @@ public class UserRepository implements Repository<User>{
         cv.put("Height", object.getHeight());
         cv.put("Weight", object.getWeight());
         cv.put("Gender", object.getGender());
-        Repository.putIntOrNull(cv, "BirthYear", object.getBirthYear());
+        SqlHelpers.putIntOrNull(cv, "BirthYear", object.getBirthYear());
         cv.put("CreatedAt", object.getCreatedAt());
         cv.put("UpdatedAt", object.getUpdatedAt());
-        return Repository.insertDB(db,"Users",cv);
+        return SqlHelpers.insertDB(db,"Users",cv);
     };
 
     @Override
     public boolean delete(User object) {
-        return Repository.deleteDB(db, "Users", "Uid = ?", object.getUid());
+        return SqlHelpers.deleteDB(db, "Users", "Uid = ?", object.getUid());
     };
 
     @Override
@@ -41,10 +41,10 @@ public class UserRepository implements Repository<User>{
         cv.put("Height", object.getHeight());
         cv.put("Weight", object.getWeight());
         cv.put("Gender", object.getGender());
-        Repository.putIntOrNull(cv, "BirthYear", object.getBirthYear());
+        SqlHelpers.putIntOrNull(cv, "BirthYear", object.getBirthYear());
         // Keep Firestore's updatedAt. If it is unchanged, the trigger bumps it to now instead.
         cv.put("UpdatedAt", object.getUpdatedAt());
-        return Repository.updateDB(db, "Users", cv,
+        return SqlHelpers.updateDB(db, "Users", cv,
                 "Uid = ?", object.getUid());
     }
 
@@ -82,7 +82,7 @@ public class UserRepository implements Repository<User>{
                 c.getDouble(c.getColumnIndexOrThrow("Height")),
                 c.getDouble(c.getColumnIndexOrThrow("Weight")),
                 c.getString(c.getColumnIndexOrThrow("Gender")),
-                Repository.intOrNull(c, "BirthYear"),
+                SqlHelpers.intOrNull(c, "BirthYear"),
                 c.getLong(c.getColumnIndexOrThrow("CreatedAt")),
                 c.getLong(c.getColumnIndexOrThrow("UpdatedAt")));
     }

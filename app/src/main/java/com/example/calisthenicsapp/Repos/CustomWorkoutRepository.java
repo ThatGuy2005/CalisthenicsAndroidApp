@@ -34,13 +34,13 @@ public class CustomWorkoutRepository implements Repository<CustomWorkout> {
         ContentValues cv = new ContentValues();
         cv.put("Name", w.getName());
         cv.put("Description", w.getDescription());
-        return Repository.updateDB(db, "CustomWorkout", cv,
+        return SqlHelpers.updateDB(db, "CustomWorkout", cv,
                 "Id = ?", w.getId());
     }
 
     @Override
     public boolean delete(CustomWorkout w) {            // its exercise rows cascade
-        return Repository.deleteDB(db, "CustomWorkout",
+        return SqlHelpers.deleteDB(db, "CustomWorkout",
                 "Id = ?", w.getId());
     }
 

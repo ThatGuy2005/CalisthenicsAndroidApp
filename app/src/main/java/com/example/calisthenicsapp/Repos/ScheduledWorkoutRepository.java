@@ -35,14 +35,14 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         ContentValues cv = toContentValues(s);
         cv.remove("Id");
         cv.remove("Uid");
-        return Repository.updateDB(db, "ScheduledWorkout", cv,
+        return SqlHelpers.updateDB(db, "ScheduledWorkout", cv,
                 "Id = ?", s.getId());
     }
 
     @Override
     public boolean delete(ScheduledWorkout s) {
         if (s.getId() == null) return false;
-        return Repository.deleteDB(db, "ScheduledWorkout",
+        return SqlHelpers.deleteDB(db, "ScheduledWorkout",
                 "Id = ?", s.getId());
     }
 

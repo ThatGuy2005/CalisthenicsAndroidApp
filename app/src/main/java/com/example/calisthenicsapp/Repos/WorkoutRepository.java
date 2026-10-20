@@ -1,6 +1,5 @@
 package com.example.calisthenicsapp.Repos;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -11,49 +10,10 @@ import com.example.calisthenicsapp.CoreComponents.WorkoutCategory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkoutRepository implements Repository<Workout> {
+public class WorkoutRepository implements ReadRepository<Workout> {
     private final SQLiteDatabase db;
 
     public WorkoutRepository(SQLiteDatabase db) { this.db = db; }
-
-    @Override
-    public boolean insert(Workout w) {
-        ContentValues cv = new ContentValues();
-        cv.put("Name", w.getName());
-        putDetails(cv, w);
-        return Repository.insertDB(db, "Workout", cv);
-    }
-
-    @Override
-    public boolean update(Workout w) {
-        ContentValues cv = new ContentValues();
-        putDetails(cv, w);
-        return Repository.updateDB(db, "Workout", cv, "Name = ?", w.getName());
-    }
-
-    /**
-     * Everything but the name. Level and category are stored as their labels: the Difficulty
-     * label ("Beginner"), like Exercise.Difficulty, and the WorkoutCategory label ("Full body").
-     */
-    private static void putDetails(ContentValues cv, Workout w) {
-        if (w.getLevel() != null) cv.put("Level", w.getLevel().getLabel());
-        else cv.putNull("Level");
-        if (w.getCategory() != null) cv.put("Category", w.getCategory().getLabel());
-        else cv.putNull("Category");
-        cv.put("Description", w.getDescription());
-    }
-
-    public boolean rename(String oldName, String newName) {
-        ContentValues cv = new ContentValues();
-        cv.put("Name", newName);
-        return Repository.updateDB(db, "Workout", cv, "Name = ?", oldName);
-    }
-
-    @Override
-    public boolean delete(Workout w) {
-        // ExerciseOrder rows go with it (ON DELETE CASCADE)
-        return Repository.deleteDB(db, "Workout", "Name = ?", w.getName());
-    }
 
     @Override
     public List<Workout> getAll() {
@@ -72,6 +32,10 @@ public class WorkoutRepository implements Repository<Workout> {
         }
     }
 
+    /**
+     * Level and category are stored as their labels: the Difficulty label ("Beginner"), like
+     * Exercise.Difficulty, and the WorkoutCategory label ("Full body").
+     */
     private static Workout fromCursor(Cursor c) {
         return new Workout(c.getString(c.getColumnIndexOrThrow("Name")),
                 Difficulty.fromLabel(c.getString(c.getColumnIndexOrThrow("Level"))),

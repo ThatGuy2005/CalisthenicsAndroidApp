@@ -6,7 +6,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Application;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.example.calisthenicsapp.CoreComponents.Difficulty;
 import com.example.calisthenicsapp.CoreComponents.Equipment;
@@ -28,6 +30,7 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 @Config(application = Application.class)   // not CalisthenicsApplication: no Firebase or sync here
 public class ExerciseRepositoryTest {
+    private SQLiteDatabase db;
     private ExerciseRepository repository;
 
     @Before
@@ -35,7 +38,8 @@ public class ExerciseRepositoryTest {
         Context context = RuntimeEnvironment.getApplication();
         SQLManager.closeInstance();
         context.deleteDatabase(SQLManager.DATABASE_NAME);
-        repository = new ExerciseRepository(SQLManager.getInstance(context).getWritableDatabase());
+        db = SQLManager.getInstance(context).getWritableDatabase();
+        repository = new ExerciseRepository(db);
     }
 
     @After
@@ -101,26 +105,37 @@ public class ExerciseRepositoryTest {
     }
 
     @Test
-    public void equipmentAndMultiMuscleAreStoredAndReadBack() {
-        assertTrue(repository.insert(new Exercise("Ring Row", "Pull.", false, null, 10, 3.8,
-                null, "Back", Difficulty.INTERMEDIATE, false, Equipment.PULL_UP_BAR, true)));
+    public void equipmentAndMultiMuscleAreReadBack() {
+        insertExercise("Ring Row", Equipment.PULL_UP_BAR, false, true);
         Exercise row = repository.getOne("Ring Row");
         assertEquals(Equipment.PULL_UP_BAR, row.getEquipment());
         assertTrue(row.isMultiMuscle());
-        assertTrue(repository.insert(new Exercise("Calf Raise", "Rise.", false, null, 15, 3.0,
-                null, "Legs", Difficulty.BEGINNER, false, null, false)));
+        insertExercise("Calf Raise", null, false, false);
         Exercise raise = repository.getOne("Calf Raise");
-        assertEquals(Equipment.NONE, raise.getEquipment());   // null means none
+        assertEquals(Equipment.NONE, raise.getEquipment());   // the column's default
         assertFalse(raise.isMultiMuscle());
     }
 
     @Test
-    public void perSideIsStoredAndReadBack() {
-        assertTrue(repository.insert(new Exercise("Side Plank", "Hold.", true, 20, null, 3.0,
-                null, "Core", Difficulty.INTERMEDIATE, true)));
+    public void perSideIsReadBack() {
+        insertExercise("Side Plank", null, true, false);
         assertTrue(repository.getOne("Side Plank").isPerSide());
-        assertTrue(repository.insert(new Exercise("Hollow Hold", "Hold.", true, 20, null, 3.0,
-                null, "Core", Difficulty.INTERMEDIATE)));
+        insertExercise("Hollow Hold", null, false, false);
         assertFalse(repository.getOne("Hollow Hold").isPerSide());
+    }
+
+    /** The app never writes exercises; seed.sql does, so the test adds rows the same way. */
+    private void insertExercise(String name, Equipment equipment, boolean perSide,
+                                boolean multiMuscle) {
+        ContentValues cv = new ContentValues();
+        cv.put("Name", name);
+        cv.put("Instructions", "Test.");
+        cv.put("DefaultReps", 10);
+        cv.put("MuscleGroup", "Core");
+        cv.put("Difficulty", Difficulty.INTERMEDIATE.getLabel());
+        cv.put("IsPerSide", perSide ? 1 : 0);
+        if (equipment != null) cv.put("Equipment", equipment.getLabel());
+        cv.put("IsMultiMuscle", multiMuscle ? 1 : 0);
+        assertTrue(db.insert("Exercise", null, cv) != -1);
     }
 }

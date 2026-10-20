@@ -33,7 +33,7 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         cv.put("Kcal", l.getKcal());
         cv.put("Status", l.getStatus());
         cv.put("Snapshot", toJson(l.getExercises()));
-        return Repository.insertDB(db, "WorkoutLog", cv);
+        return SqlHelpers.insertDB(db, "WorkoutLog", cv);
     }
 
     @Override
@@ -45,13 +45,13 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         cv.put("Kcal", l.getKcal());
         cv.put("Status", l.getStatus());
         cv.put("Snapshot", toJson(l.getExercises()));
-        return Repository.updateDB(db, "WorkoutLog", cv,
+        return SqlHelpers.updateDB(db, "WorkoutLog", cv,
                 "Id = ?", l.getId());
     }
 
     @Override
     public boolean delete(WorkoutLog l) {
-        return Repository.deleteDB(db, "WorkoutLog", "Id = ?", l.getId());
+        return SqlHelpers.deleteDB(db, "WorkoutLog", "Id = ?", l.getId());
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.example.calisthenicsapp.Repos;
 import com.example.calisthenicsapp.CoreComponents.Difficulty;
 import com.example.calisthenicsapp.CoreComponents.Equipment;
 import com.example.calisthenicsapp.CoreComponents.Exercise;
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
@@ -11,27 +10,10 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExerciseRepository implements Repository<Exercise> {
+public class ExerciseRepository implements ReadRepository<Exercise> {
     private final SQLiteDatabase db;
 
     public ExerciseRepository(SQLiteDatabase db) { this.db = db; }
-
-    @Override
-    public boolean insert(Exercise e) {
-        return Repository.insertDB(db, "Exercise", toContentValues(e));
-    }
-
-    @Override
-    public boolean update(Exercise e) {
-        return Repository.updateDB(db, "Exercise", toContentValues(e),
-                "Name = ?", e.getName());
-    }
-
-    @Override
-    public boolean delete(Exercise e) {
-        // false if a workout still uses it (ON DELETE RESTRICT)
-        return Repository.deleteDB(db, "Exercise", "Name = ?", e.getName());
-    }
 
     @Override
     public List<Exercise> getAll() {
@@ -94,32 +76,13 @@ public class ExerciseRepository implements Repository<Exercise> {
         return list;
     }
 
-    private ContentValues toContentValues(Exercise e) {
-        ContentValues cv = new ContentValues();
-        cv.put("Name", e.getName());
-        cv.put("Instructions", e.getInstructions());
-        cv.put("IsTimed", e.isTimed() ? 1 : 0);
-        // NULL, not 0: the schema has CHECK (DefaultSeconds > 0) and CHECK (DefaultReps > 0)
-        Repository.putIntOrNull(cv, "DefaultSeconds", e.getDefaultSeconds());
-        Repository.putIntOrNull(cv, "DefaultReps", e.getDefaultReps());
-        cv.put("Met", e.getMet());
-        cv.put("AnimationFile", e.getAnimationFile());
-        cv.put("MuscleGroup", e.getMuscleGroup());
-        if (e.getDifficulty() != null) cv.put("Difficulty", e.getDifficulty().getLabel());
-        else cv.putNull("Difficulty");
-        cv.put("IsPerSide", e.isPerSide() ? 1 : 0);
-        cv.put("Equipment", e.getEquipment().getLabel());
-        cv.put("IsMultiMuscle", e.isMultiMuscle() ? 1 : 0);
-        return cv;
-    }
-
     private Exercise fromCursor(Cursor c) {
         return new Exercise(
                 c.getString(c.getColumnIndexOrThrow("Name")),
                 c.getString(c.getColumnIndexOrThrow("Instructions")),
                 c.getInt(c.getColumnIndexOrThrow("IsTimed")) == 1,
-                Repository.intOrNull(c, "DefaultSeconds"),
-                Repository.intOrNull(c, "DefaultReps"),
+                SqlHelpers.intOrNull(c, "DefaultSeconds"),
+                SqlHelpers.intOrNull(c, "DefaultReps"),
                 c.getDouble(c.getColumnIndexOrThrow("Met")),
                 c.getString(c.getColumnIndexOrThrow("AnimationFile")),
                 c.getString(c.getColumnIndexOrThrow("MuscleGroup")),

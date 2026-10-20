@@ -16,7 +16,7 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
 
     @Override
     public boolean insert(CustomExerciseOrderEntry e) {
-        return Repository.insertDB(db, "CustomExerciseOrder", toContentValues(e));
+        return SqlHelpers.insertDB(db, "CustomExerciseOrder", toContentValues(e));
     }
 
     /** The row is identified by (CustomWorkoutId, Position); everything else is updated. */
@@ -25,14 +25,14 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
         ContentValues cv = toContentValues(e);
         cv.remove("CustomWorkoutId");
         cv.remove("Position");
-        return Repository.updateDB(db, "CustomExerciseOrder", cv,
+        return SqlHelpers.updateDB(db, "CustomExerciseOrder", cv,
                 "CustomWorkoutId = ? AND Position = ?",
                 e.getCustomWorkoutId(), String.valueOf(e.getPosition()));
     }
 
     @Override
     public boolean delete(CustomExerciseOrderEntry e) {
-        return Repository.deleteDB(db, "CustomExerciseOrder",
+        return SqlHelpers.deleteDB(db, "CustomExerciseOrder",
                 "CustomWorkoutId = ? AND Position = ?",
                 e.getCustomWorkoutId(), String.valueOf(e.getPosition()));
     }
@@ -53,7 +53,7 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
             db.delete("CustomExerciseOrder", "CustomWorkoutId = ?",
                     new String[]{customWorkoutId});
             for (CustomExerciseOrderEntry e : entries) {
-                if (!Repository.insertDB(db, "CustomExerciseOrder", toContentValues(e)))
+                if (!SqlHelpers.insertDB(db, "CustomExerciseOrder", toContentValues(e)))
                     return false;
             }
             db.setTransactionSuccessful();
@@ -73,10 +73,10 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
                         c.getString(c.getColumnIndexOrThrow("ExerciseName")),
                         c.getInt(c.getColumnIndexOrThrow("Position")),
                         c.getInt(c.getColumnIndexOrThrow("Sets")),
-                        Repository.intOrNull(c, "Reps"),        // NULL = use the exercise default
-                        Repository.intOrNull(c, "Seconds"),     // NULL = use the exercise default
+                        SqlHelpers.intOrNull(c, "Reps"),        // NULL = use the exercise default
+                        SqlHelpers.intOrNull(c, "Seconds"),     // NULL = use the exercise default
                         c.getInt(c.getColumnIndexOrThrow("RestSeconds")),
-                        Repository.intOrNull(c, "RestAfterSeconds")));   // NULL = RestSeconds
+                        SqlHelpers.intOrNull(c, "RestAfterSeconds")));   // NULL = RestSeconds
             }
         }
         return list;
@@ -90,10 +90,10 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
         // Sets and RestSeconds are NOT NULL: leave them out when null so the DB default
         // (3 sets, 60 s) applies. An explicit NULL would be rejected.
         if (e.getSets() != null) cv.put("Sets", e.getSets());
-        Repository.putIntOrNull(cv, "Reps", e.getReps());
-        Repository.putIntOrNull(cv, "Seconds", e.getSeconds());
+        SqlHelpers.putIntOrNull(cv, "Reps", e.getReps());
+        SqlHelpers.putIntOrNull(cv, "Seconds", e.getSeconds());
         if (e.getRestSeconds() != null) cv.put("RestSeconds", e.getRestSeconds());
-        Repository.putIntOrNull(cv, "RestAfterSeconds", e.getRestAfterSeconds());
+        SqlHelpers.putIntOrNull(cv, "RestAfterSeconds", e.getRestAfterSeconds());
         return cv;
     }
 }
