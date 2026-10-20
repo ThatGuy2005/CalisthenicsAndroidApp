@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/homeRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/performance_canvas"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="22dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="22dp"
+            android:paddingBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:letterSpacing="0.12"
+                    android:text="CALISTHENICS"
+                    android:textColor="@color/performance_orange_dark"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/homeSettings"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:minWidth="0dp"
+                    android:text="Settings"
+                    android:textAllCaps="false"
+                    android:textColor="@color/performance_orange_dark" />
+
+                <Button
+                    android:id="@+id/homeSignOut"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:minWidth="0dp"
+                    android:text="Sign out"
+                    android:textAllCaps="false"
+                    android:textColor="@color/performance_muted" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:text="Ready to move?"
+                android:textColor="@color/performance_graphite"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/homeSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="22dp"
+                android:text="Your training, one step at a time."
+                android:textColor="@color/performance_muted"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/home_feature_background"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="UP NEXT"
+                    android:textColor="#D6E8DA"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.12" />
+
+                <TextView
+                    android:id="@+id/nextWorkoutName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Loading your schedule…"
+                    android:textColor="#FFFFFF"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/nextWorkoutDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Your next planned workout"
+                    android:textColor="@color/performance_orange_tint"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/homeScheduleAction"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="8dp"
+                    android:text="View schedule"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="26dp"
+                android:layout_marginBottom="12dp"
+                android:text="This week"
+                android:textColor="@color/performance_graphite"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="92dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/home_tile_background"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+                    <TextView
+                        android:id="@+id/weeklyWorkoutCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textColor="@color/performance_graphite"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="workouts"
+                        android:textColor="@color/performance_muted"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="92dp"
+                    android:layout_marginHorizontal="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/home_tile_background"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+                    <TextView
+                        android:id="@+id/weeklyTrainingTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textColor="@color/performance_graphite"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="training time"
+                        android:textColor="@color/performance_muted"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="92dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/home_tile_background"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+                    <TextView
+                        android:id="@+id/weeklyCalories"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textColor="@color/performance_graphite"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="kcal"
+                        android:textColor="@color/performance_muted"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="26dp"
+                android:background="@drawable/home_tile_background"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Last workout"
+                    android:textColor="@color/performance_graphite"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/lastWorkoutName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Loading your history…"
+                    android:textColor="@color/performance_graphite"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/lastWorkoutDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text=""
+                    android:textColor="@color/performance_muted"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/lastWorkoutStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textColor="@color/performance_orange_dark"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="26dp"
+                android:layout_marginBottom="12dp"
+                android:text="Quick access"
+                android:textColor="@color/performance_graphite"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/homeWorkoutsAction"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/performance_orange"
+                    android:text="Browse workouts"
+                    android:textAllCaps="false"
+                    android:textColor="@color/performance_graphite" />
+
+                <Button
+                    android:id="@+id/homeExercisesAction"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:text="Exercises"
+                    android:textAllCaps="false"
+                    android:textColor="@color/performance_orange_dark" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        app:itemIconTint="@color/performance_orange_dark"
+        app:itemTextColor="@color/performance_muted"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/home_bottom_navigation" />
+</LinearLayout>

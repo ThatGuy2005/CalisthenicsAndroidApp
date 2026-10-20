@@ -50,7 +50,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
     implementation(libs.material)
-    implementation("com.github.LottieFiles:dotlottie-android:0.5.0")
+    implementation("com.github.LottieFiles:dotlottie-android:0.16.0")
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)

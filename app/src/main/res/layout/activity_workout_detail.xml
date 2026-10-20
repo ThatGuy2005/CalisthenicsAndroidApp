@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/workoutDetailRoot" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:orientation="vertical" android:background="@color/performance_canvas">
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="22dp">
+            <TextView android:id="@+id/workoutBack" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="‹  All workouts"
+                android:textColor="@color/performance_orange_dark" android:textSize="16sp" android:padding="4dp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="22dp" android:text="WORKOUT PLAN" android:textColor="@color/performance_orange_dark"
+                android:textSize="12sp" android:letterSpacing="0.12" android:textStyle="bold" />
+            <TextView android:id="@+id/workoutDetailName" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="8dp"
+                android:text="Workout" android:textColor="@color/performance_graphite" android:textSize="30sp"
+                android:textStyle="bold" />
+            <TextView android:id="@+id/workoutDetailMeta" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="8dp"
+                android:textColor="@color/performance_orange_dark" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:id="@+id/workoutDetailDescription" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="14dp"
+                android:textColor="@color/performance_muted" android:textSize="15sp" />
+            <TextView android:id="@+id/workoutExerciseCount" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="26dp"
+                android:layout_marginBottom="10dp" android:text="EXERCISES"
+                android:textColor="@color/performance_muted" android:textSize="12sp" android:letterSpacing="0.08"
+                android:textStyle="bold" />
+            <TextView android:id="@+id/startWorkoutButton" android:layout_width="match_parent"
+                android:layout_height="54dp" android:layout_marginBottom="18dp"
+                android:background="@drawable/workout_primary_button" android:gravity="center"
+                android:text="Start workout" android:textColor="@color/performance_graphite" android:textSize="16sp"
+                android:textStyle="bold" android:clickable="true" android:focusable="true" />
+            <LinearLayout android:id="@+id/workoutExerciseList" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="vertical" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="14dp" android:layout_marginBottom="20dp"
+                android:text="Tap any exercise to review its movement and form."
+                android:textColor="@color/performance_muted" android:textSize="13sp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
