@@ -50,6 +50,8 @@
             android:screenOrientation="unspecified" />
         <activity android:name=".WorkoutSummaryActivity" android:exported="false" />
         <activity android:name=".SettingsActivity" android:exported="false" />
+        <activity android:name=".ProfileActivity" android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".SignupActivity"
             android:exported="false"
