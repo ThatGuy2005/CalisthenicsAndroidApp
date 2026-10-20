@@ -14,7 +14,6 @@
     <string name="login_create_account">Create an account</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_error_empty">Enter your email and password.</string>
-    <string name="login_success">Login successful.</string>
 
     <!-- Sign-up (activity_signup) -->
     <string name="signup_back">"‹  Back to login"</string>

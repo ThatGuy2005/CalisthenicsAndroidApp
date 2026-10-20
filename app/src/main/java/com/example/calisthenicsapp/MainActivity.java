@@ -15,13 +15,15 @@ import com.example.calisthenicsapp.Service.AuthService;
 import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
+    private AuthService authService;
+    private boolean openingHome;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        AuthService authService = new AuthService(this);
+        authService = new AuthService(this);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -51,9 +53,7 @@ public class MainActivity extends AppCompatActivity {
                 authService.signIn(email, password, new AuthService.AuthCallback<FirebaseUser>() {
                     @Override
                     public void onSuccess(FirebaseUser user) {
-                        loginButton.setEnabled(true);
-                        Toast.makeText(MainActivity.this, R.string.login_success,
-                                Toast.LENGTH_SHORT).show();
+                        openHome();
                     }
 
                     @Override
@@ -64,5 +64,22 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    /**
+     * Skips the login screen when someone is already signed in: on app start, and when sign-up
+     * finishes, since Firebase signs a new account in.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (authService.getCurrentUser() != null) openHome();
+    }
+
+    private void openHome() {
+        if (openingHome) return;
+        openingHome = true;
+        startActivity(new android.content.Intent(this, HomeActivity.class));
+        finish();
     }
 }
