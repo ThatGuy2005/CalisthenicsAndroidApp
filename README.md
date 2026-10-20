@@ -160,6 +160,21 @@ and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters; bir
 to this year.
 `Verificate/UserValidator` has the same checks, for validating a form as the user types.
 
+**Units (FR-1.7).** The services always take and return kg and cm. The kg/lb, cm/ft toggle is a
+setting of the device: save `UnitSystem.name()` (for example in `SharedPreferences`) and read it
+back with `UnitSystem.fromName(saved)`, which gives `METRIC` when nothing is saved.
+`CoreComponents/Units` does the rest:
+
+- Show a value: `formatWeight(kg, system, locale)` gives "70 kg" or "154.3 lb", and
+  `formatHeight(cm, system, locale)` gives "175 cm" or "5 ft 9 in". Both return null when the
+  value was never given.
+- Fill a form field: `weightFromKg(kg, system)` and `cmToFeetInches(cm)` (use two fields for ft and in).
+- Before calling a service: `weightToKg(typed, system)` and `feetInchesToCm(feet, inches)`.
+  Convert a height back only if the user changed it, since whole inches are coarser than cm.
+- Check a typed value: convert it, use `UserValidator.isValidHeight` / `isValidWeight`, and show
+  `heightError(system, locale)` / `weightError(system, locale)`, which state the range in the
+  user's units.
+
 ### Exercises and premade workouts (FR-3, FR-4.1, FR-4.2)
 
 `ExerciseService`: `getAllExercises`, `getExercise(name)`, `getMuscleGroups` (for a filter),
@@ -312,5 +327,5 @@ database matches a fresh install.
 
 ## Known gaps
 
-- **UI-only features:** the units setting (FR-1.7) and the FR-5.2 items above belong to the
-  screens.
+- **UI-only features:** the units toggle (FR-1.7, with `Units` and `UnitSystem` ready for it)
+  and the FR-5.2 items above belong to the screens.

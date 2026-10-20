@@ -12,8 +12,8 @@ public final class UserValidator {
     private static final int PASSWORD_MAX = 64;
     private static final int EMAIL_MAX = 254;
     // firestore.rules checks the same limits; change both together.
-    private static final double HEIGHT_MIN = 50, HEIGHT_MAX = 300;   // cm
-    private static final double WEIGHT_MIN = 20, WEIGHT_MAX = 500;   // kg
+    public static final double HEIGHT_MIN = 50, HEIGHT_MAX = 300;   // cm
+    public static final double WEIGHT_MIN = 20, WEIGHT_MAX = 500;   // kg
     private static final int GENDER_MAX = 30;
     public static final int BIRTH_YEAR_MIN = 1900;   // up to the current year
 
