@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.example.calisthenicsapp.CoreComponents.StatsPeriod;
 import com.example.calisthenicsapp.CoreComponents.WorkoutLog;
@@ -11,12 +12,14 @@ import com.example.calisthenicsapp.Scheduling.ScheduleOccurrence;
 import com.example.calisthenicsapp.Session.WorkoutSession;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.function.Supplier;
 
 /**
  * The signed-in user's finished workouts (users/{uid}/workoutLogs). A log is saved from a
@@ -26,6 +29,12 @@ public class WorkoutLogService extends UserDataService {
 
     public WorkoutLogService(Context context) {
         super(context);
+    }
+
+    /** With dependencies of your own, e.g. in a test; see {@link UserDataService}. */
+    public WorkoutLogService(Context context, Supplier<SQLiteDatabase> database,
+                             SessionManager sessionManager, Supplier<FirebaseFirestore> firestore) {
+        super(context, database, sessionManager, firestore);
     }
 
     /** All of them, newest first. */

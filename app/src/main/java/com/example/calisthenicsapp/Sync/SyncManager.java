@@ -38,6 +38,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 
 /**
  * Keeps the local SQLite cache in step with Firestore for the signed-in user. Firestore is the
@@ -71,7 +72,9 @@ import java.util.concurrent.Executors;
 public class SyncManager {
 
     private final Context appContext;
-    private final SessionManager sessionManager = new SessionManager();
+    private final Supplier<SQLiteDatabase> database;
+    private final SessionManager sessionManager;
+    private final Supplier<FirebaseFirestore> firestore;
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -92,8 +95,22 @@ public class SyncManager {
     private ListenerRegistration workoutLogsRegistration;
     private ListenerRegistration schedulesRegistration;
 
+    /** Syncs the app's database with FirebaseFirestore.getInstance() for FirebaseAuth's user. */
     public SyncManager(Context context) {
+        this(context, () -> SQLManager.getInstance(context.getApplicationContext()).getWritableDatabase(),
+                new SessionManager(), FirebaseFirestore::getInstance);
+    }
+
+    /**
+     * With dependencies of your own, e.g. in a test. The context is for the device calendar.
+     * firestore is asked for at every sign-in, never kept: see UserDataService.firestore().
+     */
+    public SyncManager(Context context, Supplier<SQLiteDatabase> database,
+                       SessionManager sessionManager, Supplier<FirebaseFirestore> firestore) {
         this.appContext = context.getApplicationContext();
+        this.database = database;
+        this.sessionManager = sessionManager;
+        this.firestore = firestore;
     }
 
     /** Call once (e.g. from Application.onCreate()); reacts to every sign-in/out after that. */
@@ -119,8 +136,8 @@ public class SyncManager {
         lastProfileData = null;
         dbExecutor.execute(pendingSchedules::clear);
 
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        SQLiteDatabase sqlite = SQLManager.getInstance(appContext).getWritableDatabase();
+        FirebaseFirestore firestore = this.firestore.get();
+        SQLiteDatabase sqlite = database.get();
         UserRepository userRepository = new UserRepository(sqlite);
 
         profileRegistration = firestore.collection("users").document(uid)
@@ -395,8 +412,7 @@ public class SyncManager {
         if (uidToClear == null) return;
         dbExecutor.execute(() -> {
             pendingSchedules.clear();
-            SQLiteDatabase sqlite = SQLManager.getInstance(appContext).getWritableDatabase();
-            UserRepository userRepository = new UserRepository(sqlite);
+            UserRepository userRepository = new UserRepository(database.get());
             User cached = userRepository.getOne(uidToClear);
             // Deleting the Users row cascades CustomWorkout, WorkoutLog and ScheduledWorkout with it.
             if (cached != null) userRepository.delete(cached);

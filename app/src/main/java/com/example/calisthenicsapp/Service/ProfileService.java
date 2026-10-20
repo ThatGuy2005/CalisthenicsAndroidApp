@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.calisthenicsapp.CoreComponents.User;
@@ -8,10 +9,12 @@ import com.example.calisthenicsapp.Repos.UserRepository;
 import com.example.calisthenicsapp.Verificate.UserValidator;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * The signed-in user's profile (users/{uid}). Height is in cm and weight in kg.
@@ -28,6 +31,12 @@ public class ProfileService extends UserDataService {
 
     public ProfileService(Context context) {
         super(context);
+    }
+
+    /** With dependencies of your own, e.g. in a test; see {@link UserDataService}. */
+    public ProfileService(Context context, Supplier<SQLiteDatabase> database,
+                          SessionManager sessionManager, Supplier<FirebaseFirestore> firestore) {
+        super(context, database, sessionManager, firestore);
     }
 
     /** Returns null if the profile has not been synced to this device yet. */

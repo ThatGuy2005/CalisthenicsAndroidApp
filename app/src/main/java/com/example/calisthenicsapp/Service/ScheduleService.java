@@ -3,6 +3,7 @@ package com.example.calisthenicsapp.Service;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.function.Supplier;
 
 /**
  * The signed-in user's planned workouts (users/{uid}/schedules). A schedule points at exactly
@@ -67,6 +70,12 @@ public class ScheduleService extends UserDataService {
 
     public ScheduleService(Context context) {
         super(context);
+    }
+
+    /** With dependencies of your own, e.g. in a test; see {@link UserDataService}. */
+    public ScheduleService(Context context, Supplier<SQLiteDatabase> database,
+                           SessionManager sessionManager, Supplier<FirebaseFirestore> firestore) {
+        super(context, database, sessionManager, firestore);
     }
 
     /** Soonest first. */

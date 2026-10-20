@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.google.android.gms.tasks.Task;
@@ -8,6 +9,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Shared plumbing for the per-user data services (custom workouts, logs, schedules, profile,
@@ -21,24 +23,35 @@ import java.util.function.Function;
  * Waiting for the server instead would leave the UI hanging forever while offline.
  * If the server later rejects a write, Firestore rolls it back in its cache, the listeners
  * remove it from SQLite again, and the rejection is logged.
+ *
+ * Like the database, the signed-in user and Firestore are handed in: the constructors that
+ * take only a Context use the app's database, FirebaseAuth and FirebaseFirestore.getInstance().
  */
 abstract class UserDataService extends DbService {
     private static final String TAG = "UserDataService";
 
     protected static final String NOT_SIGNED_IN = "You are not signed in.";
 
-    protected final SessionManager sessionManager = new SessionManager();
+    protected final SessionManager sessionManager;
+    private final Supplier<FirebaseFirestore> firestore;
 
     protected UserDataService(Context context) {
-        super(context);
+        this(context, appDatabase(context), new SessionManager(), FirebaseFirestore::getInstance);
+    }
+
+    protected UserDataService(Context context, Supplier<SQLiteDatabase> database,
+                              SessionManager sessionManager, Supplier<FirebaseFirestore> firestore) {
+        super(context, database);
+        this.sessionManager = sessionManager;
+        this.firestore = firestore;
     }
 
     /**
      * Asked for on every use, never kept: deleting the account stops the instance to clear its
      * offline cache, and getInstance() then hands out a fresh one.
      */
-    protected static FirebaseFirestore firestore() {
-        return FirebaseFirestore.getInstance();
+    protected FirebaseFirestore firestore() {
+        return firestore.get();
     }
 
     protected DocumentReference userDoc(String uid) {

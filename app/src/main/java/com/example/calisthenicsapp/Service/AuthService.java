@@ -1,12 +1,12 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
 import com.example.calisthenicsapp.CoreComponents.User;
-import com.example.calisthenicsapp.Database.SQLManager;
 import com.example.calisthenicsapp.Repos.UserRepository;
 import com.example.calisthenicsapp.Verificate.UserValidator;
 import com.google.firebase.FirebaseNetworkException;
@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 
 /**
  * Wraps FirebaseAuth (email/password) and the users/{uid} Firestore profile document.
@@ -46,18 +47,29 @@ public class AuthService {
     }
 
     private final FirebaseAuth firebaseAuth;
-    private final UserRepository userRepository;
+    private final Supplier<SQLiteDatabase> database;
+    private final Supplier<FirebaseFirestore> firestore;
     private final ExecutorService localDbExecutor = Executors.newSingleThreadExecutor();
 
     /** Asked for on every use, never kept: see UserDataService.firestore(). */
-    private static FirebaseFirestore firestore() {
-        return FirebaseFirestore.getInstance();
+    private FirebaseFirestore firestore() {
+        return firestore.get();
     }
 
     public AuthService(Context context) {
-        this.firebaseAuth = FirebaseAuth.getInstance();
-        this.userRepository = new UserRepository(
-                SQLManager.getInstance(context).getWritableDatabase());
+        this(FirebaseAuth.getInstance(), DbService.appDatabase(context),
+                FirebaseFirestore::getInstance);
+    }
+
+    /**
+     * With dependencies of your own, e.g. in a test. The database is only asked for on the
+     * background thread that mirrors a new profile into SQLite.
+     */
+    public AuthService(FirebaseAuth firebaseAuth, Supplier<SQLiteDatabase> database,
+                       Supplier<FirebaseFirestore> firestore) {
+        this.firebaseAuth = firebaseAuth;
+        this.database = database;
+        this.firestore = firestore;
     }
 
     public FirebaseUser getCurrentUser() {
@@ -147,7 +159,8 @@ public class AuthService {
                             height == null ? 0 : height, weight == null ? 0 : weight, gender,
                             birthYear, now, now);
                     localDbExecutor.execute(() -> {
-                        userRepository.insert(localUser);   // best-effort local mirror, see class Javadoc
+                        // best-effort local mirror, see class Javadoc
+                        new UserRepository(database.get()).insert(localUser);
                         MAIN.post(() -> callback.onSuccess(firebaseUser));
                     });
                 });

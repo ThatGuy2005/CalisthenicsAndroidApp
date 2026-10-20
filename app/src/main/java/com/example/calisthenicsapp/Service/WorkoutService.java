@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.example.calisthenicsapp.CoreComponents.ExerciseOrderEntry;
 import com.example.calisthenicsapp.CoreComponents.Workout;
@@ -10,6 +11,7 @@ import com.example.calisthenicsapp.Session.WorkoutExercises;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Read-only access to the premade workouts (FR-4.1, FR-4.2). Premade workouts cannot be
@@ -21,7 +23,12 @@ import java.util.List;
 public class WorkoutService extends DbService {
 
     public WorkoutService(Context context) {
-        super(context);
+        this(context, appDatabase(context));
+    }
+
+    /** With a database of your own, e.g. in a test; see {@link DbService}. */
+    public WorkoutService(Context context, Supplier<SQLiteDatabase> database) {
+        super(context, database);
     }
 
     /** Every premade workout, sorted by name, with its estimated length. */

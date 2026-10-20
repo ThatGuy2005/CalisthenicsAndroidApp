@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.example.calisthenicsapp.CoreComponents.Difficulty;
 import com.example.calisthenicsapp.CoreComponents.Equipment;
@@ -8,6 +9,7 @@ import com.example.calisthenicsapp.CoreComponents.Exercise;
 import com.example.calisthenicsapp.Repos.ExerciseRepository;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Read-only access to the premade exercise library (FR-3.3, FR-3.4).
@@ -19,7 +21,12 @@ import java.util.List;
 public class ExerciseService extends DbService {
 
     public ExerciseService(Context context) {
-        super(context);
+        this(context, appDatabase(context));
+    }
+
+    /** With a database of your own, e.g. in a test; see {@link DbService}. */
+    public ExerciseService(Context context, Supplier<SQLiteDatabase> database) {
+        super(context, database);
     }
 
     /** Every exercise, sorted by name. */

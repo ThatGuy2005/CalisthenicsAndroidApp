@@ -15,7 +15,16 @@ public class SessionManager {
         void onSignedOut();
     }
 
-    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private final FirebaseAuth firebaseAuth;
+
+    public SessionManager() {
+        this(FirebaseAuth.getInstance());
+    }
+
+    /** For a FirebaseAuth other than the app's default one, e.g. one pointed at the emulator. */
+    public SessionManager(FirebaseAuth firebaseAuth) {
+        this.firebaseAuth = firebaseAuth;
+    }
 
     public FirebaseUser getCurrentUser() {
         return firebaseAuth.getCurrentUser();

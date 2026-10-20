@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Account management for the signed-in user: change password or email (FR-1.7), delete the
@@ -57,6 +59,12 @@ public class AccountService extends UserDataService {
 
     public AccountService(Context context) {
         super(context);
+    }
+
+    /** With dependencies of your own, e.g. in a test; see {@link UserDataService}. */
+    public AccountService(Context context, Supplier<SQLiteDatabase> database,
+                          SessionManager sessionManager, Supplier<FirebaseFirestore> firestore) {
+        super(context, database, sessionManager, firestore);
     }
 
     public void changePassword(String currentPassword, String newPassword,

@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.example.calisthenicsapp.CoreComponents.CustomExerciseOrderEntry;
 import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
@@ -17,6 +18,7 @@ import com.example.calisthenicsapp.Session.WorkoutExercises;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * The signed-in user's custom workouts (users/{uid}/customWorkouts).
@@ -48,6 +51,12 @@ public class CustomWorkoutService extends UserDataService {
 
     public CustomWorkoutService(Context context) {
         super(context);
+    }
+
+    /** With dependencies of your own, e.g. in a test; see {@link UserDataService}. */
+    public CustomWorkoutService(Context context, Supplier<SQLiteDatabase> database,
+                                SessionManager sessionManager, Supplier<FirebaseFirestore> firestore) {
+        super(context, database, sessionManager, firestore);
     }
 
     /** Each with its estimated length, worked out like a premade workout's (FR-4.1). */

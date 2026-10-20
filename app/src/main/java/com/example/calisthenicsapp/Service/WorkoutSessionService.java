@@ -1,6 +1,7 @@
 package com.example.calisthenicsapp.Service;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
 import com.example.calisthenicsapp.CoreComponents.User;
@@ -10,9 +11,11 @@ import com.example.calisthenicsapp.Repos.WorkoutRepository;
 import com.example.calisthenicsapp.Session.Bmr;
 import com.example.calisthenicsapp.Session.WorkoutExercises;
 import com.example.calisthenicsapp.Session.WorkoutSession;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Starts workout sessions (FR-5.1). The returned {@link WorkoutSession} is already running;
@@ -28,6 +31,12 @@ public class WorkoutSessionService extends UserDataService {
 
     public WorkoutSessionService(Context context) {
         super(context);
+    }
+
+    /** With dependencies of your own, e.g. in a test; see {@link UserDataService}. */
+    public WorkoutSessionService(Context context, Supplier<SQLiteDatabase> database,
+                                 SessionManager sessionManager, Supplier<FirebaseFirestore> firestore) {
+        super(context, database, sessionManager, firestore);
     }
 
     public void startPremade(String workoutName, ServiceCallback<WorkoutSession> callback) {

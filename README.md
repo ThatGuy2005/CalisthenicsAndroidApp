@@ -67,6 +67,8 @@ to `firestore.rules`, and add a check when the app starts writing something new.
 
 1. **Create services with any `Context`.** For example `new ExerciseService(this)` in an
    Activity. They keep only the application context, so they are safe to hold in a field.
+   Screens only need this constructor. The longer ones take the database, the `SessionManager`
+   and Firestore as parameters, for tests (see `ServiceDependenciesTest`).
 2. **Every call is asynchronous** and reports back through a callback:
    ```java
    new CustomWorkoutService(this).getMyCustomWorkouts(new ServiceCallback<List<CustomWorkout>>() {
