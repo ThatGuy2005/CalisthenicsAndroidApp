@@ -93,7 +93,7 @@ public class HistoryActivity extends AppCompatActivity {
         for (int i = 0; i < options.length; i++) {
             boolean selected = period == periods[i];
             options[i].setText(labels[i]);
-            options[i].setTextColor(selected ? UiColors.GRAPHITE : UiColors.MUTED);
+            options[i].setTextColor(selected ? UiColors.INK : UiColors.MUTED);
             options[i].setTypeface(null, selected ? Typeface.BOLD : Typeface.NORMAL);
             options[i].setBackground(selected ? rounded(UiColors.ORANGE, dp(24)) : null);
         }
@@ -147,7 +147,7 @@ public class HistoryActivity extends AppCompatActivity {
         cp.bottomMargin = dp(11);
         card.setLayoutParams(cp);
         card.setRadius(dp(20));
-        card.setCardBackgroundColor(Color.WHITE);
+        card.setCardBackgroundColor(UiColors.SURFACE);
         card.setCardElevation(0);
         card.setStrokeColor(UiColors.BORDER);
         card.setStrokeWidth(dp(1));

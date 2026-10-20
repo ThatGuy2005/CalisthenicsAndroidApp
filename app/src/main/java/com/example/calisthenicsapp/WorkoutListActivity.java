@@ -1,7 +1,6 @@
 package com.example.calisthenicsapp;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -9,6 +8,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -64,8 +65,8 @@ public class WorkoutListActivity extends AppCompatActivity {
         options.add("All workout types");
         for (WorkoutCategory category : WorkoutCategory.values()) options.add(category.getLabel());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, options);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.spinner_item_selected, options);
+        adapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
         categoryFilter.setAdapter(adapter);
         categoryFilter.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view,
@@ -92,24 +93,32 @@ public class WorkoutListActivity extends AppCompatActivity {
 
     private MaterialCardView createCard(Workout workout) {
         MaterialCardView card = new MaterialCardView(this);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, dp(218));
         params.bottomMargin = dp(12);
         card.setLayoutParams(params);
-        card.setRadius(dp(22)); card.setCardBackgroundColor(Color.WHITE);
+        card.setRadius(dp(22)); card.setCardBackgroundColor(UiColors.SURFACE);
         card.setStrokeColor(UiColors.BORDER); card.setStrokeWidth(dp(1));
         card.setCardElevation(dp(1));
         card.setClickable(true); card.setFocusable(true);
+        card.setClipToOutline(true);
 
-        LinearLayout shell = new LinearLayout(this);
-        shell.setOrientation(LinearLayout.HORIZONTAL);
-        View accent = new View(this);
-        accent.setBackgroundColor(workoutAccent(workout));
-        shell.addView(accent, new LinearLayout.LayoutParams(dp(4), ViewGroup.LayoutParams.MATCH_PARENT));
+        FrameLayout backdrop = new FrameLayout(this);
+        card.addView(backdrop, new FrameLayout.LayoutParams(-1, -1));
+
+        ImageView image = new ImageView(this);
+        image.setImageResource(workoutImage(workout));
+        image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        backdrop.addView(image, new FrameLayout.LayoutParams(-1, -1));
+
+        View scrim = new View(this);
+        scrim.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{0x88090B0D, 0x9E090B0D, 0xF2090B0D}));
+        backdrop.addView(scrim, new FrameLayout.LayoutParams(-1, -1));
 
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(15), dp(15), dp(16), dp(15));
-        shell.addView(content, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        content.setPadding(dp(16), dp(15), dp(16), dp(15));
+        backdrop.addView(content, new FrameLayout.LayoutParams(-1, -1));
 
         String category = workout.getCategory() == null ? "Workout" : workout.getCategory().getLabel();
         String level = workout.getLevel() == null ? "All levels" : workout.getLevel().getLabel();
@@ -143,29 +152,22 @@ public class WorkoutListActivity extends AppCompatActivity {
         topRow.addView(arrow, new LinearLayout.LayoutParams(dp(32), dp(32)));
         content.addView(topRow);
 
+        View spacer = new View(this);
+        content.addView(spacer, new LinearLayout.LayoutParams(-1, 0, 1f));
+
         TextView title = new TextView(this);
         title.setText(workout.getName());
         title.setTextColor(UiColors.GRAPHITE);
         title.setTextSize(19);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
         LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(-1, -2);
-        titleParams.topMargin = dp(10);
+        titleParams.topMargin = dp(8);
         content.addView(title, titleParams);
-
-        TextView description = new TextView(this);
-        description.setText(workout.getDescription() == null ? "Open this routine to see its exercise plan." : workout.getDescription());
-        description.setTextColor(UiColors.MUTED);
-        description.setTextSize(14);
-        description.setMaxLines(2);
-        description.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        LinearLayout.LayoutParams descriptionParams = new LinearLayout.LayoutParams(-1, -2);
-        descriptionParams.topMargin = dp(5);
-        content.addView(description, descriptionParams);
 
         LinearLayout footer = new LinearLayout(this);
         footer.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout.LayoutParams footerParams = new LinearLayout.LayoutParams(-1, -2);
-        footerParams.topMargin = dp(13);
+        footerParams.topMargin = dp(10);
         content.addView(footer, footerParams);
         footer.addView(pill(level, UiColors.ORANGE_TINT, UiColors.ORANGE_DARK));
         TextView duration = pill(formatDuration(workout.getEstimatedSeconds()), UiColors.SURFACE_ALT, UiColors.MUTED);
@@ -180,7 +182,6 @@ public class WorkoutListActivity extends AppCompatActivity {
         action.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
         footer.addView(action, new LinearLayout.LayoutParams(0, -2, 1f));
 
-        card.addView(shell);
         card.setOnClickListener(v -> {
             Intent intent = new Intent(this, WorkoutDetailActivity.class);
             intent.putExtra(EXTRA_WORKOUT_NAME, workout.getName());
@@ -212,6 +213,17 @@ public class WorkoutListActivity extends AppCompatActivity {
 
     private int workoutAccent(Workout workout) {
         return UiColors.ORANGE_DARK;
+    }
+
+    private int workoutImage(Workout workout) {
+        String name = workout.getName();
+        if ("Advanced Calisthenics".equals(name)) return R.drawable.workout_01;
+        if ("Beginner Full Body".equals(name)) return R.drawable.workout_02;
+        if ("Cardio Blast".equals(name)) return R.drawable.workout_03;
+        if ("Core Basics".equals(name)) return R.drawable.workout_04;
+        if ("Lower Body Burn".equals(name)) return R.drawable.workout_05;
+        if ("Upper Body Strength".equals(name)) return R.drawable.workout_06;
+        return R.drawable.workout_02;
     }
 
     private int workoutTint(Workout workout) {

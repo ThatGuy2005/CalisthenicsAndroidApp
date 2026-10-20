@@ -4,7 +4,7 @@
     android:id="@+id/exerciseListRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/performance_canvas"
+    android:background="@drawable/page_background"
     android:orientation="vertical">
 
     <ScrollView
@@ -74,6 +74,7 @@
                     android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/input_background"
+                    android:popupBackground="@color/performance_surface"
                     android:paddingStart="10dp"
                     android:paddingEnd="6dp" />
 
@@ -84,6 +85,7 @@
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/input_background"
+                    android:popupBackground="@color/performance_surface"
                     android:paddingStart="10dp"
                     android:paddingEnd="6dp" />
             </LinearLayout>
@@ -111,9 +113,9 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        app:itemIconTint="@color/performance_orange_dark"
-        app:itemTextColor="@color/performance_muted"
+        android:background="@color/performance_surface"
+        app:itemIconTint="@color/performance_nav_colors"
+        app:itemTextColor="@color/performance_nav_colors"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/home_bottom_navigation" />
 </LinearLayout>

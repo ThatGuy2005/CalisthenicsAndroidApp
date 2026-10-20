@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/workoutDetailRoot" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:orientation="vertical" android:background="@color/performance_canvas">
+    android:layout_height="match_parent" android:orientation="vertical" android:background="@drawable/page_background">
     <ScrollView android:layout_width="match_parent" android:layout_height="match_parent"
         android:fillViewport="true">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
             <TextView android:id="@+id/startWorkoutButton" android:layout_width="match_parent"
                 android:layout_height="54dp" android:layout_marginBottom="18dp"
                 android:background="@drawable/workout_primary_button" android:gravity="center"
-                android:text="Start workout" android:textColor="@color/performance_graphite" android:textSize="16sp"
+                android:text="Start workout" android:textColor="@color/performance_ink" android:textSize="16sp"
                 android:textStyle="bold" android:clickable="true" android:focusable="true" />
             <LinearLayout android:id="@+id/workoutExerciseList" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:orientation="vertical" />

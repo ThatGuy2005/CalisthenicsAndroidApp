@@ -3,7 +3,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/performance_canvas"
+    android:background="@drawable/page_background"
     android:fillViewport="true">
 
     <LinearLayout
@@ -51,6 +51,8 @@
             android:hint="Email"
             android:inputType="textEmailAddress"
             android:maxLength="254"
+            android:textColor="@color/performance_graphite"
+            android:textColorHint="@color/performance_muted"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:singleLine="true" />
@@ -64,6 +66,8 @@
             android:hint="Password"
             android:inputType="textPassword"
             android:maxLength="64"
+            android:textColor="@color/performance_graphite"
+            android:textColorHint="@color/performance_muted"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:singleLine="true" />
@@ -86,7 +90,7 @@
             android:backgroundTint="@color/performance_orange"
             android:text="Log in"
             android:textAllCaps="false"
-            android:textColor="@color/performance_graphite"
+            android:textColor="@color/performance_ink"
             android:textSize="16sp" />
 
         <TextView

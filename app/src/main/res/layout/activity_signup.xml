@@ -3,7 +3,7 @@
     android:id="@+id/signupRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/performance_canvas"
+    android:background="@drawable/page_background"
     android:fillViewport="true">
 
     <LinearLayout
@@ -111,6 +111,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:background="@drawable/input_background"
+            android:popupBackground="@color/performance_surface"
             android:paddingStart="12dp"
             android:paddingEnd="12dp" />
 
@@ -122,7 +123,7 @@
             android:backgroundTint="@color/performance_orange"
             android:text="Create account"
             android:textAllCaps="false"
-            android:textColor="@color/performance_graphite"
+            android:textColor="@color/performance_ink"
             android:textSize="16sp" />
     </LinearLayout>
 </ScrollView>

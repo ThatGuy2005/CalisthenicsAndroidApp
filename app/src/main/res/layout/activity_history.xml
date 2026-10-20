@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/historyRoot" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:orientation="vertical" android:background="@color/performance_canvas">
+    android:layout_height="match_parent" android:orientation="vertical" android:background="@drawable/page_background">
     <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
         android:layout_weight="1" android:fillViewport="true" android:scrollbars="none">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -23,7 +23,7 @@
                 android:padding="3dp" android:background="@drawable/home_tile_background">
                 <TextView android:id="@+id/historyWeek" android:layout_width="0dp"
                     android:layout_height="match_parent" android:layout_weight="1" android:gravity="center"
-                    android:text="This week" android:textColor="#FFFFFF" android:textSize="12sp"
+                    android:text="This week" android:textColor="@color/performance_ink" android:textSize="12sp"
                     android:textStyle="bold" android:background="@drawable/workout_primary_button"
                     android:clickable="true" android:focusable="true" />
                 <TextView android:id="@+id/historyMonth" android:layout_width="0dp"
@@ -40,7 +40,7 @@
                 android:layout_marginTop="14dp" android:orientation="horizontal">
                 <com.google.android.material.card.MaterialCardView android:layout_width="0dp"
                     android:layout_height="106dp" android:layout_weight="1" android:layout_marginEnd="5dp"
-                    app:cardBackgroundColor="@color/performance_graphite" app:cardCornerRadius="18dp" app:cardElevation="0dp">
+                    app:cardBackgroundColor="@color/performance_feature" app:cardCornerRadius="18dp" app:cardElevation="0dp">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
                         android:gravity="center_vertical" android:orientation="vertical" android:padding="13dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
                 </com.google.android.material.card.MaterialCardView>
                 <com.google.android.material.card.MaterialCardView android:layout_width="0dp"
                     android:layout_height="106dp" android:layout_weight="1" android:layout_marginHorizontal="5dp"
-                    app:cardBackgroundColor="#FFFFFF" app:cardCornerRadius="18dp" app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/performance_surface" app:cardCornerRadius="18dp" app:cardElevation="0dp"
                     app:strokeColor="@color/performance_border" app:strokeWidth="1dp">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
                         android:gravity="center_vertical" android:orientation="vertical" android:padding="13dp">
@@ -100,7 +100,7 @@
         </LinearLayout>
     </ScrollView>
     <com.google.android.material.bottomnavigation.BottomNavigationView android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FFFFFF"
-        app:itemIconTint="@color/performance_orange_dark" app:itemTextColor="@color/performance_muted" app:labelVisibilityMode="labeled"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/performance_surface"
+        app:itemIconTint="@color/performance_nav_colors" app:itemTextColor="@color/performance_nav_colors" app:labelVisibilityMode="labeled"
         app:menu="@menu/home_bottom_navigation" />
 </LinearLayout>

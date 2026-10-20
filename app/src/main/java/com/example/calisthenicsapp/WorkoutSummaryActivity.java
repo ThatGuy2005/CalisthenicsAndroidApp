@@ -66,7 +66,7 @@ public class WorkoutSummaryActivity extends AppCompatActivity {
             cp.bottomMargin = dp(10);
             card.setLayoutParams(cp);
             card.setRadius(dp(17));
-            card.setCardBackgroundColor(Color.WHITE);
+            card.setCardBackgroundColor(UiColors.SURFACE);
             card.setStrokeColor(UiColors.BORDER);
             card.setStrokeWidth(dp(1));
             LinearLayout row = new LinearLayout(this);

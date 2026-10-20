@@ -137,7 +137,7 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             cp.bottomMargin = dp(12);
             card.setLayoutParams(cp);
             card.setRadius(dp(21));
-            card.setCardBackgroundColor(Color.WHITE);
+            card.setCardBackgroundColor(UiColors.SURFACE);
             card.setStrokeColor(UiColors.BORDER);
             card.setStrokeWidth(dp(1));
             card.setCardElevation(dp(1));

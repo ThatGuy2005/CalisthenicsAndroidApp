@@ -4,7 +4,7 @@
     android:id="@+id/exerciseDetailRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/performance_canvas"
+    android:background="@drawable/page_background"
     android:orientation="vertical">
 
     <ScrollView
@@ -67,7 +67,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="@color/performance_surface"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="1dp"
                 app:strokeColor="@color/performance_border"
@@ -135,7 +135,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="6dp"
                                 android:text="Movement demo"
-                                android:textColor="@color/performance_graphite"
+                                android:textColor="@color/performance_ink"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
 
@@ -145,7 +145,7 @@
                                 android:layout_marginTop="4dp"
                                 android:gravity="center"
                                 android:text="A movement preview will appear here."
-                                android:textColor="@color/performance_muted"
+                                android:textColor="@color/performance_animation_muted"
                                 android:textSize="13sp" />
                         </LinearLayout>
                     </FrameLayout>
@@ -269,7 +269,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="6dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardBackgroundColor="@color/performance_surface"
                     app:cardCornerRadius="18dp"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/performance_border"
@@ -307,7 +307,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardBackgroundColor="@color/performance_surface"
                     app:cardCornerRadius="18dp"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/performance_border"

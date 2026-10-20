@@ -28,8 +28,9 @@ public class SignupActivity extends AppCompatActivity {
         String[] genders = {"Select gender (optional)", "Male", "Female", "Other"};
         Spinner genderSpinner = findViewById(R.id.signupGender);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, genders);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.spinner_item_selected, genders);
+        adapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
+        genderSpinner.setPopupBackgroundResource(R.color.performance_surface);
         genderSpinner.setAdapter(adapter);
 
         TextView backToLogin = findViewById(R.id.backToLogin);
