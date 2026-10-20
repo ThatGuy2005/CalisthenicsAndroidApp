@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.calisthenicsapp.Service.ServiceCallback;
@@ -77,6 +78,10 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 65);
         setupPhoneInterruption();
         findViewById(R.id.sessionCancel).setOnClickListener(v -> confirmCancel());
+        // The back button and the back gesture both ask before ending the workout.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override public void handleOnBackPressed() { confirmCancel(); }
+        });
         findViewById(R.id.sessionPause).setOnClickListener(v -> togglePause());
         findViewById(R.id.sessionSkipExercise).setOnClickListener(v -> confirmSkipExercise());
         findViewById(R.id.sessionMainAction).setOnClickListener(v -> mainAction());
@@ -318,8 +323,6 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         if (session != null) outState.putSerializable(STATE_SESSION, session);
         super.onSaveInstanceState(outState);
     }
-
-    @Override public void onBackPressed() { confirmCancel(); }
 
     @Override protected void onDestroy() {
         handler.removeCallbacks(ticker);
