@@ -5,17 +5,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 
-import com.example.calisthenicsapp.CoreComponents.CustomExerciseOrderEntry;
-import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
-import com.example.calisthenicsapp.CoreComponents.ScheduledWorkout;
-import com.example.calisthenicsapp.CoreComponents.User;
-import com.example.calisthenicsapp.CoreComponents.WorkoutLog;
 import com.example.calisthenicsapp.Export.CsvExport;
-import com.example.calisthenicsapp.Repos.CustomExerciseOrderRepository;
-import com.example.calisthenicsapp.Repos.CustomWorkoutRepository;
-import com.example.calisthenicsapp.Repos.ScheduledWorkoutRepository;
-import com.example.calisthenicsapp.Repos.UserRepository;
-import com.example.calisthenicsapp.Repos.WorkoutLogRepository;
+import com.example.calisthenicsapp.Export.ExportData;
+import com.example.calisthenicsapp.Export.JsonExport;
 import com.example.calisthenicsapp.Verificate.UserValidator;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -29,14 +21,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Source;
 import com.google.firebase.firestore.WriteBatch;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -229,15 +218,7 @@ public class AccountService extends UserDataService {
             return;
         }
         onDb(() -> {
-            CustomExerciseOrderRepository orderRepository = new CustomExerciseOrderRepository(db());
-            List<CustomWorkout> workouts = new CustomWorkoutRepository(db()).getByUid(uid);
-            Map<String, List<CustomExerciseOrderEntry>> exercises = new HashMap<>();
-            for (CustomWorkout w : workouts) {
-                exercises.put(w.getId(), orderRepository.getByCustomWorkout(w.getId()));
-            }
-            Map<String, String> files = CsvExport.build(new UserRepository(db()).getOne(uid),
-                    workouts, exercises, new WorkoutLogRepository(db()).getByUid(uid),
-                    new ScheduledWorkoutRepository(db()).getByUid(uid));
+            Map<String, String> files = CsvExport.build(ExportData.read(db(), uid));
             // "wt": truncate, in case an existing file is being replaced.
             try (OutputStream out = context().getContentResolver().openOutputStream(target, "wt")) {
                 if (out == null) throw new IOException("No output stream for " + target);
@@ -251,8 +232,8 @@ public class AccountService extends UserDataService {
     }
 
     /**
-     * All of the user's data as pretty-printed JSON (NFR-5): profile, custom workouts with
-     * their exercises, workout logs with their snapshots, and schedules. Read from SQLite.
+     * All of the user's data as pretty-printed JSON (NFR-5), see {@link JsonExport} for what
+     * it holds. Read from SQLite, so it also works offline.
      * To let the user save it, start an Intent.ACTION_CREATE_DOCUMENT with type
      * "application/json", and write the string to the returned Uri with
      * getContentResolver().openOutputStream(uri).
@@ -265,88 +246,12 @@ public class AccountService extends UserDataService {
         }
         onDb(() -> {
             try {
-                succeed(callback, buildExport(uid).toString(2));
+                succeed(callback, JsonExport.build(ExportData.read(db(), uid), now()).toString(2));
             } catch (JSONException e) {
                 Log.w(TAG, "Building the data export failed", e);
                 fail(callback, "Could not build the export.");
             }
         });
-    }
-
-    private JSONObject buildExport(String uid) throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("exportedAt", now());
-
-        User user = new UserRepository(db()).getOne(uid);
-        JSONObject profile = new JSONObject();
-        profile.put("uid", uid);
-        if (user != null) {
-            profile.put("username", user.getUsername());
-            profile.put("email", user.getEmail());
-            profile.put("heightCm", orNull(user.getHeight()));
-            profile.put("weightKg", orNull(user.getWeight()));
-            profile.put("gender", orNull(user.getGender()));
-            profile.put("birthYear", orNull(user.getBirthYear()));
-            profile.put("createdAt", user.getCreatedAt());
-            profile.put("updatedAt", user.getUpdatedAt());
-        }
-        root.put("profile", profile);
-
-        CustomExerciseOrderRepository orderRepository = new CustomExerciseOrderRepository(db());
-        JSONArray workouts = new JSONArray();
-        for (CustomWorkout w : new CustomWorkoutRepository(db()).getByUid(uid)) {
-            JSONArray exercises = new JSONArray();
-            for (CustomExerciseOrderEntry e : orderRepository.getByCustomWorkout(w.getId())) {
-                JSONObject o = new JSONObject();
-                o.put("exerciseName", e.getExerciseName());
-                o.put("position", e.getPosition());
-                o.put("sets", orNull(e.getSets()));
-                o.put("reps", orNull(e.getReps()));
-                o.put("seconds", orNull(e.getSeconds()));
-                o.put("restSeconds", orNull(e.getRestSeconds()));
-                o.put("restAfterSeconds", orNull(e.getRestAfterSeconds()));
-                exercises.put(o);
-            }
-            JSONObject o = new JSONObject();
-            o.put("id", w.getId());
-            o.put("name", w.getName());
-            o.put("description", orNull(w.getDescription()));
-            o.put("exercises", exercises);
-            workouts.put(o);
-        }
-        root.put("customWorkouts", workouts);
-
-        JSONArray logs = new JSONArray();
-        for (WorkoutLog l : new WorkoutLogRepository(db()).getByUid(uid)) {
-            JSONObject o = new JSONObject();
-            o.put("id", l.getId());
-            o.put("workoutName", l.getWorkoutName());
-            o.put("startedAt", l.getStartedAt());
-            o.put("durationSeconds", l.getDurationSeconds());
-            o.put("kcal", l.getKcal());
-            o.put("status", l.getStatus());
-            o.put("exercises", WorkoutLogRepository.snapshotToJson(l.getExercises()));
-            logs.put(o);
-        }
-        root.put("workoutLogs", logs);
-
-        JSONArray schedules = new JSONArray();
-        for (ScheduledWorkout s : new ScheduledWorkoutRepository(db()).getByUid(uid)) {
-            JSONObject o = new JSONObject();
-            o.put("id", s.getId());
-            o.put("workoutName", orNull(s.getWorkoutName()));
-            o.put("customWorkoutId", orNull(s.getCustomWorkoutId()));
-            o.put("scheduledAt", s.getScheduledAt());
-            o.put("recurrenceRule", orNull(s.getRecurrenceRule()));
-            o.put("completedOccurrences", new JSONArray(s.getCompletedOccurrences()));
-            schedules.put(o);
-        }
-        root.put("schedules", schedules);
-        return root;
-    }
-
-    private static Object orNull(Object value) {
-        return value == null ? JSONObject.NULL : value;
     }
 
     private interface SignedInStep {

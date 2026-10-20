@@ -39,6 +39,12 @@ public final class CsvExport {
     private CsvExport() {
     }
 
+    /** File name to CSV text, in a fixed order. */
+    public static Map<String, String> build(ExportData data) {
+        return build(data.getUser(), data.getCustomWorkouts(), data.getExercisesByWorkout(),
+                data.getLogs(), data.getSchedules());
+    }
+
     /**
      * File name to CSV text, in a fixed order.
      *

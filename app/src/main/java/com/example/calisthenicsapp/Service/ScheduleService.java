@@ -1,13 +1,9 @@
 package com.example.calisthenicsapp.Service;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.util.Log;
-
-import androidx.core.content.FileProvider;
 
 import com.example.calisthenicsapp.CoreComponents.ScheduledWorkout;
 import com.example.calisthenicsapp.CoreComponents.User;
@@ -18,7 +14,9 @@ import com.example.calisthenicsapp.Repos.WorkoutRepository;
 import com.example.calisthenicsapp.Scheduling.DeviceCalendar;
 import com.example.calisthenicsapp.Scheduling.OccurrenceStatus;
 import com.example.calisthenicsapp.Scheduling.Recurrence;
+import com.example.calisthenicsapp.Scheduling.ScheduleCalendar;
 import com.example.calisthenicsapp.Scheduling.ScheduleOccurrence;
+import com.example.calisthenicsapp.Scheduling.WorkoutEmail;
 import com.example.calisthenicsapp.Scheduling.WorkoutSummary;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -26,17 +24,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.function.Supplier;
@@ -65,8 +57,6 @@ public class ScheduleService extends UserDataService {
     private static final String GONE = "That scheduled workout no longer exists.";
     /** getOccurrences covers at most this long a period. */
     private static final long MAX_RANGE_SECONDS = 366 * 86_400L;
-    /** Must match file_paths.xml. */
-    private static final String ICS_DIR = "ics";
 
     public ScheduleService(Context context) {
         super(context);
@@ -274,19 +264,17 @@ public class ScheduleService extends UserDataService {
             return;
         }
         onDb(() -> {
-            ScheduledWorkoutRepository repository = new ScheduledWorkoutRepository(db());
-            ScheduledWorkout schedule = scheduleId == null ? null : repository.getOne(scheduleId);
-            WorkoutSummary summary = schedule == null ? null : WorkoutSummary.of(db(), schedule);
+            WorkoutSummary summary = summaryOf(scheduleId);
             if (summary == null) {
                 fail(callback, GONE);
                 return;
             }
-            Long eventId = DeviceCalendar.putEvent(context(), schedule.getCalendarEventId(), summary);
+            ScheduleCalendar calendar = calendar();
+            Long eventId = calendar.put(summary, calendar.getEventId(scheduleId));
             if (eventId == null) {
                 fail(callback, "Could not add the workout to your calendar.");
                 return;
             }
-            repository.setCalendarEventId(scheduleId, eventId);
             DataChanges.notifyChanged(DataChanges.Kind.SCHEDULES);
             succeed(callback, eventId);
         });
@@ -299,15 +287,13 @@ public class ScheduleService extends UserDataService {
             return;
         }
         onDb(() -> {
-            ScheduledWorkoutRepository repository = new ScheduledWorkoutRepository(db());
-            Long eventId = scheduleId == null ? null : repository.getCalendarEventId(scheduleId);
-            if (eventId != null) {
-                if (!hasCalendarPermission()) {
+            ScheduleCalendar calendar = calendar();
+            if (scheduleId != null && calendar.getEventId(scheduleId) != null) {
+                if (!calendar.hasPermission()) {
                     fail(callback, "Allow calendar access to remove the workout from your calendar.");
                     return;
                 }
-                DeviceCalendar.deleteEvent(context(), eventId);
-                repository.clearCalendarEventId(scheduleId);
+                calendar.remove(scheduleId);
                 DataChanges.notifyChanged(DataChanges.Kind.SCHEDULES);
             }
             succeed(callback, null);
@@ -315,9 +301,9 @@ public class ScheduleService extends UserDataService {
     }
 
     /**
-     * Builds an email to the user's own address with the workout name, date, time and exercises
-     * (FR-6.3), optionally with an .ics calendar invitation attached. On success, pass the
-     * Intent to startActivity: it lets the user pick one of their email apps, which sends it.
+     * Builds an email to the user's own address (FR-6.3), see {@link WorkoutEmail}, optionally
+     * with an .ics calendar invitation attached. On success, pass the Intent to startActivity:
+     * it lets the user pick one of their email apps, which sends it.
      */
     public void buildEmail(String scheduleId, boolean attachIcs, ServiceCallback<Intent> callback) {
         String uid = sessionManager.getCurrentUid();
@@ -327,9 +313,7 @@ public class ScheduleService extends UserDataService {
         }
         FirebaseUser firebaseUser = sessionManager.getCurrentUser();
         onDb(() -> {
-            ScheduledWorkout schedule = scheduleId == null
-                    ? null : new ScheduledWorkoutRepository(db()).getOne(scheduleId);
-            WorkoutSummary summary = schedule == null ? null : WorkoutSummary.of(db(), schedule);
+            WorkoutSummary summary = summaryOf(scheduleId);
             if (summary == null) {
                 fail(callback, GONE);
                 return;
@@ -341,35 +325,19 @@ public class ScheduleService extends UserDataService {
                 fail(callback, "Your account has no email address.");
                 return;
             }
-            // The selector limits the choice to email apps; SEND itself is what carries a file.
-            Intent mailApps = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"));
-            if (mailApps.resolveActivity(context().getPackageManager()) == null) {
+            Intent intent;
+            try {
+                intent = WorkoutEmail.build(context(), summary, email, attachIcs, now());
+            } catch (IOException e) {
+                Log.w(TAG, "Writing the .ics file failed", e);
+                fail(callback, "Could not create the calendar file.");
+                return;
+            }
+            if (intent == null) {
                 fail(callback, "No email app is installed.");
                 return;
             }
-            TimeZone zone = TimeZone.getDefault();
-            Locale locale = Locale.getDefault();
-            Intent send = new Intent(Intent.ACTION_SEND);
-            send.setType("text/plain");
-            send.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
-            send.putExtra(Intent.EXTRA_SUBJECT, summary.getEmailSubject(zone, locale));
-            send.putExtra(Intent.EXTRA_TEXT, summary.getEmailBody(zone, locale));
-            if (attachIcs) {
-                Uri ics;
-                try {
-                    ics = writeIcs(summary);
-                } catch (IOException | IllegalArgumentException e) {
-                    Log.w(TAG, "Writing the .ics file failed", e);
-                    fail(callback, "Could not create the calendar file.");
-                    return;
-                }
-                send.setType("text/calendar");
-                send.putExtra(Intent.EXTRA_STREAM, ics);
-                send.setClipData(ClipData.newRawUri("", ics));   // lets the grant reach the app
-                send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            }
-            send.setSelector(mailApps);
-            succeed(callback, Intent.createChooser(send, "Send workout by email"));
+            succeed(callback, intent);
         });
     }
 
@@ -427,24 +395,23 @@ public class ScheduleService extends UserDataService {
         if (addToCalendar && hasCalendarPermission()) {
             WorkoutSummary summary = WorkoutSummary.of(db(), doc.getId(), workoutName,
                     customWorkoutId, scheduledAt, recurrence);
-            Long eventId = summary == null ? null : DeviceCalendar.putEvent(context(), null, summary);
-            if (eventId != null) {
-                new ScheduledWorkoutRepository(db()).setCalendarEventId(doc.getId(), eventId);
+            if (summary != null && calendar().put(summary, null) != null) {
                 DataChanges.notifyChanged(DataChanges.Kind.SCHEDULES);   // the link is local, not synced
             }
         }
         succeed(callback, doc.getId());
     }
 
-    /** cache/ics/workout-{id}.ics, shared through the FileProvider declared in the manifest. */
-    private Uri writeIcs(WorkoutSummary summary) throws IOException {
-        File dir = new File(context().getCacheDir(), ICS_DIR);
-        if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException("Cannot create " + dir);
-        File file = new File(dir, "workout-" + summary.getScheduleId() + ".ics");
-        try (Writer out = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-            out.write(summary.toIcs(now()));
-        }
-        return FileProvider.getUriForFile(context(), context().getPackageName() + ".fileprovider", file);
+    /** Must run inside onDb. Null if the schedule or its workout no longer exists. */
+    private WorkoutSummary summaryOf(String scheduleId) {
+        ScheduledWorkout schedule = scheduleId == null
+                ? null : new ScheduledWorkoutRepository(db()).getOne(scheduleId);
+        return schedule == null ? null : WorkoutSummary.of(db(), schedule);
+    }
+
+    /** Must run inside onDb. */
+    private ScheduleCalendar calendar() {
+        return new ScheduleCalendar(context(), db());
     }
 
     private CollectionReference schedules(String uid) {

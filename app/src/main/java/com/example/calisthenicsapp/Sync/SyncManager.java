@@ -16,8 +16,7 @@ import com.example.calisthenicsapp.Repos.CustomWorkoutRepository;
 import com.example.calisthenicsapp.Repos.ScheduledWorkoutRepository;
 import com.example.calisthenicsapp.Repos.UserRepository;
 import com.example.calisthenicsapp.Repos.WorkoutLogRepository;
-import com.example.calisthenicsapp.Scheduling.DeviceCalendar;
-import com.example.calisthenicsapp.Scheduling.WorkoutSummary;
+import com.example.calisthenicsapp.Scheduling.ScheduleCalendar;
 import com.example.calisthenicsapp.Service.DataChanges;
 import com.example.calisthenicsapp.Service.SessionManager;
 import com.google.firebase.auth.FirebaseUser;
@@ -166,6 +165,7 @@ public class SyncManager {
         CustomExerciseOrderRepository exerciseOrderRepository = new CustomExerciseOrderRepository(sqlite);
         WorkoutLogRepository workoutLogRepository = new WorkoutLogRepository(sqlite);
         ScheduledWorkoutRepository scheduledWorkoutRepository = new ScheduledWorkoutRepository(sqlite);
+        ScheduleCalendar calendar = new ScheduleCalendar(appContext, sqlite);
 
         customWorkoutsRegistration = firestore.collection("users").document(uid)
                 .collection("customWorkouts")
@@ -176,7 +176,7 @@ public class SyncManager {
                     dbExecutor.execute(() -> {
                         if (!uid.equals(syncedUid)) return;
                         for (DocumentChange change : changes) {
-                            onCustomWorkoutChange(sqlite, customWorkoutRepository,
+                            onCustomWorkoutChange(calendar, customWorkoutRepository,
                                     exerciseOrderRepository, scheduledWorkoutRepository, uid, change);
                         }
                         boolean changed = !changes.isEmpty();
@@ -229,14 +229,14 @@ public class SyncManager {
                     dbExecutor.execute(() -> {
                         if (!uid.equals(syncedUid)) return;
                         for (DocumentChange change : changes) {
-                            onScheduleChange(sqlite, scheduledWorkoutRepository,
+                            onScheduleChange(calendar, scheduledWorkoutRepository,
                                     customWorkoutRepository, uid, change);
                         }
                         boolean changed = !changes.isEmpty();
                         if (serverIds != null) {
                             for (ScheduledWorkout schedule : scheduledWorkoutRepository.getByUid(uid)) {
                                 if (!serverIds.contains(schedule.getId())) {
-                                    removeSchedule(scheduledWorkoutRepository, schedule.getId());
+                                    removeSchedule(scheduledWorkoutRepository, calendar, schedule.getId());
                                     changed = true;
                                 }
                             }
@@ -273,7 +273,7 @@ public class SyncManager {
         }
     }
 
-    private void onCustomWorkoutChange(SQLiteDatabase sqlite,
+    private void onCustomWorkoutChange(ScheduleCalendar calendar,
                                         CustomWorkoutRepository workoutRepository,
                                         CustomExerciseOrderRepository exerciseOrderRepository,
                                         ScheduledWorkoutRepository scheduledWorkoutRepository,
@@ -301,12 +301,12 @@ public class SyncManager {
         exerciseOrderRepository.replaceForCustomWorkout(remote.id, entries);
 
         if (workoutRepository.getOne(remote.id) != null) {
-            flushPendingSchedules(sqlite, scheduledWorkoutRepository, remote.id);
+            flushPendingSchedules(calendar, scheduledWorkoutRepository, remote.id);
         }
     }
 
     /** Mirrors the schedules that were waiting for this custom workout to arrive. */
-    private void flushPendingSchedules(SQLiteDatabase sqlite,
+    private void flushPendingSchedules(ScheduleCalendar calendar,
                                        ScheduledWorkoutRepository scheduledWorkoutRepository,
                                        String customWorkoutId) {
         Iterator<ScheduledWorkout> it = pendingSchedules.values().iterator();
@@ -314,7 +314,7 @@ public class SyncManager {
             ScheduledWorkout schedule = it.next();
             if (customWorkoutId.equals(schedule.getCustomWorkoutId())) {
                 it.remove();
-                upsertSchedule(sqlite, scheduledWorkoutRepository, schedule);
+                upsertSchedule(calendar, scheduledWorkoutRepository, schedule);
             }
         }
     }
@@ -337,13 +337,13 @@ public class SyncManager {
         }
     }
 
-    private void onScheduleChange(SQLiteDatabase sqlite,
+    private void onScheduleChange(ScheduleCalendar calendar,
                                    ScheduledWorkoutRepository scheduledWorkoutRepository,
                                    CustomWorkoutRepository customWorkoutRepository, String uid,
                                    DocumentChange change) {
         DocumentSnapshot doc = change.getDocument();
         if (change.getType() == DocumentChange.Type.REMOVED) {
-            removeSchedule(scheduledWorkoutRepository, doc.getId());
+            removeSchedule(scheduledWorkoutRepository, calendar, doc.getId());
             return;
         }
         RemoteSchedule remote = RemoteSchedule.fromSnapshot(doc);
@@ -356,25 +356,19 @@ public class SyncManager {
             return;
         }
         pendingSchedules.remove(remote.id);
-        upsertSchedule(sqlite, scheduledWorkoutRepository, schedule);
+        upsertSchedule(calendar, scheduledWorkoutRepository, schedule);
     }
 
     /** Deletes a schedule that no longer exists: its row and its device calendar event. */
     private void removeSchedule(ScheduledWorkoutRepository scheduledWorkoutRepository,
-                                String scheduleId) {
+                                ScheduleCalendar calendar, String scheduleId) {
         pendingSchedules.remove(scheduleId);
         ScheduledWorkout existing = scheduledWorkoutRepository.getOne(scheduleId);
         if (existing != null) scheduledWorkoutRepository.delete(existing);
-        // Looked up by id, not through the row: deleting a custom workout may already have
-        // cascaded the row away.
-        Long eventId = scheduledWorkoutRepository.getCalendarEventId(scheduleId);
-        if (eventId != null) {
-            DeviceCalendar.deleteEvent(appContext, eventId);
-            scheduledWorkoutRepository.clearCalendarEventId(scheduleId);
-        }
+        calendar.remove(scheduleId);
     }
 
-    private void upsertSchedule(SQLiteDatabase sqlite,
+    private void upsertSchedule(ScheduleCalendar calendar,
                                 ScheduledWorkoutRepository scheduledWorkoutRepository,
                                 ScheduledWorkout schedule) {
         ScheduledWorkout existing = scheduledWorkoutRepository.getOne(schedule.getId());
@@ -387,19 +381,7 @@ public class SyncManager {
         boolean changed = existing.getScheduledAt() != schedule.getScheduledAt()
                 || !Objects.equals(existing.getRecurrenceRule(), schedule.getRecurrenceRule());
         if (changed && existing.getCalendarEventId() != null) {
-            updateCalendarEvent(sqlite, scheduledWorkoutRepository, schedule,
-                    existing.getCalendarEventId());
-        }
-    }
-
-    private void updateCalendarEvent(SQLiteDatabase sqlite,
-                                   ScheduledWorkoutRepository scheduledWorkoutRepository,
-                                   ScheduledWorkout schedule, long eventId) {
-        WorkoutSummary summary = WorkoutSummary.of(sqlite, schedule);
-        if (summary == null) return;
-        if (!DeviceCalendar.updateEvent(appContext, eventId, summary)) {
-            // The user deleted the event in their calendar app; do not bring it back.
-            scheduledWorkoutRepository.clearCalendarEventId(schedule.getId());
+            calendar.update(schedule, existing.getCalendarEventId());
         }
     }
 

@@ -60,7 +60,8 @@ to `firestore.rules`, and add a check when the app starts writing something new.
 | `Service` | **The API for the screens.** One class per area; see below. |
 | `CoreComponents` | The data classes the services return (`Exercise`, `Workout`, `WorkoutLog`, `ScheduledWorkout`, ...). |
 | `Session` | `WorkoutSession`, a workout in progress. |
-| `Scheduling` | Repeat rules, schedule occurrences and their status, the device calendar, the `.ics` file. |
+| `Scheduling` | Repeat rules, schedule occurrences and their status, the device calendar, the email and its `.ics` file. Used by `ScheduleService`. |
+| `Export` | The JSON and CSV data export. Used by `AccountService`. |
 | `Repos`, `Database`, `Sync`, `Verificate` | Storage, sync and validation. Use them through the services. |
 
 ### Rules for every service call
