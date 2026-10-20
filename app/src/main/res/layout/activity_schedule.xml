@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:letterSpacing="0.12"
-                android:text="CALISTHENICS"
+                android:text="@string/brand"
                 android:textColor="@color/performance_orange_dark"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -35,7 +35,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Your schedule"
+                android:text="@string/schedule_title"
                 android:textColor="@color/performance_graphite"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -44,7 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="Make a little time for your next session."
+                android:text="@string/schedule_subtitle"
                 android:textColor="@color/performance_muted"
                 android:textSize="14sp" />
 
@@ -76,7 +76,7 @@
                             android:layout_height="40dp"
                             android:background="@drawable/home_tile_background"
                             android:gravity="center"
-                            android:text="‹"
+                            android:text="@string/schedule_previous_week"
                             android:textColor="@color/performance_orange_dark"
                             android:textSize="25sp"
                             android:textStyle="bold" />
@@ -97,7 +97,7 @@
                             android:layout_height="40dp"
                             android:background="@drawable/home_tile_background"
                             android:gravity="center"
-                            android:text="›"
+                            android:text="@string/schedule_next_week"
                             android:textColor="@color/performance_orange_dark"
                             android:textSize="25sp"
                             android:textStyle="bold" />
@@ -118,7 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:layout_marginTop="14dp"
-                android:text="＋  Plan a workout"
+                android:text="@string/schedule_add"
                 android:textAllCaps="false"
                 android:textColor="@color/performance_graphite"
                 android:textSize="15sp"
@@ -164,7 +164,7 @@
                     android:gravity="center"
                     android:paddingStart="13dp"
                     android:paddingEnd="13dp"
-                    android:text="Today"
+                    android:text="@string/schedule_today"
                     android:textColor="@color/performance_orange_dark"
                     android:textSize="12sp"
                     android:textStyle="bold" />

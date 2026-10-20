@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:letterSpacing="0.12"
-                    android:text="CALISTHENICS"
+                    android:text="@string/brand"
                     android:textColor="@color/performance_orange_dark"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -44,7 +44,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="44dp"
                     android:minWidth="0dp"
-                    android:text="Settings"
+                    android:text="@string/home_settings"
                     android:textAllCaps="false"
                     android:textColor="@color/performance_orange_dark" />
 
@@ -54,7 +54,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="44dp"
                     android:minWidth="0dp"
-                    android:text="Sign out"
+                    android:text="@string/home_sign_out"
                     android:textAllCaps="false"
                     android:textColor="@color/performance_muted" />
             </LinearLayout>
@@ -63,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="22dp"
-                android:text="Ready to move?"
+                android:text="@string/home_title"
                 android:textColor="@color/performance_graphite"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -74,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="22dp"
-                android:text="Your training, one step at a time."
+                android:text="@string/home_subtitle"
                 android:textColor="@color/performance_muted"
                 android:textSize="15sp" />
 
@@ -88,7 +88,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="UP NEXT"
+                    android:text="@string/home_up_next"
                     android:textColor="#D6E8DA"
                     android:textSize="12sp"
                     android:textStyle="bold"
@@ -99,7 +99,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Loading your schedule…"
+                    android:text="@string/home_schedule_loading"
                     android:textColor="#FFFFFF"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -109,7 +109,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="Your next planned workout"
+                    android:text="@string/home_next_workout_hint"
                     android:textColor="@color/performance_orange_tint"
                     android:textSize="14sp" />
 
@@ -120,7 +120,7 @@
                     android:layout_height="48dp"
                     android:layout_gravity="end"
                     android:layout_marginTop="8dp"
-                    android:text="View schedule"
+                    android:text="@string/home_view_schedule"
                     android:textAllCaps="false"
                     android:textColor="#FFFFFF" />
             </LinearLayout>
@@ -130,7 +130,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="26dp"
                 android:layout_marginBottom="12dp"
-                android:text="This week"
+                android:text="@string/home_this_week"
                 android:textColor="@color/performance_graphite"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -154,14 +154,14 @@
                         android:id="@+id/weeklyWorkoutCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="—"
+                        android:text="@string/home_stat_placeholder"
                         android:textColor="@color/performance_graphite"
                         android:textSize="24sp"
                         android:textStyle="bold" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="workouts"
+                        android:text="@string/home_stat_workouts"
                         android:textColor="@color/performance_muted"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -179,14 +179,14 @@
                         android:id="@+id/weeklyTrainingTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="—"
+                        android:text="@string/home_stat_placeholder"
                         android:textColor="@color/performance_graphite"
                         android:textSize="24sp"
                         android:textStyle="bold" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="training time"
+                        android:text="@string/home_stat_time"
                         android:textColor="@color/performance_muted"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -204,14 +204,14 @@
                         android:id="@+id/weeklyCalories"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="—"
+                        android:text="@string/home_stat_placeholder"
                         android:textColor="@color/performance_graphite"
                         android:textSize="24sp"
                         android:textStyle="bold" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="kcal"
+                        android:text="@string/home_stat_kcal"
                         android:textColor="@color/performance_muted"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -228,7 +228,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Last workout"
+                    android:text="@string/home_last_workout"
                     android:textColor="@color/performance_graphite"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -238,7 +238,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Loading your history…"
+                    android:text="@string/home_history_loading"
                     android:textColor="@color/performance_graphite"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -267,7 +267,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="26dp"
                 android:layout_marginBottom="12dp"
-                android:text="Quick access"
+                android:text="@string/home_quick_access"
                 android:textColor="@color/performance_graphite"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -286,7 +286,7 @@
                     android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     android:backgroundTint="@color/performance_orange"
-                    android:text="Browse workouts"
+                    android:text="@string/home_browse_workouts"
                     android:textAllCaps="false"
                     android:textColor="@color/performance_graphite" />
 
@@ -297,7 +297,7 @@
                     android:layout_height="52dp"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
-                    android:text="Exercises"
+                    android:text="@string/home_exercises"
                     android:textAllCaps="false"
                     android:textColor="@color/performance_orange_dark" />
             </LinearLayout>

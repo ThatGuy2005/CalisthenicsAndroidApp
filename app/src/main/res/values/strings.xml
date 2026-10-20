@@ -1,11 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">CalisthenicsApp</string>
 
+    <string name="brand" translatable="false">CALISTHENICS</string>
+
     <!-- Shared by the login and sign-up screens -->
     <string name="hint_email">Email</string>
 
     <!-- Login (activity_main) -->
-    <string name="login_brand">CALISTHENICS</string>
     <string name="login_title">Welcome back</string>
     <string name="login_subtitle">Log in to continue your training</string>
     <string name="login_hint_password">Password</string>
@@ -49,4 +50,115 @@
     <string name="forgot_send">Send reset link</string>
     <!-- Worded so it never says whether an account exists for the address. -->
     <string name="forgot_sent">Check your inbox. If an account uses that email, a reset link is on its way.</string>
+
+    <!-- Home (activity_home) -->
+    <string name="home_settings">Settings</string>
+    <string name="home_sign_out">Sign out</string>
+    <string name="home_title">Ready to move?</string>
+    <string name="home_subtitle">Your training, one step at a time.</string>
+    <string name="home_up_next">UP NEXT</string>
+    <string name="home_schedule_loading">Loading your schedule…</string>
+    <string name="home_next_workout_hint">Your next planned workout</string>
+    <string name="home_view_schedule">View schedule</string>
+    <string name="home_this_week">This week</string>
+    <string name="home_stat_placeholder" translatable="false">—</string>
+    <string name="home_stat_workouts">workouts</string>
+    <string name="home_stat_time">training time</string>
+    <string name="home_stat_kcal">kcal</string>
+    <string name="home_last_workout">Last workout</string>
+    <string name="home_history_loading">Loading your history…</string>
+    <string name="home_quick_access">Quick access</string>
+    <string name="home_browse_workouts">Browse workouts</string>
+    <string name="home_exercises">Exercises</string>
+
+    <!-- Bottom navigation (menu/home_bottom_navigation) -->
+    <string name="nav_home">Home</string>
+    <string name="nav_workouts">Workouts</string>
+    <string name="nav_exercises">Exercises</string>
+    <string name="nav_schedule">Schedule</string>
+    <string name="nav_history">History</string>
+
+    <!-- Exercise library (activity_exercise_list) -->
+    <string name="exercise_list_title">Exercise library</string>
+    <string name="exercise_list_subtitle">Find a movement and learn the right form.</string>
+    <string name="exercise_list_search_hint">Search exercises</string>
+    <string name="exercise_list_loading">Loading exercises…</string>
+
+    <!-- Exercise detail (activity_exercise_detail) -->
+    <string name="exercise_detail_back">"‹  Exercises"</string>
+    <string name="exercise_detail_eyebrow">EXERCISE GUIDE</string>
+    <string name="exercise_detail_preview_label">MOVEMENT PREVIEW</string>
+    <string name="exercise_detail_animation_description">Exercise form animation</string>
+    <string name="exercise_detail_preview_icon" translatable="false">↗</string>
+    <string name="exercise_detail_preview_title">Movement demo</string>
+    <string name="exercise_detail_preview_empty">A movement preview will appear here.</string>
+    <string name="exercise_detail_steps_title">How to do it</string>
+    <string name="exercise_detail_steps_hint">Take your time and focus on good form.</string>
+    <string name="exercise_detail_form_tip">FORM TIP</string>
+    <string name="exercise_detail_details_title">Exercise details</string>
+    <string name="exercise_detail_equipment">EQUIPMENT</string>
+    <string name="exercise_detail_target">SUGGESTED TARGET</string>
+
+    <!-- Workout list (activity_workout_list) -->
+    <string name="workout_list_title">Workouts</string>
+    <string name="workout_list_subtitle">Choose a ready-made routine for today.</string>
+    <string name="workout_list_loading">Loading workouts…</string>
+
+    <!-- Workout detail (activity_workout_detail) -->
+    <string name="workout_detail_back">"‹  All workouts"</string>
+    <string name="workout_detail_eyebrow">WORKOUT PLAN</string>
+    <string name="workout_detail_name_placeholder">Workout</string>
+    <string name="workout_detail_exercises">EXERCISES</string>
+    <string name="workout_detail_start">Start workout</string>
+    <string name="workout_detail_hint">Tap any exercise to review its movement and form.</string>
+
+    <!-- Workout session (activity_workout_session) -->
+    <string name="session_exit">"‹  Exit workout"</string>
+    <string name="session_animation_description">Exercise movement animation</string>
+    <string name="session_preview_label">MOVEMENT PREVIEW</string>
+    <string name="session_no_animation">Follow the movement guide below</string>
+    <string name="session_form_guide">FORM GUIDE</string>
+    <string name="session_skip_exercise">Skip exercise</string>
+
+    <!-- Workout summary (activity_workout_summary) -->
+    <string name="summary_eyebrow">WORKOUT COMPLETE</string>
+    <string name="summary_duration_label">DURATION</string>
+    <string name="summary_calories_label">CALORIES</string>
+    <string name="summary_exercises_label">YOUR EXERCISES</string>
+    <string name="summary_home">Back to home</string>
+    <string name="summary_workouts">Choose another workout</string>
+
+    <!-- Schedule (activity_schedule) -->
+    <string name="schedule_title">Your schedule</string>
+    <string name="schedule_subtitle">Make a little time for your next session.</string>
+    <string name="schedule_previous_week" translatable="false">‹</string>
+    <string name="schedule_next_week" translatable="false">›</string>
+    <string name="schedule_add">"＋  Plan a workout"</string>
+    <string name="schedule_today">Today</string>
+
+    <!-- History (activity_history); the zeros show until the stats load. -->
+    <string name="history_title">Training history</string>
+    <string name="history_subtitle">Your progress, one workout at a time.</string>
+    <string name="history_period_week">This week</string>
+    <string name="history_period_month">This month</string>
+    <string name="history_period_all">All time</string>
+    <string name="history_workouts_label">WORKOUTS</string>
+    <string name="history_workouts_placeholder">0</string>
+    <string name="history_time_label">TRAINING TIME</string>
+    <string name="history_time_placeholder">0 min</string>
+    <string name="history_calories_label">CALORIES</string>
+    <string name="history_calories_placeholder">0 kcal</string>
+    <string name="history_completion_placeholder">"0 completed  ·  0 partial"</string>
+    <string name="history_recent">Recent workouts</string>
+    <string name="history_log_count_placeholder">0 workouts</string>
+    <string name="history_loading">Loading your workouts…</string>
+
+    <!-- Settings (activity_settings) -->
+    <string name="settings_back">"‹  Home"</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_credits_title">Animation credits</string>
+    <string name="settings_credits_count">Exercise animations (23)</string>
+    <string name="settings_credits_owner">© Gym visual — https://gymvisual.com/</string>
+    <string name="settings_credits_source">Source: https://github.com/hasaneyldrm/exercises-dataset</string>
+    <string name="settings_credits_format">180×180 source animations, converted to animated WebP.</string>
 </resources>

@@ -25,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:letterSpacing="0.12"
-                android:text="CALISTHENICS"
+                android:text="@string/brand"
                 android:textColor="@color/performance_orange_dark"
                 android:textSize="13sp"
                 android:textStyle="bold" />
@@ -34,7 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="Exercise library"
+                android:text="@string/exercise_list_title"
                 android:textColor="@color/performance_graphite"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -43,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Find a movement and learn the right form."
+                android:text="@string/exercise_list_subtitle"
                 android:textColor="@color/performance_muted"
                 android:textSize="15sp" />
 
@@ -53,7 +53,7 @@
                 android:layout_height="54dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/input_background"
-                android:hint="Search exercises"
+                android:hint="@string/exercise_list_search_hint"
                 android:imeOptions="actionDone"
                 android:importantForAutofill="no"
                 android:inputType="textCapSentences"
@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"
-                android:text="Loading exercises…"
+                android:text="@string/exercise_list_loading"
                 android:textColor="@color/performance_muted"
                 android:textSize="13sp"
                 android:textStyle="bold" />

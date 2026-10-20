@@ -5,27 +5,27 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:padding="24dp">
         <TextView android:id="@+id/settingsBack" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="‹  Home" android:textColor="@color/performance_orange_dark"
+            android:layout_height="wrap_content" android:text="@string/settings_back" android:textColor="@color/performance_orange_dark"
             android:textSize="16sp" android:padding="4dp" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="24dp" android:text="Settings" android:textColor="@color/performance_graphite"
+            android:layout_marginTop="24dp" android:text="@string/settings_title" android:textColor="@color/performance_graphite"
             android:textSize="30sp" android:textStyle="bold" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="24dp" android:text="Animation credits"
+            android:layout_marginTop="24dp" android:text="@string/settings_credits_title"
             android:textColor="@color/performance_graphite" android:textSize="20sp" android:textStyle="bold" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="10dp" android:text="Exercise animations (23)"
+            android:layout_marginTop="10dp" android:text="@string/settings_credits_count"
             android:textColor="@color/performance_graphite" android:textSize="15sp" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="5dp" android:autoLink="web"
-            android:text="© Gym visual — https://gymvisual.com/"
+            android:text="@string/settings_credits_owner"
             android:textColor="@color/performance_muted" android:textSize="14sp" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="5dp" android:autoLink="web"
-            android:text="Source: https://github.com/hasaneyldrm/exercises-dataset"
+            android:text="@string/settings_credits_source"
             android:textColor="@color/performance_orange_dark" android:textSize="14sp" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="5dp" android:text="180×180 source animations, converted to animated WebP."
+            android:layout_marginTop="5dp" android:text="@string/settings_credits_format"
             android:textColor="@color/performance_orange_dark" android:textSize="14sp" />
     </LinearLayout>
 </ScrollView>

@@ -24,7 +24,7 @@
                 android:minWidth="0dp"
                 android:paddingStart="0dp"
                 android:paddingEnd="12dp"
-                android:text="‹  Exercises"
+                android:text="@string/exercise_detail_back"
                 android:textAllCaps="false"
                 android:textColor="@color/performance_orange_dark"
                 android:textSize="15sp" />
@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:letterSpacing="0.12"
-                android:text="EXERCISE GUIDE"
+                android:text="@string/exercise_detail_eyebrow"
                 android:textColor="@color/performance_orange_dark"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -80,7 +80,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:letterSpacing="0.08"
-                        android:text="MOVEMENT PREVIEW"
+                        android:text="@string/exercise_detail_preview_label"
                         android:textColor="@color/performance_muted"
                         android:textSize="11sp"
                         android:textStyle="bold" />
@@ -96,7 +96,7 @@
                             android:id="@+id/exerciseAnimation"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:contentDescription="Exercise form animation"
+                            android:contentDescription="@string/exercise_detail_animation_description"
                             android:padding="8dp"
                             android:scaleType="fitCenter"
                             android:visibility="gone" />
@@ -119,7 +119,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="↗"
+                                android:text="@string/exercise_detail_preview_icon"
                                 android:textColor="@color/performance_orange_dark"
                                 android:textSize="34sp"
                                 android:textStyle="bold" />
@@ -128,7 +128,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="6dp"
-                                android:text="Movement demo"
+                                android:text="@string/exercise_detail_preview_title"
                                 android:textColor="@color/performance_graphite"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
@@ -138,7 +138,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:gravity="center"
-                                android:text="A movement preview will appear here."
+                                android:text="@string/exercise_detail_preview_empty"
                                 android:textColor="@color/performance_muted"
                                 android:textSize="13sp" />
                         </LinearLayout>
@@ -185,7 +185,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:text="How to do it"
+                android:text="@string/exercise_detail_steps_title"
                 android:textColor="@color/performance_graphite"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -194,7 +194,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="Take your time and focus on good form."
+                android:text="@string/exercise_detail_steps_hint"
                 android:textColor="@color/performance_muted"
                 android:textSize="14sp" />
 
@@ -227,7 +227,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:letterSpacing="0.1"
-                        android:text="FORM TIP"
+                        android:text="@string/exercise_detail_form_tip"
                         android:textColor="@color/performance_orange_dark"
                         android:textSize="11sp"
                         android:textStyle="bold" />
@@ -247,7 +247,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:text="Exercise details"
+                android:text="@string/exercise_detail_details_title"
                 android:textColor="@color/performance_graphite"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -280,7 +280,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:letterSpacing="0.06"
-                            android:text="EQUIPMENT"
+                            android:text="@string/exercise_detail_equipment"
                             android:textColor="@color/performance_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -318,7 +318,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:letterSpacing="0.06"
-                            android:text="SUGGESTED TARGET"
+                            android:text="@string/exercise_detail_target"
                             android:textColor="@color/performance_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
