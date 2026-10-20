@@ -18,7 +18,7 @@ import java.util.List;
  * The premade workouts are stored only in the local SQLite database, so these calls work
  * offline and do not need a signed-in user. Every callback is delivered on the main thread.
  */
-public class WorkoutService extends UserDataService {
+public class WorkoutService extends DbService {
 
     public WorkoutService(Context context) {
         super(context);

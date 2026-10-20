@@ -14,9 +14,9 @@ import java.util.List;
  *
  * The library is stored only in the local SQLite database, so these calls work offline and
  * do not need a signed-in user. Like the per-user services, the SQLite work runs on the shared
- * background thread and every callback is delivered on the main thread.
+ * background thread and every callback is delivered on the main thread (see {@link DbService}).
  */
-public class ExerciseService extends UserDataService {
+public class ExerciseService extends DbService {
 
     public ExerciseService(Context context) {
         super(context);
