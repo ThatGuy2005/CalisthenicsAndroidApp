@@ -173,11 +173,11 @@ public class HistoryActivity extends AppCompatActivity {
         boolean complete = WorkoutLog.STATUS_COMPLETED.equals(log.getStatus());
         TextView status = new TextView(this);
         status.setText(complete ? "COMPLETED" : "PARTIAL");
-        status.setTextColor(complete ? UiColors.SUCCESS : 0xFF8C6631);
+        status.setTextColor(complete ? UiColors.SUCCESS : UiColors.WARNING);
         status.setTextSize(9);
         status.setTypeface(null, Typeface.BOLD);
         status.setPadding(dp(9), dp(6), dp(9), dp(6));
-        status.setBackground(rounded(complete ? UiColors.SUCCESS_TINT : 0xFFFFF1DB, dp(18)));
+        status.setBackground(rounded(complete ? UiColors.SUCCESS_TINT : UiColors.WARNING_TINT, dp(18)));
         heading.addView(status);
 
         TextView date = new TextView(this);

@@ -2,14 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sessionRoot" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:orientation="vertical" android:background="@color/performance_canvas">
+    android:layout_height="match_parent" android:orientation="vertical">
     <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
         android:gravity="center_vertical" android:paddingHorizontal="18dp">
         <TextView android:id="@+id/sessionCancel" android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="‹  Exit workout"
             android:textColor="@color/performance_orange_dark" android:textSize="16sp" android:padding="6dp" />
         <TextView android:id="@+id/sessionElapsed" android:layout_width="0dp"
-            android:layout_height="wrap_content" android:layout_weight="1" android:gravity="right"
+            android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end"
             android:text="00:00 elapsed" android:textColor="@color/performance_muted" android:textSize="13sp" />
     </LinearLayout>
     <ScrollView android:layout_width="match_parent" android:layout_height="0dp"

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/workoutDetailRoot" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:orientation="vertical" android:background="@color/performance_canvas">
-    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent"
-        android:fillViewport="true">
+    android:layout_height="match_parent" android:fillViewport="true">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="vertical" android:padding="22dp">
             <TextView android:id="@+id/workoutBack" android:layout_width="wrap_content"
@@ -39,5 +37,4 @@
                 android:text="Tap any exercise to review its movement and form."
                 android:textColor="@color/performance_muted" android:textSize="13sp" />
         </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+</ScrollView>

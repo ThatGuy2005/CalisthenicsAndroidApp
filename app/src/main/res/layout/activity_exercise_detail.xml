@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/exerciseDetailRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/performance_canvas"
-    android:orientation="vertical">
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:fillViewport="true"
-        android:scrollbars="none">
+    android:fillViewport="true"
+    android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,6 +23,7 @@
                 android:layout_height="44dp"
                 android:minWidth="0dp"
                 android:paddingStart="0dp"
+                android:paddingEnd="12dp"
                 android:text="‹  Exercises"
                 android:textAllCaps="false"
                 android:textColor="@color/performance_orange_dark"
@@ -288,7 +282,7 @@
                             android:letterSpacing="0.06"
                             android:text="EQUIPMENT"
                             android:textColor="@color/performance_muted"
-                            android:textSize="10sp"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -326,7 +320,7 @@
                             android:letterSpacing="0.06"
                             android:text="SUGGESTED TARGET"
                             android:textColor="@color/performance_muted"
-                            android:textSize="10sp"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -341,5 +335,4 @@
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+</ScrollView>

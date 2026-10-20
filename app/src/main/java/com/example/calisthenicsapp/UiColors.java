@@ -12,6 +12,8 @@ final class UiColors {
     static final int SURFACE_ALT = 0xFFEFEFEB;
     static final int SUCCESS = 0xFF2F7D4B;
     static final int SUCCESS_TINT = 0xFFE5F0E6;
+    static final int WARNING = 0xFF8C6631;
+    static final int WARNING_TINT = 0xFFFFF1DB;
 
     private UiColors() { }
 }

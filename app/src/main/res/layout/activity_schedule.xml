@@ -4,7 +4,6 @@
     android:id="@+id/scheduleRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/performance_canvas"
     android:orientation="vertical">
 
     <ScrollView

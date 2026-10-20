@@ -4,7 +4,6 @@
     android:id="@+id/exerciseListRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/performance_canvas"
     android:orientation="vertical">
 
     <ScrollView
@@ -56,6 +55,7 @@
                 android:background="@drawable/input_background"
                 android:hint="Search exercises"
                 android:imeOptions="actionDone"
+                android:importantForAutofill="no"
                 android:inputType="textCapSentences"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"

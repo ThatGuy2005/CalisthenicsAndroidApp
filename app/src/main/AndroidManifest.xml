@@ -43,8 +43,7 @@
         <activity android:name=".HistoryActivity" android:exported="false" />
         <activity android:name=".WorkoutListActivity" android:exported="false" />
         <activity android:name=".WorkoutDetailActivity" android:exported="false" />
-        <activity android:name=".WorkoutSessionActivity" android:exported="false"
-            android:screenOrientation="unspecified" />
+        <activity android:name=".WorkoutSessionActivity" android:exported="false" />
         <activity android:name=".WorkoutSummaryActivity" android:exported="false" />
         <activity android:name=".SettingsActivity" android:exported="false" />
         <activity
