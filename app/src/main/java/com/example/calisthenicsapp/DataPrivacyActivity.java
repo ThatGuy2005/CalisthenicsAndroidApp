@@ -53,15 +53,16 @@ public class DataPrivacyActivity extends AppCompatActivity {
         account.exportMyData(new ServiceCallback<String>() {
             @Override public void onSuccess(String json) {
                 fileWriter.execute(() -> {
-                    String error = null;
+                    boolean saved = false;
                     try (OutputStream out = getContentResolver().openOutputStream(target, "wt")) {
                         if (out == null) throw new IOException("Could not open the selected file.");
                         out.write(json.getBytes(StandardCharsets.UTF_8));
-                    } catch (IOException | RuntimeException e) { error = "Could not save the JSON export."; }
-                    String result = error;
+                        saved = true;
+                    } catch (IOException | RuntimeException ignored) { }
+                    int result = saved ? R.string.data_privacy_json_saved : R.string.data_privacy_json_failed;
                     runOnUiThread(() -> {
                         setExporting(false);
-                        show(result == null ? "JSON export saved." : result);
+                        show(getString(result));
                     });
                 });
             }
@@ -72,37 +73,37 @@ public class DataPrivacyActivity extends AppCompatActivity {
     private void exportCsv(Uri target) {
         setExporting(true);
         account.exportMyDataCsv(target, new ServiceCallback<Void>() {
-            @Override public void onSuccess(Void result) { setExporting(false); show("CSV export saved as a ZIP file."); }
+            @Override public void onSuccess(Void result) { setExporting(false); show(getString(R.string.data_privacy_csv_saved)); }
             @Override public void onError(String message) { setExporting(false); show(message); }
         });
     }
 
     private void confirmDelete() {
         new AlertDialog.Builder(this)
-                .setTitle("Delete account permanently?")
-                .setMessage("Your profile, custom workouts, schedules and workout history will be deleted. This cannot be undone.")
-                .setNegativeButton("Keep account", null)
-                .setPositiveButton("Continue", (dialog, which) -> askDeletePassword())
+                .setTitle(R.string.data_privacy_confirm_title)
+                .setMessage(R.string.data_privacy_confirm_message)
+                .setNegativeButton(R.string.data_privacy_confirm_keep, null)
+                .setPositiveButton(R.string.data_privacy_confirm_continue, (dialog, which) -> askDeletePassword())
                 .show();
     }
 
     private void askDeletePassword() {
         EditText password = new EditText(this);
-        password.setHint("Current password");
+        password.setHint(R.string.security_hint_current_password);
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         password.setTextColor(getColor(R.color.performance_graphite));
         password.setHintTextColor(getColor(R.color.performance_muted));
         password.setBackgroundResource(R.drawable.input_background);
         password.setPadding(dp(14), dp(10), dp(14), dp(10));
         new AlertDialog.Builder(this)
-                .setTitle("Confirm it's you")
-                .setMessage("Enter your password to permanently delete the account.")
+                .setTitle(R.string.data_privacy_password_title)
+                .setMessage(R.string.data_privacy_password_message)
                 .setView(password)
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Delete account", (dialog, which) -> {
+                .setNegativeButton(R.string.common_cancel, null)
+                .setPositiveButton(R.string.data_privacy_password_delete, (dialog, which) -> {
                     String value = password.getText().toString();
-                    if (value.isEmpty()) { show("Enter your current password to continue."); return; }
-                    deleteButton.setEnabled(false); deleteButton.setText("Deleting account…");
+                    if (value.isEmpty()) { show(getString(R.string.data_privacy_error_password)); return; }
+                    deleteButton.setEnabled(false); deleteButton.setText(R.string.data_privacy_deleting);
                     account.deleteAccount(value, new ServiceCallback<Void>() {
                         @Override public void onSuccess(Void result) {
                             new AuthService(DataPrivacyActivity.this).signOut();
@@ -113,7 +114,7 @@ public class DataPrivacyActivity extends AppCompatActivity {
                             startActivity(intent);
                         }
                         @Override public void onError(String message) {
-                            deleteButton.setEnabled(true); deleteButton.setText("Delete my account"); show(message);
+                            deleteButton.setEnabled(true); deleteButton.setText(R.string.data_privacy_delete_button); show(message);
                         }
                     });
                 }).show();
@@ -121,8 +122,8 @@ public class DataPrivacyActivity extends AppCompatActivity {
 
     private void setExporting(boolean exporting) {
         jsonButton.setEnabled(!exporting); csvButton.setEnabled(!exporting);
-        jsonButton.setText(exporting ? "Preparing export…" : "Save as JSON");
-        csvButton.setText(exporting ? "Preparing export…" : "Save tables as CSV (.zip)");
+        jsonButton.setText(exporting ? R.string.data_privacy_preparing : R.string.data_privacy_save_json);
+        csvButton.setText(exporting ? R.string.data_privacy_preparing : R.string.data_privacy_save_csv);
     }
     private void show(String message) { Snackbar.make(findViewById(R.id.dataPrivacyRoot), message, Snackbar.LENGTH_LONG).show(); }
     private int dp(int value) { return (int) (value * getResources().getDisplayMetrics().density + .5f); }

@@ -84,7 +84,8 @@
     <string name="height_hint_feet">Height (ft)</string>
     <string name="height_hint_inches">Inches</string>
 
-    <!-- Profile (activity_profile); account security uses the back link and the eyebrow too. -->
+    <!-- Profile (activity_profile); account security uses the back link and the eyebrow too,
+         data & privacy the back link. -->
     <string name="profile_back">"‹  Settings"</string>
     <string name="profile_eyebrow">YOUR ACCOUNT</string>
     <string name="profile_title">Edit profile</string>
@@ -543,6 +544,7 @@
     <string name="settings_units_title">Units</string>
     <string name="settings_units_subtitle">Choose how height and weight are displayed.</string>
     <string name="settings_account_security">"Account security  →"</string>
+    <string name="settings_data_privacy">"Data &amp; privacy  →"</string>
     <string name="settings_units_set_imperial">Units set to pounds and feet.</string>
     <string name="settings_units_set_metric">Units set to kilograms and centimetres.</string>
     <string name="settings_credits_title">Animation credits</string>
@@ -550,4 +552,32 @@
     <string name="settings_credits_owner">© Gym visual — https://gymvisual.com/</string>
     <string name="settings_credits_source">Source: https://github.com/hasaneyldrm/exercises-dataset</string>
     <string name="settings_credits_format">180×180 source animations, converted to animated WebP.</string>
+
+    <!-- Data & privacy (activity_data_privacy); the back link is profile_back. -->
+    <string name="data_privacy_eyebrow">YOUR INFORMATION</string>
+    <string name="data_privacy_title">Data &amp; privacy</string>
+    <string name="data_privacy_subtitle">Download a copy of your information or permanently remove your account.</string>
+    <string name="data_privacy_export_title">Download your data</string>
+    <string name="data_privacy_export_note">Exports include your profile, custom workouts, workout history and schedule.</string>
+    <string name="data_privacy_read_policy">Read privacy policy</string>
+    <string name="data_privacy_save_json">Save as JSON</string>
+    <string name="data_privacy_save_csv">Save tables as CSV (.zip)</string>
+    <string name="data_privacy_preparing">Preparing export…</string>
+    <string name="data_privacy_json_saved">JSON export saved.</string>
+    <string name="data_privacy_json_failed">Could not save the JSON export.</string>
+    <string name="data_privacy_csv_saved">CSV export saved as a ZIP file.</string>
+    <string name="data_privacy_delete_title">Delete account</string>
+    <string name="data_privacy_delete_note">This permanently removes your account, profile, custom workouts, schedules and workout history. This can\'t be undone.</string>
+    <string name="data_privacy_delete_button">Delete my account</string>
+    <string name="data_privacy_deleting">Deleting account…</string>
+    <!-- The first dialog: a warning. -->
+    <string name="data_privacy_confirm_title">Delete account permanently?</string>
+    <string name="data_privacy_confirm_message">Your profile, custom workouts, schedules and workout history will be deleted. This cannot be undone.</string>
+    <string name="data_privacy_confirm_keep">Keep account</string>
+    <string name="data_privacy_confirm_continue">Continue</string>
+    <!-- The second dialog asks for the password (hint: security_hint_current_password). -->
+    <string name="data_privacy_password_title">Confirm it\'s you</string>
+    <string name="data_privacy_password_message">Enter your password to permanently delete the account.</string>
+    <string name="data_privacy_password_delete">Delete account</string>
+    <string name="data_privacy_error_password">Enter your current password to continue.</string>
 </resources>

@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:gravity="center_vertical"
-            android:text="‹  Settings"
+            android:text="@string/profile_back"
             android:textColor="@color/performance_orange_dark"
             android:textSize="15sp" />
 
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="YOUR INFORMATION"
+            android:text="@string/data_privacy_eyebrow"
             android:textColor="@color/performance_orange_dark"
             android:textSize="12sp"
             android:letterSpacing="0.1"
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="Data &amp; privacy"
+            android:text="@string/data_privacy_title"
             android:textColor="@color/performance_graphite"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="Download a copy of your information or permanently remove your account."
+            android:text="@string/data_privacy_subtitle"
             android:textColor="@color/performance_muted"
             android:textSize="14sp" />
 
@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="26dp"
             android:layout_marginBottom="10dp"
-            android:text="Download your data"
+            android:text="@string/data_privacy_export_title"
             android:textColor="@color/performance_graphite"
             android:textSize="21sp"
             android:textStyle="bold" />
@@ -65,7 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="14dp"
-            android:text="Exports include your profile, custom workouts, workout history and schedule."
+            android:text="@string/data_privacy_export_note"
             android:textColor="@color/performance_muted"
             android:textSize="14sp" />
 
@@ -75,7 +75,7 @@
             android:layout_height="50dp"
             android:layout_marginBottom="12dp"
             android:backgroundTint="@color/performance_surface_alt"
-            android:text="Read privacy policy"
+            android:text="@string/data_privacy_read_policy"
             android:textAllCaps="false"
             android:textColor="@color/performance_graphite"
             android:textSize="15sp" />
@@ -85,7 +85,7 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:backgroundTint="@color/performance_orange"
-            android:text="Save as JSON"
+            android:text="@string/data_privacy_save_json"
             android:textAllCaps="false"
             android:textColor="@color/performance_ink"
             android:textSize="15sp" />
@@ -96,7 +96,7 @@
             android:layout_height="54dp"
             android:layout_marginTop="8dp"
             android:backgroundTint="@color/performance_surface_alt"
-            android:text="Save tables as CSV (.zip)"
+            android:text="@string/data_privacy_save_csv"
             android:textAllCaps="false"
             android:textColor="@color/performance_graphite"
             android:textSize="15sp" />
@@ -112,7 +112,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="7dp"
-            android:text="Delete account"
+            android:text="@string/data_privacy_delete_title"
             android:textColor="@color/performance_danger"
             android:textSize="21sp"
             android:textStyle="bold" />
@@ -121,7 +121,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="13dp"
-            android:text="This permanently removes your account, profile, custom workouts, schedules and workout history. This can't be undone."
+            android:text="@string/data_privacy_delete_note"
             android:textColor="@color/performance_muted"
             android:textSize="14sp" />
 
@@ -130,7 +130,7 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:backgroundTint="@color/performance_danger"
-            android:text="Delete my account"
+            android:text="@string/data_privacy_delete_button"
             android:textAllCaps="false"
             android:textColor="@color/performance_ink"
             android:textSize="15sp" />
