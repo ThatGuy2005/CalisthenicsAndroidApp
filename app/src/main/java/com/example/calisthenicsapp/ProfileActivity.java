@@ -44,7 +44,8 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void setupGender() {
-        String[] options = {"Select gender (optional)", "Male", "Female", "Other"};
+        // The same choices as sign-up, so a saved gender is found again here.
+        String[] options = getResources().getStringArray(R.array.signup_genders);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item_selected, options);
         adapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
         gender.setPopupBackgroundResource(R.color.performance_surface);

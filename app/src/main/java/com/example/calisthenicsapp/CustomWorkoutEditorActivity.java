@@ -24,7 +24,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +33,8 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
     public static final String EXTRA_WORKOUT_ID = "custom_workout_id";
     private final List<Exercise> library = new ArrayList<>();
     private final List<Exercise> selected = new ArrayList<>();
-    private final Map<String, CustomExerciseOrderEntry> savedSettings = new HashMap<>();
+    // Linked, so maybeReady lists the saved exercises in their saved order.
+    private final Map<String, CustomExerciseOrderEntry> savedSettings = new LinkedHashMap<>();
     private CustomWorkoutService workouts;
     private EditText name, description;
     private LinearLayout selectedList;
