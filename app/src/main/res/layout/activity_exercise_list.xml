@@ -59,6 +59,8 @@
                 android:inputType="textCapSentences"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
+                android:textColor="@color/performance_graphite"
+                android:textColorHint="@color/performance_muted"
                 android:singleLine="true" />
 
             <LinearLayout

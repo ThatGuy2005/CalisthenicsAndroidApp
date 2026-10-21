@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -11,6 +12,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
@@ -65,6 +67,10 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
+        WindowInsetsControllerCompat insetsController = new WindowInsetsControllerCompat(
+                getWindow(), getWindow().getDecorView());
+        insetsController.setAppearanceLightStatusBars(false);
+        insetsController.setAppearanceLightNavigationBars(false);
 
         previewMode = getIntent().getBooleanExtra(EXTRA_PREVIEW_MODE, false);
         if (!previewMode) {
@@ -135,6 +141,7 @@ public class HomeActivity extends AppCompatActivity {
         String date = DateFormat.getDateInstance(DateFormat.MEDIUM).format(new Date());
         lastWorkoutDetails.setText(date + " · 42 min · 185 kcal");
         lastWorkoutStatus.setText("COMPLETED");
+        lastWorkoutStatus.setVisibility(View.VISIBLE);
     }
 
     private boolean onNavigationSelected(MenuItem item) {
@@ -236,7 +243,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (logs.isEmpty()) {
                     lastWorkoutName.setText(R.string.home_no_workouts);
                     lastWorkoutDetails.setText(R.string.home_no_workouts_hint);
-                    lastWorkoutStatus.setText("");
+                    lastWorkoutStatus.setVisibility(View.GONE);
                     return;
                 }
 
@@ -246,21 +253,23 @@ public class HomeActivity extends AppCompatActivity {
                         DateFormat.SHORT).format(new Date(latest.getStartedAt() * 1000L));
                 lastWorkoutDetails.setText(getString(R.string.home_last_workout_details, date,
                         formatDuration(latest.getDurationSeconds()), latest.getKcal()));
-                lastWorkoutStatus.setText(latest.getStatus());
-                lastWorkoutStatus.setTextColor(WorkoutLog.STATUS_COMPLETED.equals(latest.getStatus())
-                        ? UiColors.SUCCESS : UiColors.ORANGE_DARK);
+                boolean completed = WorkoutLog.STATUS_COMPLETED.equals(latest.getStatus());
+                lastWorkoutStatus.setText(completed ? R.string.home_status_completed : R.string.home_status_partial);
+                lastWorkoutStatus.setTextColor(completed ? UiColors.SUCCESS : UiColors.WARNING);
+                lastWorkoutStatus.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onError(String message) {
                 lastWorkoutName.setText(R.string.home_history_unavailable);
                 lastWorkoutDetails.setText(message);
-                lastWorkoutStatus.setText("");
+                lastWorkoutStatus.setVisibility(View.GONE);
             }
         });
     }
 
     private String formatDuration(long seconds) {
+        if (seconds > 0 && seconds < 60) return getString(R.string.duration_under_minute);
         long minutes = Math.max(0, seconds) / 60;
         long hours = minutes / 60;
         long remainingMinutes = minutes % 60;

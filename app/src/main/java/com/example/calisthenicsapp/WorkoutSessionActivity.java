@@ -1,7 +1,6 @@
 package com.example.calisthenicsapp;
 
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.graphics.drawable.AnimatedImageDrawable;
 import android.graphics.drawable.Drawable;
@@ -30,6 +29,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.lottiefiles.dotlottie.core.model.Config;
 import com.lottiefiles.dotlottie.core.util.DotLottieSource;
 import com.lottiefiles.dotlottie.core.widget.DotLottieAnimation;
+import com.github.penfeizhou.animation.loader.AssetStreamLoader;
+import com.github.penfeizhou.animation.webp.WebPDrawable;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -284,12 +285,15 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         }
         if (!lower.endsWith(".webp")) return;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            try (java.io.InputStream input = getAssets().open(fileName)) {
-                animation.setImageBitmap(BitmapFactory.decodeStream(input));
+            try {
+                WebPDrawable drawable = new WebPDrawable(new AssetStreamLoader(this, fileName));
+                animation.setImageDrawable(drawable);
                 animation.setContentDescription(getString(R.string.session_animation_named, exercise));
                 animation.setVisibility(View.VISIBLE);
                 placeholder.setVisibility(View.GONE);
-            } catch (IOException | RuntimeException ignored) { }
+                if (drawable instanceof android.graphics.drawable.Animatable)
+                    ((android.graphics.drawable.Animatable) drawable).start();
+            } catch (RuntimeException ignored) { }
             return;
         }
         try {

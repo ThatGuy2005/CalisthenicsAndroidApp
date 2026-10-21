@@ -9,7 +9,9 @@
     <color name="performance_border">#FF30363B</color>
     <color name="performance_orange_tint">#FF321A42</color>
     <color name="performance_highlight_soft">#FFDDBAF5</color>
+    <color name="performance_surface_alt">#FF24292E</color>
     <color name="performance_success">#FFD08BFF</color>
+    <color name="performance_danger">#FFFF776D</color>
     <color name="performance_ink">#FF10140B</color>
     <color name="performance_feature">#FF17101F</color>
     <color name="performance_nav_inactive">#FF87918C</color>

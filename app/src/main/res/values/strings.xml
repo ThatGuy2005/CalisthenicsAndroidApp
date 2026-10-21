@@ -12,6 +12,7 @@
     <string name="duration_minutes" tools:ignore="PluralsCandidate">%1$d min</string>
     <string name="duration_hours" tools:ignore="PluralsCandidate">%1$d h</string>
     <string name="duration_hours_minutes" tools:ignore="PluralsCandidate">%1$d h %2$d min</string>
+    <string name="duration_under_minute">&lt;1 min</string>
     <!-- Calories rounded to whole kcal ("185 kcal"). -->
     <string name="energy_kcal">%1$.0f kcal</string>
     <!-- An exercise's target: seconds ("30 sec") or reps ("12 reps"). -->
@@ -31,6 +32,10 @@
         <item quantity="one">%d set</item>
         <item quantity="other">%d sets</item>
     </plurals>
+    <!-- Rest between sets; "sec" stays the same for any count. -->
+    <string name="target_rest" tools:ignore="PluralsCandidate">%1$d sec rest</string>
+    <!-- Sets, target, rest: "3 sets  ·  12 reps  ·  60 sec rest". -->
+    <string name="target_sets_target_rest">"%1$s  ·  %2$s  ·  %3$s"</string>
     <!-- For a bottom bar item that has no screen; every item has one now. -->
     <string name="nav_coming_next">This section is coming next.</string>
 
@@ -143,11 +148,12 @@
     <string name="home_next_workout_hint">Your next planned workout</string>
     <string name="home_view_schedule">View schedule</string>
     <string name="home_this_week">This week</string>
+    <string name="home_this_week_hint">Activity from your logged sessions</string>
     <string name="home_stat_placeholder" translatable="false">—</string>
-    <string name="home_stat_workouts">workouts</string>
-    <string name="home_stat_time">training time</string>
-    <string name="home_stat_kcal">kcal</string>
-    <string name="home_last_workout">Last workout</string>
+    <string name="home_stat_workouts">sessions</string>
+    <string name="home_stat_time">time trained</string>
+    <string name="home_stat_kcal">kcal burned</string>
+    <string name="home_last_workout">Recent activity</string>
     <string name="home_history_loading">Loading your history…</string>
     <string name="home_quick_access">Quick access</string>
     <string name="home_browse_workouts">Browse workouts</string>
@@ -162,6 +168,8 @@
     <!-- Date and time, duration ("42 min"), kcal. -->
     <string name="home_last_workout_details">%1$s · %2$s · %3$.0f kcal</string>
     <string name="home_history_unavailable">Workout history unavailable</string>
+    <string name="home_status_completed">Completed</string>
+    <string name="home_status_partial">Partial</string>
 
     <!-- Bottom navigation (menu/home_bottom_navigation) -->
     <string name="nav_home">Home</string>
@@ -173,7 +181,7 @@
     <!-- Exercise library (activity_exercise_list) -->
     <string name="exercise_list_title">Exercise library</string>
     <string name="exercise_list_subtitle">Find a movement and learn the right form.</string>
-    <string name="exercise_list_search_hint">Search exercises</string>
+    <string name="exercise_list_search_hint">Search</string>
     <string name="exercise_list_loading">Loading exercises…</string>
     <string name="exercise_list_filters_failed">Couldn\'t load the exercise filters.</string>
     <string name="exercise_list_failed">Exercises unavailable.</string>
@@ -256,8 +264,9 @@
     <string name="custom_workouts_no_length">Ready to train</string>
     <string name="custom_workouts_start">Start</string>
     <string name="custom_workouts_edit">Edit</string>
-    <!-- The "•••" menu of a workout, in this order: edit, rename, delete. -->
+    <!-- The "•••" menu of a workout, in this order: view, edit, rename, delete. -->
     <string-array name="custom_workouts_actions">
+        <item>View workout</item>
         <item>Edit workout</item>
         <item>Rename</item>
         <item>Delete</item>
@@ -289,9 +298,19 @@
     <string name="custom_editor_add_exercises">"＋   Add exercises"</string>
     <string name="custom_editor_loading_library">Loading exercise library…</string>
     <string name="custom_editor_select_title">Select exercises</string>
-    <!-- %1$s is the muscle group, %2$s the exercise's own target (target_seconds or target_reps). -->
-    <string name="custom_editor_exercise_meta">"%1$s  ·  %2$s default"</string>
-    <string name="custom_editor_no_muscle_group">Exercise</string>
+    <!-- For screen readers; %1$s is the exercise's name. -->
+    <string name="custom_editor_settings_description">Edit sets, target and rest for %1$s</string>
+    <string name="custom_editor_edit_description">Edit settings for %1$s</string>
+    <string name="custom_editor_up_description">Move %1$s earlier</string>
+    <string name="custom_editor_down_description">Move %1$s later</string>
+    <string name="custom_editor_remove_description">Remove %1$s</string>
+    <!-- The settings dialog of one exercise; its title is the exercise's name. -->
+    <string name="custom_editor_sets_label">SETS</string>
+    <string name="custom_editor_seconds_label">DURATION PER SET · SECONDS</string>
+    <string name="custom_editor_reps_label">REPS PER SET</string>
+    <string name="custom_editor_rest_label">REST BETWEEN SETS · SECONDS</string>
+    <string name="custom_editor_rest_after_label">REST AFTER EXERCISE · SECONDS</string>
+    <string name="custom_editor_error_settings">Use whole numbers. Sets and targets must be at least 1; rest can be 0 or more.</string>
     <string name="custom_editor_error_name">Add a name for this workout</string>
     <string name="custom_editor_error_no_exercises">Add at least one exercise to your workout.</string>
     <string name="custom_editor_created">Workout created.</string>
@@ -406,17 +425,20 @@
     <string name="schedule_card_custom">Scheduled custom workout</string>
     <!-- %1$s is the workout's name. -->
     <string name="schedule_card_workout">Scheduled workout %1$s</string>
-    <!-- A premade workout's menu starts with this; a custom workout's has only the actions below. -->
-    <string name="schedule_action_view">View workout</string>
-    <!-- The menu of a planned workout, in this order: reschedule, calendar, email, delete. -->
+    <!-- The menu of a planned workout, in this order: view, reschedule, repeat, calendar, email, delete. -->
     <string-array name="schedule_occurrence_actions">
+        <item>View workout</item>
         <item>Change date and time</item>
+        <item>Change repeat</item>
         <item>Add to phone calendar</item>
         <item>Email invite</item>
         <item>Delete plan</item>
     </string-array>
-    <string name="schedule_custom_details_unavailable">Custom workout details are not available here yet.</string>
     <string name="schedule_custom_workout">Custom workout</string>
+    <!-- The "Change repeat" dialog; its choices are schedule_repeat_options. -->
+    <string name="schedule_repeat_title">Change repeat</string>
+    <string name="schedule_repeat_message">This updates the repeating plan and its future dates.</string>
+    <string name="schedule_repeat_updated">Repeat setting updated.</string>
     <string name="schedule_marked_complete">Workout marked complete.</string>
     <string name="schedule_delete_title">Delete this plan?</string>
     <string name="schedule_delete_message_repeating">This removes the repeating workout and its future dates.</string>

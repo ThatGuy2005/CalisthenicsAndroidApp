@@ -20,7 +20,7 @@
             android:paddingStart="22dp"
             android:paddingTop="24dp"
             android:paddingEnd="22dp"
-            android:paddingBottom="24dp">
+            android:paddingBottom="36dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -104,36 +104,57 @@
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/nextWorkoutDate"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="@string/home_next_workout_hint"
-                    android:textColor="@color/performance_highlight_soft"
-                    android:textSize="14sp" />
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/homeScheduleAction"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/home_view_schedule"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF" />
+                    <TextView
+                        android:id="@+id/nextWorkoutDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/home_next_workout_hint"
+                        android:textColor="@color/performance_highlight_soft"
+                        android:textSize="14sp" />
+
+                    <Button
+                        android:id="@+id/homeScheduleAction"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="12dp"
+                        android:backgroundTint="@color/performance_orange"
+                        android:minHeight="40dp"
+                        android:minWidth="0dp"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:text="@string/home_view_schedule"
+                        android:textAllCaps="false"
+                        android:textColor="@color/performance_ink"
+                        android:textSize="13sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="26dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="4dp"
                 android:text="@string/home_this_week"
                 android:textColor="@color/performance_graphite"
                 android:textSize="20sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="@string/home_this_week_hint"
+                android:textColor="@color/performance_muted"
+                android:textSize="12sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -217,50 +238,75 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="168dp"
                 android:layout_marginTop="26dp"
                 android:background="@drawable/home_tile_background"
-                android:orientation="vertical"
-                android:padding="18dp">
+                android:clipToOutline="true">
 
-                <TextView
+                <ImageView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/home_last_workout"
-                    android:textColor="@color/performance_graphite"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:layout_height="match_parent"
+                    android:layout_margin="1dp"
+                    android:contentDescription="@null"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/workout_01" />
 
-                <TextView
-                    android:id="@+id/lastWorkoutName"
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="@string/home_history_loading"
-                    android:textColor="@color/performance_graphite"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:layout_height="match_parent"
+                    android:layout_margin="1dp"
+                    android:background="@drawable/home_recent_scrim" />
 
-                <TextView
-                    android:id="@+id/lastWorkoutDetails"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text=""
-                    android:textColor="@color/performance_muted"
-                    android:textSize="13sp" />
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="18dp">
 
-                <TextView
-                    android:id="@+id/lastWorkoutStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:textColor="@color/performance_orange_dark"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/home_last_workout"
+                        android:textColor="@color/performance_graphite"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/lastWorkoutName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/home_history_loading"
+                        android:textColor="@color/performance_graphite"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/lastWorkoutDetails"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textColor="@color/performance_muted"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/lastWorkoutStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/home_status_background"
+                        android:paddingStart="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="4dp"
+                        android:textColor="@color/performance_orange_dark"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </FrameLayout>
 
             <TextView
                 android:layout_width="match_parent"

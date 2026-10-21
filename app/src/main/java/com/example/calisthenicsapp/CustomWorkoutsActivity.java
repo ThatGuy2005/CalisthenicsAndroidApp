@@ -132,7 +132,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         moreParams.leftMargin = dp(7); actions.addView(more, moreParams);
         start.setOnClickListener(v -> startWorkout(workout));
         edit.setOnClickListener(v -> openEditor(workout));
-        card.setOnClickListener(v -> openEditor(workout));
+        card.setOnClickListener(v -> openDetails(workout));
         more.setOnClickListener(v -> showActions(workout));
         return card;
     }
@@ -140,8 +140,9 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
     private void showActions(CustomWorkout workout) {
         String[] actions = getResources().getStringArray(R.array.custom_workouts_actions);
         new AlertDialog.Builder(this).setTitle(workout.getName()).setItems(actions, (dialog, which) -> {
-            if (which == 0) openEditor(workout);
-            else if (which == 1) rename(workout);
+            if (which == 0) openDetails(workout);
+            else if (which == 1) openEditor(workout);
+            else if (which == 2) rename(workout);
             else confirmDelete(workout);
         }).show();
     }
@@ -202,6 +203,12 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
     private void openEditor(CustomWorkout workout) {
         Intent i = new Intent(this, CustomWorkoutEditorActivity.class);
         if (workout != null) i.putExtra(CustomWorkoutEditorActivity.EXTRA_WORKOUT_ID, workout.getId());
+        startActivity(i);
+    }
+
+    private void openDetails(CustomWorkout workout) {
+        Intent i = new Intent(this, CustomWorkoutDetailActivity.class);
+        i.putExtra(CustomWorkoutDetailActivity.EXTRA_WORKOUT_ID, workout.getId());
         startActivity(i);
     }
 

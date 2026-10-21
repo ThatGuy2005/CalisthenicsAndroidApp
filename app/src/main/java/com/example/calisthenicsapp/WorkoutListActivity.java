@@ -115,7 +115,7 @@ public class WorkoutListActivity extends AppCompatActivity {
 
         View scrim = new View(this);
         scrim.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{0x88090B0D, 0x9E090B0D, 0xF2090B0D}));
+                new int[]{0x55090B0D, 0x66090B0D, 0xD6090B0D}));
         backdrop.addView(scrim, new FrameLayout.LayoutParams(-1, -1));
 
         LinearLayout content = new LinearLayout(this);
@@ -129,32 +129,16 @@ public class WorkoutListActivity extends AppCompatActivity {
                 : workout.getLevel().getLabel();
         LinearLayout topRow = new LinearLayout(this);
         topRow.setGravity(Gravity.CENTER_VERTICAL);
-        TextView categoryBadge = new TextView(this);
-        categoryBadge.setText(categoryMark(category));
-        categoryBadge.setTextColor(workoutAccent(workout));
-        categoryBadge.setTextSize(12);
-        categoryBadge.setTypeface(null, android.graphics.Typeface.BOLD);
-        categoryBadge.setGravity(Gravity.CENTER);
-        categoryBadge.setBackground(rounded(workoutTint(workout), dp(13)));
-        topRow.addView(categoryBadge, new LinearLayout.LayoutParams(dp(38), dp(38)));
-
         TextView eyebrow = new TextView(this);
         eyebrow.setText(getString(R.string.workout_list_routine, category.toUpperCase(java.util.Locale.ROOT)));
-        eyebrow.setTextColor(UiColors.MUTED);
+        eyebrow.setTextColor(UiColors.GRAPHITE);
         eyebrow.setTextSize(10);
-        eyebrow.setLetterSpacing(0.07f);
+        eyebrow.setLetterSpacing(0.08f);
         eyebrow.setTypeface(null, android.graphics.Typeface.BOLD);
-        LinearLayout.LayoutParams eyebrowParams = new LinearLayout.LayoutParams(0, -2, 1f);
-        eyebrowParams.leftMargin = dp(10);
-        topRow.addView(eyebrow, eyebrowParams);
-
-        TextView arrow = new TextView(this);
-        arrow.setText("›");
-        arrow.setTextColor(UiColors.ORANGE_DARK);
-        arrow.setTextSize(25);
-        arrow.setGravity(Gravity.CENTER);
-        arrow.setBackground(rounded(UiColors.ORANGE_TINT, dp(30)));
-        topRow.addView(arrow, new LinearLayout.LayoutParams(dp(32), dp(32)));
+        eyebrow.setGravity(Gravity.CENTER_VERTICAL);
+        eyebrow.setPadding(dp(12), 0, dp(12), 0);
+        eyebrow.setBackground(rounded(0xCC101217, dp(18)));
+        topRow.addView(eyebrow, new LinearLayout.LayoutParams(-2, dp(32)));
         content.addView(topRow);
 
         View spacer = new View(this);
@@ -163,7 +147,7 @@ public class WorkoutListActivity extends AppCompatActivity {
         TextView title = new TextView(this);
         title.setText(workout.getName());
         title.setTextColor(UiColors.GRAPHITE);
-        title.setTextSize(19);
+        title.setTextSize(20);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
         LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(-1, -2);
         titleParams.topMargin = dp(8);
@@ -181,11 +165,16 @@ public class WorkoutListActivity extends AppCompatActivity {
         footer.addView(duration, durationParams);
         TextView action = new TextView(this);
         action.setText(R.string.workout_list_view_plan);
-        action.setTextColor(UiColors.ORANGE_DARK);
+        action.setTextColor(UiColors.INK);
         action.setTextSize(12);
         action.setTypeface(null, android.graphics.Typeface.BOLD);
-        action.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
-        footer.addView(action, new LinearLayout.LayoutParams(0, -2, 1f));
+        action.setGravity(Gravity.CENTER);
+        action.setPadding(dp(13), 0, dp(13), 0);
+        action.setBackground(rounded(UiColors.ORANGE_DARK, dp(18)));
+        LinearLayout.LayoutParams actionParams = new LinearLayout.LayoutParams(-2, dp(34));
+        actionParams.leftMargin = dp(8);
+        footer.addView(action, actionParams);
+        action.setContentDescription("View " + workout.getName() + " plan");
 
         card.setOnClickListener(v -> {
             Intent intent = new Intent(this, WorkoutDetailActivity.class);
@@ -216,10 +205,6 @@ public class WorkoutListActivity extends AppCompatActivity {
         return drawable;
     }
 
-    private int workoutAccent(Workout workout) {
-        return UiColors.ORANGE_DARK;
-    }
-
     private int workoutImage(Workout workout) {
         String name = workout.getName();
         if ("Advanced Calisthenics".equals(name)) return R.drawable.workout_01;
@@ -229,17 +214,6 @@ public class WorkoutListActivity extends AppCompatActivity {
         if ("Lower Body Burn".equals(name)) return R.drawable.workout_05;
         if ("Upper Body Strength".equals(name)) return R.drawable.workout_06;
         return R.drawable.workout_02;
-    }
-
-    private int workoutTint(Workout workout) {
-        return UiColors.ORANGE_TINT;
-    }
-
-    private String categoryMark(String category) {
-        String[] words = category.trim().split("\\s+");
-        if (words.length > 1) return ("" + words[0].charAt(0) + words[1].charAt(0)).toUpperCase(java.util.Locale.ROOT);
-        return category.length() < 2 ? category.toUpperCase(java.util.Locale.ROOT)
-                : category.substring(0, 2).toUpperCase(java.util.Locale.ROOT);
     }
 
     private boolean onNavigationSelected(MenuItem item) {

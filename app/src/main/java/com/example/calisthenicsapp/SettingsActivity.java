@@ -17,6 +17,8 @@ public class SettingsActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ProfileActivity.class)));
         findViewById(R.id.settingsSecurity).setOnClickListener(view ->
                 startActivity(new Intent(this, AccountSecurityActivity.class)));
+        findViewById(R.id.settingsDataPrivacy).setOnClickListener(view ->
+                startActivity(new Intent(this, DataPrivacyActivity.class)));
         Spinner units = findViewById(R.id.settingsUnits);
         UnitSystem[] systems = UnitSystem.values();
         String[] choices = new String[systems.length];

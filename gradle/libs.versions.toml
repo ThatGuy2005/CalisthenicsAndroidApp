@@ -11,6 +11,7 @@ googleServices = "4.5.0"
 firebaseBom = "35.0.2"
 robolectric = "4.17"
 dotlottie = "0.16.0"
+awebp = "3.0.5"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -27,6 +28,8 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 # From jitpack (settings.gradle.kts).
 dotlottie-android = { group = "com.github.LottieFiles", name = "dotlottie-android", version.ref = "dotlottie" }
+# Plays the animated WebP files below API 28, where ImageDecoder is missing.
+awebp = { group = "com.github.penfeizhou.android.animation", name = "awebp", version.ref = "awebp" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

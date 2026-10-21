@@ -45,6 +45,7 @@
         <activity android:name=".CustomWorkoutsActivity" android:exported="false" />
         <activity android:name=".CustomWorkoutEditorActivity" android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".CustomWorkoutDetailActivity" android:exported="false" />
         <activity android:name=".WorkoutDetailActivity" android:exported="false" />
         <activity android:name=".WorkoutSessionActivity" android:exported="false" />
         <activity android:name=".WorkoutSummaryActivity" android:exported="false" />
@@ -53,6 +54,9 @@
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".AccountSecurityActivity" android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".DataPrivacyActivity" android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".PrivacyPolicyActivity" android:exported="false" />
         <activity
             android:name=".SignupActivity"
             android:exported="false"
