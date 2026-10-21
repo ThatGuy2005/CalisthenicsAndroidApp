@@ -54,11 +54,13 @@
                 android:layout_height="54dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/input_background"
-                android:hint="Search exercises"
+                android:hint="Search"
                 android:imeOptions="actionDone"
                 android:inputType="textCapSentences"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
+                android:textColor="@color/performance_graphite"
+                android:textColorHint="@color/performance_muted"
                 android:singleLine="true" />
 
             <LinearLayout
