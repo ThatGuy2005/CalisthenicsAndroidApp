@@ -49,7 +49,7 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
         start = findViewById(R.id.customWorkoutStart);
         findViewById(R.id.customWorkoutBack).setOnClickListener(v -> finish());
         start.setOnClickListener(v -> startWorkout());
-        if (workoutId == null) { show("Workout not found."); finish(); return; }
+        if (workoutId == null) { show(getString(R.string.workout_detail_not_found)); finish(); return; }
 
         CustomWorkoutService service = new CustomWorkoutService(this);
         service.getMyCustomWorkouts(new ServiceCallback<List<CustomWorkout>>() {
@@ -76,13 +76,13 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
 
     private void renderWhenReady() {
         if (!workoutLoaded || !entriesLoaded || !libraryLoaded) return;
-        if (workout == null) { show("This custom workout is no longer available."); finish(); return; }
+        if (workout == null) { show(getString(R.string.custom_detail_gone)); finish(); return; }
         name.setText(workout.getName());
-        meta.setText(entries.size() + (entries.size() == 1 ? " exercise" : " exercises")
-                + "  ·  " + duration(workout.getEstimatedSeconds()));
+        meta.setText(getResources().getQuantityString(R.plurals.custom_detail_meta, entries.size(),
+                entries.size(), duration(workout.getEstimatedSeconds())));
         description.setText(workout.getDescription() == null || workout.getDescription().trim().isEmpty()
-                ? "Your personal workout routine." : workout.getDescription());
-        count.setText("EXERCISES  ·  " + entries.size());
+                ? getString(R.string.custom_detail_no_description) : workout.getDescription());
+        count.setText(getString(R.string.workout_detail_exercise_count, entries.size()));
         exercisesView.removeAllViews();
         for (int i = 0; i < entries.size(); i++) addExercise(i, entries.get(i));
         start.setEnabled(!entries.isEmpty());
@@ -96,7 +96,9 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
                 ? entry.getSeconds() == null ? exercise.getDefaultSeconds() : entry.getSeconds()
                 : entry.getReps() == null ? exercise == null ? null : exercise.getDefaultReps() : entry.getReps();
         int rest = entry.getRestSeconds() == null ? 60 : entry.getRestSeconds();
-        String targetText = target == null ? "Default target" : target + (timed ? " sec" : " reps");
+        String targetText = target == null ? getString(timed ? R.string.target_timed : R.string.target_reps_unknown)
+                : timed ? getString(R.string.target_seconds, target)
+                : getResources().getQuantityString(R.plurals.target_reps, target, target);
 
         MaterialCardView card = new MaterialCardView(this);
         card.setRadius(dp(16)); card.setCardBackgroundColor(UiColors.SURFACE);
@@ -112,8 +114,9 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -2, 1f);
         lp.leftMargin = dp(10); row.addView(labels, lp);
         labels.addView(text(entry.getExerciseName(), 15, UiColors.GRAPHITE, true));
-        TextView detail = text(sets + " sets  ·  " + targetText + "  ·  " + rest + " sec rest",
-                12, UiColors.MUTED, false);
+        TextView detail = text(getString(R.string.target_sets_target_rest,
+                getResources().getQuantityString(R.plurals.target_sets, sets, sets), targetText,
+                getString(R.string.target_rest, rest)), 12, UiColors.MUTED, false);
         LinearLayout.LayoutParams detailParams = new LinearLayout.LayoutParams(-1, -2);
         detailParams.topMargin = dp(4); labels.addView(detail, detailParams);
         card.setClickable(true); card.setFocusable(true);
@@ -126,15 +129,15 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
     }
 
     private void startWorkout() {
-        start.setEnabled(false); start.setText("Getting ready…");
+        start.setEnabled(false); start.setText(R.string.custom_detail_preparing);
         new WorkoutSessionService(this).startCustom(workoutId, new ServiceCallback<WorkoutSession>() {
             @Override public void onSuccess(WorkoutSession session) {
                 Intent intent = new Intent(CustomWorkoutDetailActivity.this, WorkoutSessionActivity.class);
                 intent.putExtra(WorkoutSessionActivity.EXTRA_SESSION, session); startActivity(intent);
-                start.setEnabled(true); start.setText("Start workout");
+                start.setEnabled(true); start.setText(R.string.workout_detail_start);
             }
             @Override public void onError(String message) {
-                start.setEnabled(true); start.setText("Start workout"); show(message);
+                start.setEnabled(true); start.setText(R.string.workout_detail_start); show(message);
             }
         });
     }
@@ -144,8 +147,8 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
         if (bold) view.setTypeface(null, Typeface.BOLD); return view;
     }
     private String duration(Integer seconds) {
-        if (seconds == null || seconds <= 0) return "Ready to train";
-        return Math.max(1, (seconds + 59) / 60) + " min";
+        if (seconds == null || seconds <= 0) return getString(R.string.custom_workouts_no_length);
+        return getString(R.string.duration_minutes, Math.max(1, (seconds + 59) / 60));
     }
     private void show(String message) { Snackbar.make(findViewById(R.id.customWorkoutDetailRoot), message, Snackbar.LENGTH_LONG).show(); }
     private int dp(int value) { return (int) (value * getResources().getDisplayMetrics().density + .5f); }

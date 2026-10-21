@@ -21,15 +21,15 @@
             android:paddingBottom="22dp">
             <TextView android:id="@+id/customWorkoutBack" android:layout_width="wrap_content"
                 android:layout_height="48dp" android:gravity="center_vertical"
-                android:text="‹  My workouts" android:textColor="@color/performance_orange_dark"
+                android:text="@string/custom_editor_back" android:textColor="@color/performance_orange_dark"
                 android:textSize="15sp" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="12dp" android:text="YOUR ROUTINE"
+                android:layout_marginTop="12dp" android:text="@string/custom_detail_eyebrow"
                 android:textColor="@color/performance_orange_dark" android:textSize="12sp"
                 android:letterSpacing="0.1" android:textStyle="bold" />
             <TextView android:id="@+id/customWorkoutDetailName" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_marginTop="5dp"
-                android:text="Workout" android:textColor="@color/performance_graphite"
+                android:text="@string/workout_detail_name_placeholder" android:textColor="@color/performance_graphite"
                 android:textSize="29sp" android:textStyle="bold" />
             <TextView android:id="@+id/customWorkoutDetailMeta" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_marginTop="6dp"
@@ -40,7 +40,7 @@
                 android:textColor="@color/performance_muted" android:textSize="15sp" />
             <TextView android:id="@+id/customWorkoutDetailCount" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_marginTop="24dp"
-                android:layout_marginBottom="10dp" android:text="EXERCISES"
+                android:layout_marginBottom="10dp" android:text="@string/workout_detail_exercises"
                 android:textColor="@color/performance_muted" android:textSize="12sp"
                 android:textStyle="bold" />
             <LinearLayout android:id="@+id/customWorkoutDetailExercises" android:layout_width="match_parent"
@@ -51,6 +51,6 @@
     <TextView android:id="@+id/customWorkoutStart" android:layout_width="match_parent"
         android:layout_height="56dp" android:layout_marginStart="22dp" android:layout_marginEnd="22dp"
         android:layout_marginBottom="12dp" android:background="@drawable/workout_primary_button"
-        android:gravity="center" android:text="Start workout" android:textColor="@color/performance_ink"
+        android:gravity="center" android:text="@string/workout_detail_start" android:textColor="@color/performance_ink"
         android:textSize="16sp" android:textStyle="bold" />
 </LinearLayout>

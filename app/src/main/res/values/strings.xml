@@ -316,6 +316,19 @@
     <string name="custom_editor_created">Workout created.</string>
     <string name="custom_editor_updated">Workout updated.</string>
 
+    <!-- Custom workout detail (activity_custom_workout_detail). It shares the back link with
+         the editor, and the name placeholder, exercise count and start button with the
+         workout detail. -->
+    <string name="custom_detail_eyebrow">YOUR ROUTINE</string>
+    <!-- %2$s is the length (duration_minutes) or custom_workouts_no_length. -->
+    <plurals name="custom_detail_meta">
+        <item quantity="one">"%1$d exercise  ·  %2$s"</item>
+        <item quantity="other">"%1$d exercises  ·  %2$s"</item>
+    </plurals>
+    <string name="custom_detail_no_description">Your personal workout routine.</string>
+    <string name="custom_detail_gone">This custom workout is no longer available.</string>
+    <string name="custom_detail_preparing">Getting ready…</string>
+
     <!-- Workout detail (activity_workout_detail) -->
     <string name="workout_detail_back">"‹  All workouts"</string>
     <string name="workout_detail_eyebrow">WORKOUT PLAN</string>
