@@ -8,6 +8,7 @@ import android.util.Log;
 import com.example.calisthenicsapp.Export.CsvExport;
 import com.example.calisthenicsapp.Export.ExportData;
 import com.example.calisthenicsapp.Export.JsonExport;
+import com.example.calisthenicsapp.Scheduling.ScheduleCalendar;
 import com.example.calisthenicsapp.Verificate.UserValidator;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -95,8 +96,9 @@ public class AccountService extends UserDataService {
     /**
      * Permanently deletes everything (FR-1.10): the custom workouts, logs and schedules, the
      * profile, the username claim (so the name is free again) and finally the Firebase account.
-     * Deleting the account signs the user out, and SyncManager then clears the local cache;
-     * Firestore's own offline copy on the device is cleared last (see clearOfflineCache).
+     * Deleting the account signs the user out, and SyncManager then clears the local cache.
+     * After that the schedules' events go from this device's calendar, and Firestore's own
+     * offline copy on the device is cleared last (see removeCalendarEvents, clearOfflineCache).
      * If something fails part-way, the user is still signed in and can simply retry.
      */
     public void deleteAccount(String password, ServiceCallback<Void> callback) {
@@ -117,19 +119,24 @@ public class AccountService extends UserDataService {
                     return;
                 }
                 List<DocumentReference> children = new ArrayList<>();
+                List<String> scheduleIds = new ArrayList<>();
                 for (Task<QuerySnapshot> read : reads) {
                     for (DocumentSnapshot doc : read.getResult().getDocuments()) {
                         children.add(doc.getReference());
+                        if (doc.getReference().getParent().getId().equals("schedules")) {
+                            scheduleIds.add(doc.getId());
+                        }
                     }
                 }
-                deleteChildren(user, children, profileRead.getResult(), callback);
+                deleteChildren(user, children, scheduleIds, profileRead.getResult(), callback);
             });
         });
     }
 
     /** Step 2: the subcollection documents, in batches. */
     private void deleteChildren(FirebaseUser user, List<DocumentReference> children,
-                                DocumentSnapshot profile, ServiceCallback<Void> callback) {
+                                List<String> scheduleIds, DocumentSnapshot profile,
+                                ServiceCallback<Void> callback) {
         List<Task<Void>> commits = new ArrayList<>();
         for (int start = 0; start < children.size(); start += BATCH_LIMIT) {
             WriteBatch batch = firestore().batch();
@@ -145,13 +152,13 @@ public class AccountService extends UserDataService {
                 fail(callback, NO_CONNECTION);
                 return;
             }
-            deleteProfileAndAccount(user, profile, callback);
+            deleteProfileAndAccount(user, scheduleIds, profile, callback);
         });
     }
 
     /** Step 3: the username claim and the profile together, then the Firebase account. */
-    private void deleteProfileAndAccount(FirebaseUser user, DocumentSnapshot profile,
-                                         ServiceCallback<Void> callback) {
+    private void deleteProfileAndAccount(FirebaseUser user, List<String> scheduleIds,
+                                         DocumentSnapshot profile, ServiceCallback<Void> callback) {
         String username = profile.exists() ? profile.getString("username") : null;
         DocumentReference claimDoc = username == null ? null
                 : firestore().collection("usernames").document(UserValidator.usernameKey(username));
@@ -172,7 +179,7 @@ public class AccountService extends UserDataService {
             return user.delete();
         }).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                clearOfflineCache(callback);
+                removeCalendarEvents(scheduleIds, callback);
             } else {
                 Log.w(TAG, "Deleting the profile or account failed", task.getException());
                 Exception e = task.getException();
@@ -183,7 +190,21 @@ public class AccountService extends UserDataService {
     }
 
     /**
-     * Step 4: removes Firestore's offline copy from the device (FR-1.10). clearPersistence only
+     * Step 4: deletes the events the app added to this device's calendar for the deleted
+     * schedules (FR-6.2). SyncManager may have removed some already when the schedules went;
+     * remove does nothing for those. Without calendar permission the events cannot be deleted,
+     * so only their ids go. Runs only once the account is gone, so a failed deletion keeps them.
+     */
+    private void removeCalendarEvents(List<String> scheduleIds, ServiceCallback<Void> callback) {
+        onDb(() -> {
+            ScheduleCalendar calendar = new ScheduleCalendar(context(), db());
+            for (String scheduleId : scheduleIds) calendar.remove(scheduleId);
+            clearOfflineCache(callback);
+        });
+    }
+
+    /**
+     * Step 5: removes Firestore's offline copy from the device (FR-1.10). clearPersistence only
      * works on a stopped instance, so the instance is stopped first; the services and SyncManager
      * ask FirebaseFirestore.getInstance() on every use and get a fresh one afterwards. Listeners
      * on the old instance become no-ops. The account is already gone by now, so a failure here is

@@ -142,7 +142,7 @@ to sign-in and sign-out. Use it to choose between the sign-in screen and the mai
 |---|---|
 | `changePassword(currentPassword, newPassword, cb)` | |
 | `changeEmail(currentPassword, newEmail, cb)` | Firebase sends a confirmation link to the new address. The profile shows the new email after the next sign-in. |
-| `deleteAccount(password, cb)` | Deletes everything permanently and signs out (FR-1.10), then clears Firestore's offline copy from the device. |
+| `deleteAccount(password, cb)` | Deletes everything permanently and signs out (FR-1.10), then removes the schedules' events from this device's calendar and clears Firestore's offline copy from the device. |
 | `exportMyData(cb)` | All of the user's data as a JSON string (NFR-5), e.g. to share or save as a file. |
 | `exportMyDataCsv(uri, cb)` | All of the user's data as CSV files in one ZIP (NFR-5): profile, custom workouts, logs, log exercises and schedules. Writes to `uri`; see below. |
 
