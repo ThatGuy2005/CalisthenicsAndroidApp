@@ -336,6 +336,68 @@
     <string name="schedule_repeat_workout">"%1$s  ·  WORKOUT"</string>
     <string name="schedule_mark_complete">"Mark as complete  ✓"</string>
     <string name="schedule_add_to_calendar">Add to my phone calendar</string>
+    <string name="schedule_day_subtitle">Your plan for this day</string>
+    <plurals name="schedule_plan_count">
+        <item quantity="one">YOUR PLAN · %d SESSION</item>
+        <item quantity="other">YOUR PLAN · %d SESSIONS</item>
+    </plurals>
+    <string name="schedule_load_failed">Your schedule could not be loaded.</string>
+    <string name="schedule_empty_title">A little space for your next session.</string>
+    <string name="schedule_empty_message">Nothing planned yet. Pick a workout and set a time that works for you.</string>
+    <string name="schedule_preview_title">Your training week starts here</string>
+    <string name="schedule_preview_message">Choose a date and plan your first workout.</string>
+    <!-- In place of the repeat ("Every Monday") for a workout planned once. -->
+    <string name="schedule_one_time">One-time workout</string>
+    <string name="schedule_status_completed">COMPLETED</string>
+    <string name="schedule_status_missed">MISSED</string>
+    <string name="schedule_status_planned">PLANNED</string>
+    <string name="schedule_options">Workout options</string>
+    <string name="schedule_card_custom">Scheduled custom workout</string>
+    <!-- %1$s is the workout's name. -->
+    <string name="schedule_card_workout">Scheduled workout %1$s</string>
+    <!-- A premade workout's menu starts with this; a custom workout's has only the actions below. -->
+    <string name="schedule_action_view">View workout</string>
+    <!-- The menu of a planned workout, in this order: reschedule, calendar, email, delete. -->
+    <string-array name="schedule_occurrence_actions">
+        <item>Change date and time</item>
+        <item>Add to phone calendar</item>
+        <item>Email invite</item>
+        <item>Delete plan</item>
+    </string-array>
+    <string name="schedule_custom_details_unavailable">Custom workout details are not available here yet.</string>
+    <string name="schedule_custom_workout">Custom workout</string>
+    <string name="schedule_marked_complete">Workout marked complete.</string>
+    <string name="schedule_delete_title">Delete this plan?</string>
+    <string name="schedule_delete_message_repeating">This removes the repeating workout and its future dates.</string>
+    <string name="schedule_delete_message_once">This removes the workout from your schedule.</string>
+    <string name="schedule_delete_keep">Keep it</string>
+    <string name="schedule_deleted">Plan deleted.</string>
+    <string name="schedule_rescheduled">Workout rescheduled.</string>
+    <string name="schedule_added_to_calendar">Added to your phone calendar.</string>
+    <string name="schedule_no_email_app">No email app is available.</string>
+    <string name="schedule_calendar_denied">Plan saved. Calendar access was not granted.</string>
+    <string name="schedule_saved_without_calendar">Plan saved without adding it to your phone calendar.</string>
+    <string name="schedule_preview_sign_in">Sign in to add workouts to your schedule.</string>
+    <string name="schedule_workouts_loading">Loading your workouts. Try again in a moment.</string>
+    <string name="schedule_no_workouts">Create or choose a workout before planning a session.</string>
+    <!-- The "Plan a workout" dialog. -->
+    <string name="schedule_form_title">Plan a workout</string>
+    <string name="schedule_form_workout">WORKOUT</string>
+    <string name="schedule_form_date_time">DATE AND TIME</string>
+    <string name="schedule_form_repeat">REPEAT</string>
+    <!-- In this order: none, daily, weekly, monthly (see recurrenceAt). -->
+    <string-array name="schedule_repeat_options">
+        <item>Does not repeat</item>
+        <item>Every day</item>
+        <item>Every week</item>
+        <item>Every month</item>
+    </string-array>
+    <!-- A custom workout in the workout picker; %1$s is its name. -->
+    <string name="schedule_my_workout_option">%1$s · My workout</string>
+    <string name="schedule_form_save">Save plan</string>
+    <string name="schedule_choose_workout">Choose a workout first.</string>
+    <string name="schedule_past_time">Choose a future date and time.</string>
+    <string name="schedule_added">Workout added to your schedule.</string>
 
     <!-- History (activity_history); the zeros show until the stats load. -->
     <string name="history_title">Training history</string>

@@ -49,9 +49,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScheduleActivity extends AppCompatActivity {
     public static final String EXTRA_PREVIEW_MODE = HomeActivity.EXTRA_PREVIEW_MODE;
-    private static final String[] REPEAT_OPTIONS = {
-            "Does not repeat", "Every day", "Every week", "Every month"
-    };
 
     private final Calendar selectedDay = startOfDay(Calendar.getInstance());
     private final List<WorkoutOption> workoutOptions = new ArrayList<>();
@@ -156,7 +153,7 @@ public class ScheduleActivity extends AppCompatActivity {
         monthTitle.setText(new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(selectedDay.getTime()));
         selectedDateTitle.setText(new SimpleDateFormat("EEEE, MMM d", Locale.getDefault())
                 .format(selectedDay.getTime()));
-        daySubtitle.setText(isToday(selectedDay) ? "Today" : "Your plan for this day");
+        daySubtitle.setText(isToday(selectedDay) ? R.string.schedule_today : R.string.schedule_day_subtitle);
         weekDays.removeAllViews();
 
         for (int i = 0; i < 7; i++) {
@@ -225,7 +222,7 @@ public class ScheduleActivity extends AppCompatActivity {
                     @Override public void onError(String message) {
                         weekOccurrences.clear();
                         renderWeek();
-                        showEmptyState("Your schedule could not be loaded.", message);
+                        showEmptyState(getString(R.string.schedule_load_failed), message);
                     }
                 });
     }
@@ -236,14 +233,14 @@ public class ScheduleActivity extends AppCompatActivity {
             if (sameDay(occurrence.getStartSeconds(), selectedDay)) selected.add(occurrence);
         }
         if (selected.isEmpty()) {
-            showEmptyState("A little space for your next session.",
-                    "Nothing planned yet. Pick a workout and set a time that works for you.");
+            showEmptyState(getString(R.string.schedule_empty_title),
+                    getString(R.string.schedule_empty_message));
             return;
         }
         agenda.removeAllViews();
         TextView section = new TextView(this);
-        section.setText(selected.size() == 1 ? "YOUR PLAN · 1 SESSION"
-                : "YOUR PLAN · " + selected.size() + " SESSIONS");
+        section.setText(getResources().getQuantityString(R.plurals.schedule_plan_count,
+                selected.size(), selected.size()));
         section.setTextColor(UiColors.MUTED);
         section.setTextSize(11);
         section.setLetterSpacing(0.08f);
@@ -296,7 +293,7 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private void renderPreviewAgenda() {
-        showEmptyState("Your training week starts here", "Choose a date and plan your first workout.");
+        showEmptyState(getString(R.string.schedule_preview_title), getString(R.string.schedule_preview_message));
     }
 
     private void addOccurrenceCard(ScheduleOccurrence occurrence) {
@@ -358,7 +355,7 @@ public class ScheduleActivity extends AppCompatActivity {
         nameParams.topMargin = dp(8);
         body.addView(workoutName, nameParams);
 
-        String repeat = schedule.getRecurrence() == null ? "One-time workout"
+        String repeat = schedule.getRecurrence() == null ? getString(R.string.schedule_one_time)
                 : schedule.getRecurrence().describe();
         TextView repeatView = new TextView(this);
         repeatView.setText(getString(schedule.isCustom()
@@ -392,7 +389,7 @@ public class ScheduleActivity extends AppCompatActivity {
         more.setTextColor(UiColors.MUTED);
         more.setTextSize(21);
         more.setGravity(Gravity.CENTER);
-        more.setContentDescription("Workout options");
+        more.setContentDescription(getString(R.string.schedule_options));
         more.setBackground(rounded(UiColors.SURFACE_ALT, dp(20)));
         LinearLayout.LayoutParams moreParams = new LinearLayout.LayoutParams(dp(32), dp(32));
         moreParams.gravity = Gravity.END;
@@ -400,18 +397,19 @@ public class ScheduleActivity extends AppCompatActivity {
         more.setOnClickListener(v -> showOccurrenceMenu(more, occurrence));
 
         card.addView(shell);
-        card.setContentDescription(schedule.isCustom() ? "Scheduled custom workout" :
-                "Scheduled workout " + schedule.getWorkoutName());
+        card.setContentDescription(schedule.isCustom() ? getString(R.string.schedule_card_custom) :
+                getString(R.string.schedule_card_workout, schedule.getWorkoutName()));
         card.setOnClickListener(v -> openWorkout(schedule));
         agenda.addView(card);
     }
 
     private void showOccurrenceMenu(View anchor, ScheduleOccurrence occurrence) {
-        String[] options = occurrence.getSchedule().isCustom()
-                ? new String[]{"Change date and time", "Add to phone calendar", "Email invite", "Delete plan"}
-                : new String[]{"View workout", "Change date and time", "Add to phone calendar", "Email invite", "Delete plan"};
+        String[] options = getResources().getStringArray(R.array.schedule_occurrence_actions);
         android.widget.PopupMenu menu = new android.widget.PopupMenu(this, anchor);
-        for (int i = 0; i < options.length; i++) menu.getMenu().add(0, i, i, options[i]);
+        // A premade workout's menu starts with View workout, so its other items come one later.
+        int first = occurrence.getSchedule().isCustom() ? 0 : 1;
+        if (first == 1) menu.getMenu().add(0, 0, 0, R.string.schedule_action_view);
+        for (int i = 0; i < options.length; i++) menu.getMenu().add(0, i + first, i + first, options[i]);
         menu.setOnMenuItemClickListener(item -> {
             int selected = item.getItemId();
             boolean custom = occurrence.getSchedule().isCustom();
@@ -432,7 +430,7 @@ public class ScheduleActivity extends AppCompatActivity {
     private void openWorkout(ScheduledWorkout schedule) {
         if (schedule.isCustom()) {
             Snackbar.make(findViewById(R.id.scheduleRoot),
-                    "Custom workout details are not available here yet.", Snackbar.LENGTH_SHORT).show();
+                    R.string.schedule_custom_details_unavailable, Snackbar.LENGTH_SHORT).show();
             return;
         }
         Intent intent = new Intent(this, WorkoutDetailActivity.class);
@@ -444,21 +442,21 @@ public class ScheduleActivity extends AppCompatActivity {
     private void markCompleted(ScheduleOccurrence occurrence) {
         scheduleService.markCompleted(occurrence.getSchedule().getId(), occurrence.getStartSeconds(),
                 new ServiceCallback<Void>() {
-                    @Override public void onSuccess(Void ignored) { showMessage("Workout marked complete."); }
+                    @Override public void onSuccess(Void ignored) { showMessage(getString(R.string.schedule_marked_complete)); }
                     @Override public void onError(String message) { showMessage(message); }
                 });
     }
 
     private void confirmDelete(ScheduledWorkout schedule) {
         new AlertDialog.Builder(this)
-                .setTitle("Delete this plan?")
+                .setTitle(R.string.schedule_delete_title)
                 .setMessage(schedule.isRecurring()
-                        ? "This removes the repeating workout and its future dates."
-                        : "This removes the workout from your schedule.")
-                .setNegativeButton("Keep it", null)
-                .setPositiveButton("Delete", (dialog, which) -> scheduleService.delete(schedule.getId(),
+                        ? R.string.schedule_delete_message_repeating
+                        : R.string.schedule_delete_message_once)
+                .setNegativeButton(R.string.schedule_delete_keep, null)
+                .setPositiveButton(R.string.common_delete, (dialog, which) -> scheduleService.delete(schedule.getId(),
                         new ServiceCallback<Void>() {
-                            @Override public void onSuccess(Void ignored) { showMessage("Plan deleted."); }
+                            @Override public void onSuccess(Void ignored) { showMessage(getString(R.string.schedule_deleted)); }
                             @Override public void onError(String message) { showMessage(message); }
                         }))
                 .show();
@@ -485,7 +483,7 @@ public class ScheduleActivity extends AppCompatActivity {
                                 selectedDay.set(Calendar.MILLISECOND, 0);
                                 renderWeek();
                                 loadWeek();
-                                showMessage("Workout rescheduled.");
+                                showMessage(getString(R.string.schedule_rescheduled));
                             }
                             @Override public void onError(String message) { showMessage(message); }
                         });
@@ -496,7 +494,7 @@ public class ScheduleActivity extends AppCompatActivity {
     private void addToCalendar(String scheduleId) {
         if (scheduleService.hasCalendarPermission()) {
             scheduleService.addToCalendar(scheduleId, new ServiceCallback<Long>() {
-                @Override public void onSuccess(Long id) { showMessage("Added to your phone calendar."); }
+                @Override public void onSuccess(Long id) { showMessage(getString(R.string.schedule_added_to_calendar)); }
                 @Override public void onError(String message) { showMessage(message); }
             });
         } else {
@@ -509,7 +507,7 @@ public class ScheduleActivity extends AppCompatActivity {
         scheduleService.buildEmail(scheduleId, true, new ServiceCallback<Intent>() {
             @Override public void onSuccess(Intent intent) {
                 try { startActivity(intent); }
-                catch (android.content.ActivityNotFoundException e) { showMessage("No email app is available."); }
+                catch (android.content.ActivityNotFoundException e) { showMessage(getString(R.string.schedule_no_email_app)); }
             }
             @Override public void onError(String message) { showMessage(message); }
         });
@@ -524,14 +522,14 @@ public class ScheduleActivity extends AppCompatActivity {
             String id = pendingCalendarScheduleId;
             pendingCalendarScheduleId = null;
             if (granted) addToCalendar(id);
-            else showMessage("Plan saved. Calendar access was not granted.");
+            else showMessage(getString(R.string.schedule_calendar_denied));
         } else if (pendingChoice != null) {
             WorkoutOption choice = pendingChoice;
             long at = pendingScheduledAt;
             Recurrence recurrence = pendingRecurrence;
             pendingChoice = null;
             createSchedule(choice, at, recurrence, granted);
-            if (!granted) showMessage("Plan saved without adding it to your phone calendar.");
+            if (!granted) showMessage(getString(R.string.schedule_saved_without_calendar));
         }
     }
 
@@ -566,23 +564,23 @@ public class ScheduleActivity extends AppCompatActivity {
 
     private void showAddWorkoutDialog() {
         if (previewMode) {
-            showMessage("Sign in to add workouts to your schedule.");
+            showMessage(getString(R.string.schedule_preview_sign_in));
             return;
         }
         if (!workoutChoicesLoaded) {
             loadWorkoutChoices();
-            showMessage("Loading your workouts. Try again in a moment.");
+            showMessage(getString(R.string.schedule_workouts_loading));
             return;
         }
         if (workoutOptions.isEmpty()) {
-            showMessage("Create or choose a workout before planning a session.");
+            showMessage(getString(R.string.schedule_no_workouts));
             return;
         }
 
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
         form.setPadding(dp(22), dp(8), dp(22), dp(4));
-        addFormLabel(form, "WORKOUT");
+        addFormLabel(form, R.string.schedule_form_workout);
         Spinner workoutSpinner = new Spinner(this);
         workoutSpinner.setPopupBackgroundResource(R.color.performance_surface);
         ArrayAdapter<WorkoutOption> workoutAdapter = new ArrayAdapter<>(this,
@@ -591,7 +589,7 @@ public class ScheduleActivity extends AppCompatActivity {
         workoutSpinner.setAdapter(workoutAdapter);
         form.addView(workoutSpinner, new LinearLayout.LayoutParams(-1, dp(48)));
 
-        addFormLabel(form, "DATE AND TIME");
+        addFormLabel(form, R.string.schedule_form_date_time);
         Calendar chosen = (Calendar) selectedDay.clone();
         chosen.set(Calendar.HOUR_OF_DAY, 18);
         chosen.set(Calendar.MINUTE, 0);
@@ -607,11 +605,11 @@ public class ScheduleActivity extends AppCompatActivity {
         form.addView(dateTimeButton, new LinearLayout.LayoutParams(-1, dp(48)));
         dateTimeButton.setOnClickListener(v -> pickDateTime(chosen, dateTimeButton));
 
-        addFormLabel(form, "REPEAT");
+        addFormLabel(form, R.string.schedule_form_repeat);
         Spinner repeatSpinner = new Spinner(this);
         repeatSpinner.setPopupBackgroundResource(R.color.performance_surface);
         ArrayAdapter<String> repeatAdapter = new ArrayAdapter<>(this,
-                R.layout.spinner_item_selected, REPEAT_OPTIONS);
+                R.layout.spinner_item_selected, getResources().getStringArray(R.array.schedule_repeat_options));
         repeatAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
         repeatSpinner.setAdapter(repeatAdapter);
         form.addView(repeatSpinner, new LinearLayout.LayoutParams(-1, dp(48)));
@@ -625,15 +623,15 @@ public class ScheduleActivity extends AppCompatActivity {
         form.addView(calendarCheck, checkParams);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Plan a workout")
+                .setTitle(R.string.schedule_form_title)
                 .setView(form)
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Save plan", null)
+                .setNegativeButton(R.string.common_cancel, null)
+                .setPositiveButton(R.string.schedule_form_save, null)
                 .create();
         dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     WorkoutOption choice = (WorkoutOption) workoutSpinner.getSelectedItem();
-                    if (choice == null) { showMessage("Choose a workout first."); return; }
+                    if (choice == null) { showMessage(getString(R.string.schedule_choose_workout)); return; }
                     Recurrence recurrence = recurrenceAt(repeatSpinner.getSelectedItemPosition());
                     boolean addToCalendar = calendarCheck.isChecked();
                     if (addToCalendar && !scheduleService.hasCalendarPermission()) {
@@ -651,7 +649,7 @@ public class ScheduleActivity extends AppCompatActivity {
 
     private void createSchedule(WorkoutOption choice, long at, Recurrence recurrence, boolean addToCalendar) {
         if (at <= System.currentTimeMillis() / 1000L) {
-            showMessage("Choose a future date and time.");
+            showMessage(getString(R.string.schedule_past_time));
             return;
         }
         ServiceCallback<String> callback = new ServiceCallback<String>() {
@@ -663,7 +661,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 selectedDay.set(Calendar.MILLISECOND, 0);
                 renderWeek();
                 loadWeek();
-                showMessage("Workout added to your schedule.");
+                showMessage(getString(R.string.schedule_added));
             }
             @Override public void onError(String message) { showMessage(message); }
         };
@@ -686,7 +684,7 @@ public class ScheduleActivity extends AppCompatActivity {
         }, chosen.get(Calendar.YEAR), chosen.get(Calendar.MONTH), chosen.get(Calendar.DAY_OF_MONTH)).show();
     }
 
-    private void addFormLabel(LinearLayout form, String text) {
+    private void addFormLabel(LinearLayout form, int text) {
         TextView label = new TextView(this);
         label.setText(text);
         label.setTextColor(UiColors.MUTED);
@@ -712,7 +710,7 @@ public class ScheduleActivity extends AppCompatActivity {
         for (WorkoutOption option : workoutOptions) {
             if (option.custom && option.id.equals(id)) return option.name;
         }
-        return "Custom workout";
+        return getString(R.string.schedule_custom_workout);
     }
 
     private boolean hasOccurrenceOn(Calendar day) {
@@ -758,9 +756,9 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private String statusLabel(OccurrenceStatus status) {
-        if (status == OccurrenceStatus.COMPLETED) return "COMPLETED";
-        if (status == OccurrenceStatus.MISSED) return "MISSED";
-        return "PLANNED";
+        if (status == OccurrenceStatus.COMPLETED) return getString(R.string.schedule_status_completed);
+        if (status == OccurrenceStatus.MISSED) return getString(R.string.schedule_status_missed);
+        return getString(R.string.schedule_status_planned);
     }
 
     private GradientDrawable rounded(int color, int radius) {
@@ -787,6 +785,8 @@ public class ScheduleActivity extends AppCompatActivity {
             this.id = id;
             this.custom = custom;
         }
-        @Override public String toString() { return name + (custom ? " · My workout" : ""); }
+        @Override public String toString() {
+            return custom ? getString(R.string.schedule_my_workout_option, name) : name;
+        }
     }
 }
