@@ -7,7 +7,7 @@ const uid = 'alice';
 const db = env.authenticatedContext(uid).firestore();
 
 function profile(extra = {}) {
-  return { username: 'Alice_1', email: 'alice@example.com', height: null, weight: null,
+  return { username: 'Alice1', email: 'alice@example.com', height: null, weight: null,
            gender: null, createdAt: NOW, updatedAt: NOW, ...extra };
 }
 
@@ -29,7 +29,7 @@ const signUps = [
   ['sign-up with only the required data', true, profile()],
   ['sign-up with height, weight and gender', true, profile({ height: 180.5, weight: 75, gender: 'Female' })],
   ['sign-up without the optional fields', true,
-    { username: 'Alice_1', email: 'alice@example.com', createdAt: NOW, updatedAt: NOW }],
+    { username: 'Alice1', email: 'alice@example.com', createdAt: NOW, updatedAt: NOW }],
   ['extra field rejected', false, profile({ admin: true })],
   ['missing createdAt rejected', false, without('createdAt')],
   ['height 10 rejected', false, profile({ height: 10 })],
@@ -44,7 +44,7 @@ const signUps = [
   ['fractional time rejected', false, profile({ updatedAt: NOW + 0.5 })],
   ['email over 254 characters rejected', false, profile({ email: 'a'.repeat(250) + '@x.io' })],
 ];
-for (const bad of ['ab', 'a'.repeat(21), '_alice', 'alice.', 'al..ice', 'al ice', 'álice']) {
+for (const bad of ['ab', 'a'.repeat(21), 'alice_1', 'al.ice', 'al-ice', 'al ice', 'álice']) {
   signUps.push([`username "${bad}" rejected`, false, profile({ username: bad })]);
 }
 for (const [name, allowed, data] of signUps) {
@@ -57,7 +57,7 @@ await env.clearFirestore();
 await assertSucceeds(signUp(profile()));
 const me = doc(db, 'users', uid);
 await check('profile edit, same username (ProfileService)', assertSucceeds(updateDoc(me,
-  { username: 'alice_1', height: 170, weight: 60.5, gender: 'Female', birthYear: 1995,
+  { username: 'alice1', height: 170, weight: 60.5, gender: 'Female', birthYear: 1995,
     updatedAt: NOW + 10 })));
 await check('email copy at sign-in (AuthService)', assertSucceeds(updateDoc(me,
   { email: 'new@example.com', updatedAt: NOW + 20 })));

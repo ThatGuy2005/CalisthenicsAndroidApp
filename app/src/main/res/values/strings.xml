@@ -104,7 +104,7 @@
     <string name="profile_saved">Profile saved.</string>
     <string name="profile_unavailable">Your profile isn\'t available yet. Check your connection and try again.</string>
     <string name="profile_email_not_set">Not set</string>
-    <string name="profile_error_username">Use 3–20 letters, digits, \'.\', \'_\' or \'-\'.</string>
+    <string name="profile_error_username">Use 3–20 letters or digits.</string>
     <string name="profile_error_gender">Gender can be at most 30 characters.</string>
 
     <!-- Account security (activity_account_security) -->

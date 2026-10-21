@@ -155,7 +155,7 @@ ActivityResultLauncher<String> saveCsv = registerForActivityResult(
 saveCsv.launch("calisthenics-data.zip");
 ```
 
-The limits: username 3-20 letters, digits, `.`, `_` or `-`; password 8-64 characters with a letter
+The limits: username 3-20 letters or digits (FR-1.1); password 8-64 characters with a letter
 and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters; birth year from 1900
 to this year.
 `Verificate/UserValidator` has the same checks, for validating a form as the user types.

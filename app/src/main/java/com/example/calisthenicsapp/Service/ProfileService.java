@@ -58,7 +58,7 @@ public class ProfileService extends UserDataService {
             return;
         }
         if (!UserValidator.isValidUsername(username)) {
-            fail(callback, "Username must be 3-20 letters, digits, '.', '_' or '-'.");
+            fail(callback, "Username must be 3-20 letters or digits.");
             return;
         }
         String error = AuthService.checkBodyData(height, weight, gender, birthYear);

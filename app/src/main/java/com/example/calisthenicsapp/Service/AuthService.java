@@ -82,7 +82,7 @@ public class AuthService {
                         AuthCallback<FirebaseUser> callback) {
         String normalizedEmail = UserValidator.normalizeEmail(email);
         if (!UserValidator.isValidUsername(username)) {
-            callback.onError("Username must be 3-20 letters, digits, '.', '_' or '-'.");
+            callback.onError("Username must be 3-20 letters or digits.");
             return;
         }
         if (!UserValidator.isValidEmail(normalizedEmail)) {

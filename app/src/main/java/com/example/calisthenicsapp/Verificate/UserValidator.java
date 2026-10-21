@@ -17,9 +17,8 @@ public final class UserValidator {
     private static final int GENDER_MAX = 30;
     public static final int BIRTH_YEAR_MIN = 1900;   // up to the current year
 
-    // Letters, digits, '_', '.', '-'; must start and end with a letter or digit.
-    private static final Pattern USERNAME = Pattern.compile(
-            "^[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?$");
+    // Alphanumeric only (FR-1.1): ASCII letters and digits. firestore.rules checks the same.
+    private static final Pattern USERNAME = Pattern.compile("^[A-Za-z0-9]+$");
 
     // Pragmatic check: local@domain.tld, no spaces, at least one dot in the domain.
     private static final Pattern EMAIL = Pattern.compile(
@@ -29,7 +28,6 @@ public final class UserValidator {
         if (username == null) return false;
         int len = username.length();
         if (len < USERNAME_MIN || len > USERNAME_MAX) return false;
-        if (username.contains("..")) return false;      // no consecutive dots
         return USERNAME.matcher(username).matches();
     }
 

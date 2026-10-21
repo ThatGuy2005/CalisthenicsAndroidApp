@@ -26,11 +26,10 @@ service cloud.firestore {
       return value == null || (value is string && value.size() <= max);
     }
 
-    // 3-20 letters, digits, '.', '_' or '-'; starts and ends with a letter or digit; no "..".
+    // 3-20 letters or digits (FR-1.1), like UserValidator.isValidUsername.
     function validUsername(name) {
       return name is string && name.size() >= 3 && name.size() <= 20
-          && name.matches('^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$')
-          && !name.matches('.*[.][.].*');
+          && name.matches('^[A-Za-z0-9]+$');
     }
 
     // users/{uid}. Height in cm, weight in kg, gender and birth year are optional; times are
