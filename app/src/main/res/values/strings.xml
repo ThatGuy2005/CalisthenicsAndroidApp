@@ -10,12 +10,21 @@
     <string name="common_done">Done</string>
     <!-- A duration in whole minutes ("42 min"); the abbreviation stays the same for any count. -->
     <string name="duration_minutes" tools:ignore="PluralsCandidate">%1$d min</string>
+    <string name="duration_hours" tools:ignore="PluralsCandidate">%1$d h</string>
+    <string name="duration_hours_minutes" tools:ignore="PluralsCandidate">%1$d h %2$d min</string>
+    <!-- Calories rounded to whole kcal ("185 kcal"). -->
+    <string name="energy_kcal">%1$.0f kcal</string>
     <!-- An exercise's target: seconds ("30 sec") or reps ("12 reps"). -->
     <string name="target_seconds" tools:ignore="PluralsCandidate">%1$d sec</string>
     <plurals name="target_reps">
         <item quantity="one">%d rep</item>
         <item quantity="other">%d reps</item>
     </plurals>
+    <!-- When a timed or rep exercise has no number set. -->
+    <string name="target_timed">Timed</string>
+    <string name="target_reps_unknown">Reps</string>
+    <!-- %1$s is a target from above ("12 reps per side"). -->
+    <string name="target_per_side">%1$s per side</string>
 
     <!-- Shared by the login and sign-up screens -->
     <string name="hint_email">Email</string>
@@ -430,6 +439,25 @@
     <string name="history_exercises_header">EXERCISES</string>
     <!-- Exercise name, then sets and target. -->
     <string name="history_exercise_line">%1$s\n%2$s</string>
+    <string name="history_status_completed">COMPLETED</string>
+    <string name="history_status_partial">PARTIAL</string>
+    <plurals name="history_exercise_count">
+        <item quantity="one">%d exercise</item>
+        <item quantity="other">%d exercises</item>
+    </plurals>
+    <!-- For screen readers: the workout's name and its status. -->
+    <string name="history_card_description">%1$s, %2$s. Tap to see details.</string>
+    <string name="history_preview_no_delete">Preview workout logs cannot be deleted.</string>
+    <!-- Sets done of all sets, then the target; the quantity is all sets. -->
+    <plurals name="history_sets_done">
+        <item quantity="one">"%1$d of %2$d set  ·  %3$s"</item>
+        <item quantity="other">"%1$d of %2$d sets  ·  %3$s"</item>
+    </plurals>
+    <string name="history_delete_title">Delete workout log?</string>
+    <!-- %1$s is the workout's name. -->
+    <string name="history_delete_message">“%1$s” will be removed from your history.</string>
+    <string name="history_delete_keep">Keep</string>
+    <string name="history_deleted">Workout removed from history.</string>
 
     <!-- Settings (activity_settings) -->
     <string name="settings_back">"‹  Home"</string>

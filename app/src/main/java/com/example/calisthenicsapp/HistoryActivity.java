@@ -31,7 +31,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /** Workout log and period statistics (FR-5.7). */
 public class HistoryActivity extends AppCompatActivity {
@@ -89,7 +88,7 @@ public class HistoryActivity extends AppCompatActivity {
     private void renderPeriodPicker() {
         TextView[] options = {week, month, allTime};
         StatsPeriod[] periods = {StatsPeriod.WEEK, StatsPeriod.MONTH, StatsPeriod.ALL_TIME};
-        String[] labels = {"This week", "This month", "All time"};
+        int[] labels = {R.string.history_period_week, R.string.history_period_month, R.string.history_period_all};
         for (int i = 0; i < options.length; i++) {
             boolean selected = period == periods[i];
             options[i].setText(labels[i]);
@@ -126,7 +125,7 @@ public class HistoryActivity extends AppCompatActivity {
     private void showStats(WorkoutStats stats) {
         workoutsTotal.setText(String.valueOf(stats.getWorkouts()));
         timeTotal.setText(formatDuration(stats.getTotalSeconds()));
-        caloriesTotal.setText(String.format(Locale.getDefault(), "%.0f kcal", stats.getTotalKcal()));
+        caloriesTotal.setText(getString(R.string.energy_kcal, stats.getTotalKcal()));
         completionLine.setText(getString(R.string.history_completion,
                 stats.getCompletedWorkouts(), stats.getPartialWorkouts()));
     }
@@ -173,7 +172,7 @@ public class HistoryActivity extends AppCompatActivity {
         heading.addView(name, new LinearLayout.LayoutParams(0, -2, 1f));
         boolean complete = WorkoutLog.STATUS_COMPLETED.equals(log.getStatus());
         TextView status = new TextView(this);
-        status.setText(complete ? "COMPLETED" : "PARTIAL");
+        status.setText(complete ? R.string.history_status_completed : R.string.history_status_partial);
         status.setTextColor(complete ? UiColors.SUCCESS : UiColors.WARNING);
         status.setTextSize(9);
         status.setTypeface(null, Typeface.BOLD);
@@ -197,9 +196,10 @@ public class HistoryActivity extends AppCompatActivity {
         body.addView(metrics, metricParams);
         addMetric(metrics, formatDuration(log.getDurationSeconds()));
         addSeparator(metrics);
-        addMetric(metrics, String.format(Locale.getDefault(), "%.0f kcal", log.getKcal()));
+        addMetric(metrics, getString(R.string.energy_kcal, log.getKcal()));
         addSeparator(metrics);
-        addMetric(metrics, log.getExercises().size() + " exercises");
+        addMetric(metrics, getResources().getQuantityString(R.plurals.history_exercise_count,
+                log.getExercises().size(), log.getExercises().size()));
 
         TextView hint = new TextView(this);
         hint.setText(R.string.history_card_hint);
@@ -210,10 +210,11 @@ public class HistoryActivity extends AppCompatActivity {
         hintParams.topMargin = dp(11);
         body.addView(hint, hintParams);
 
-        card.setContentDescription(log.getWorkoutName() + ", " + log.getStatus() + ". Tap to see details.");
+        card.setContentDescription(getString(R.string.history_card_description,
+                log.getWorkoutName(), log.getStatus()));
         card.setOnClickListener(v -> showLogDetails(log));
         card.setOnLongClickListener(v -> {
-            if (previewMode) showMessage("Preview workout logs cannot be deleted.");
+            if (previewMode) showMessage(getString(R.string.history_preview_no_delete));
             else confirmDelete(log);
             return true;
         });
@@ -273,23 +274,26 @@ public class HistoryActivity extends AppCompatActivity {
         android.widget.ScrollView scroll = new android.widget.ScrollView(this);
         scroll.addView(content);
         new MaterialAlertDialogBuilder(this).setTitle(log.getWorkoutName()).setView(scroll)
-                .setPositiveButton("Done", null).show();
+                .setPositiveButton(R.string.common_done, null).show();
     }
 
     private String exerciseDescription(LoggedExercise exercise) {
         String target;
-        if (exercise.isTimed()) target = (exercise.getSeconds() == null ? "Timed" : exercise.getSeconds() + " sec");
-        else target = (exercise.getReps() == null ? "Reps" : exercise.getReps() + " reps");
-        if (exercise.isPerSide()) target += " per side";
-        return exercise.getCompletedSets() + " of " + exercise.getSets() + " sets  ·  " + target;
+        if (exercise.isTimed()) target = exercise.getSeconds() == null ? getString(R.string.target_timed)
+                : getString(R.string.target_seconds, exercise.getSeconds());
+        else target = exercise.getReps() == null ? getString(R.string.target_reps_unknown)
+                : getResources().getQuantityString(R.plurals.target_reps, exercise.getReps(), exercise.getReps());
+        if (exercise.isPerSide()) target = getString(R.string.target_per_side, target);
+        return getResources().getQuantityString(R.plurals.history_sets_done, exercise.getSets(),
+                exercise.getCompletedSets(), exercise.getSets(), target);
     }
 
     private void confirmDelete(WorkoutLog log) {
-        new MaterialAlertDialogBuilder(this).setTitle("Delete workout log?")
-                .setMessage("“" + log.getWorkoutName() + "” will be removed from your history.")
-                .setNegativeButton("Keep", null)
-                .setPositiveButton("Delete", (dialog, which) -> logService.delete(log.getId(), new ServiceCallback<Void>() {
-                    @Override public void onSuccess(Void ignored) { showMessage("Workout removed from history."); loadData(); }
+        new MaterialAlertDialogBuilder(this).setTitle(R.string.history_delete_title)
+                .setMessage(getString(R.string.history_delete_message, log.getWorkoutName()))
+                .setNegativeButton(R.string.history_delete_keep, null)
+                .setPositiveButton(R.string.common_delete, (dialog, which) -> logService.delete(log.getId(), new ServiceCallback<Void>() {
+                    @Override public void onSuccess(Void ignored) { showMessage(getString(R.string.history_deleted)); loadData(); }
                     @Override public void onError(String message) { showMessage(message); }
                 })).show();
     }
@@ -333,8 +337,9 @@ public class HistoryActivity extends AppCompatActivity {
         long minutes = Math.max(0, seconds) / 60;
         long hours = minutes / 60;
         long remainingMinutes = minutes % 60;
-        if (hours == 0) return minutes + " min";
-        return remainingMinutes == 0 ? hours + " h" : hours + " h " + remainingMinutes + " min";
+        if (hours == 0) return getString(R.string.duration_minutes, minutes);
+        return remainingMinutes == 0 ? getString(R.string.duration_hours, hours)
+                : getString(R.string.duration_hours_minutes, hours, remainingMinutes);
     }
 
     private GradientDrawable rounded(int color, int radius) {
