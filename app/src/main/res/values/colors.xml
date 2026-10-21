@@ -8,6 +8,7 @@
     <color name="performance_surface">#FF191D21</color>
     <color name="performance_border">#FF30363B</color>
     <color name="performance_orange_tint">#FF321A42</color>
+    <color name="performance_highlight_soft">#FFDDBAF5</color>
     <color name="performance_success">#FFD08BFF</color>
     <color name="performance_ink">#FF10140B</color>
     <color name="performance_feature">#FF17101F</color>

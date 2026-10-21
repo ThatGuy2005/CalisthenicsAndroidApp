@@ -10,6 +10,29 @@
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="24dp" android:text="@string/settings_title" android:textColor="@color/performance_graphite"
             android:textSize="30sp" android:textStyle="bold" />
+        <TextView android:id="@+id/settingsProfile" android:layout_width="match_parent"
+            android:layout_height="56dp" android:layout_marginTop="18dp"
+            android:background="@drawable/workout_secondary_button" android:gravity="center_vertical"
+            android:paddingStart="16dp" android:paddingEnd="16dp"
+            android:text="Edit profile  →" android:textColor="@color/performance_orange_dark"
+            android:textSize="15sp" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="22dp" android:text="Units"
+            android:textColor="@color/performance_graphite" android:textSize="20sp"
+            android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="5dp" android:text="Choose how height and weight are displayed."
+            android:textColor="@color/performance_muted" android:textSize="14sp" />
+        <Spinner android:id="@+id/settingsUnits" android:layout_width="match_parent"
+            android:layout_height="54dp" android:layout_marginTop="10dp"
+            android:background="@drawable/input_background" android:paddingStart="12dp"
+            android:paddingEnd="12dp" android:popupBackground="@color/performance_surface" />
+        <TextView android:id="@+id/settingsSecurity" android:layout_width="match_parent"
+            android:layout_height="56dp" android:layout_marginTop="16dp"
+            android:background="@drawable/workout_secondary_button" android:gravity="center_vertical"
+            android:paddingStart="16dp" android:paddingEnd="16dp"
+            android:text="Account security  →" android:textColor="@color/performance_orange_dark"
+            android:textSize="15sp" android:textStyle="bold" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="24dp" android:text="@string/settings_credits_title"
             android:textColor="@color/performance_graphite" android:textSize="20sp" android:textStyle="bold" />

@@ -24,8 +24,11 @@
     <string name="signup_hint_password">Password (8+ characters, a letter and a digit)</string>
     <string name="signup_hint_height">Height (cm) — optional</string>
     <string name="signup_hint_weight">Weight (kg) — optional</string>
+    <string name="signup_hint_height_imperial">Height (ft, e.g. 5.75) — optional</string>
+    <string name="signup_hint_weight_imperial">Weight (lb) — optional</string>
     <string name="signup_hint_birth_year">Birth year — optional</string>
     <string name="signup_optional_note">Optional profile details · weight improves calorie estimates (70 kg assumed if omitted)</string>
+    <string name="signup_optional_note_imperial">Optional profile details · weight improves calorie estimates (154 lb assumed if omitted)</string>
     <string name="signup_gender_label">Gender (optional)</string>
     <!-- The first item means none; the others are saved as the user's gender. -->
     <string-array name="signup_genders">
@@ -37,8 +40,10 @@
     <string name="signup_error_username">Username is required</string>
     <string name="signup_error_email">Enter a valid email address</string>
     <string name="signup_error_password">Use 8–64 characters with at least one letter and one digit</string>
-    <string name="signup_error_height">Enter a valid height</string>
-    <string name="signup_error_weight">Enter a valid weight</string>
+    <string name="signup_error_height">Height must be between 50 and 300 cm</string>
+    <string name="signup_error_height_imperial">Height must be between 1.64 and 9.84 ft</string>
+    <string name="signup_error_weight">Weight must be between 20 and 500 kg</string>
+    <string name="signup_error_weight_imperial">Weight must be between 44 and 1102 lb</string>
     <!-- %1$d is the earliest year, not a count, so no plural. -->
     <string name="signup_error_birth_year" tools:ignore="PluralsCandidate">Enter a year between %1$d and this year</string>
     <string name="signup_success">Account created.</string>

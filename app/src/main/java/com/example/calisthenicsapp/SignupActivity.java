@@ -37,6 +37,11 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         AuthService authService = new AuthService(this);
+        if (UnitSystem.isImperial(this)) {
+            ((EditText) findViewById(R.id.signupHeight)).setHint(R.string.signup_hint_height_imperial);
+            ((EditText) findViewById(R.id.signupWeight)).setHint(R.string.signup_hint_weight_imperial);
+            ((TextView) findViewById(R.id.signupProfileNote)).setText(R.string.signup_optional_note_imperial);
+        }
 
         String[] genders = getResources().getStringArray(R.array.signup_genders);
         Spinner genderSpinner = findViewById(R.id.signupGender);
@@ -77,18 +82,25 @@ public class SignupActivity extends AppCompatActivity {
             password.setError(getString(R.string.signup_error_password));
             password.requestFocus();
         } else {
-            Double heightValue = parseOptionalNumber(height);
-            Double weightValue = parseOptionalNumber(weight);
-            if (!height.getText().toString().trim().isEmpty() && heightValue == null) {
-                height.setError(getString(R.string.signup_error_height));
+            boolean imperial = UnitSystem.isImperial(this);
+            Double heightInput = parseOptionalNumber(height);
+            if (!height.getText().toString().trim().isEmpty() && (heightInput == null
+                    || !UserValidator.isValidHeight(UnitSystem.heightToStorage(heightInput, this)))) {
+                height.setError(getString(imperial ? R.string.signup_error_height_imperial
+                        : R.string.signup_error_height));
                 height.requestFocus();
                 return;
             }
-            if (!weight.getText().toString().trim().isEmpty() && weightValue == null) {
-                weight.setError(getString(R.string.signup_error_weight));
+            Double weightInput = parseOptionalNumber(weight);
+            if (!weight.getText().toString().trim().isEmpty() && (weightInput == null
+                    || !UserValidator.isValidWeight(UnitSystem.weightToStorage(weightInput, this)))) {
+                weight.setError(getString(imperial ? R.string.signup_error_weight_imperial
+                        : R.string.signup_error_weight));
                 weight.requestFocus();
                 return;
             }
+            Double heightValue = heightInput == null ? null : UnitSystem.heightToStorage(heightInput, this);
+            Double weightValue = weightInput == null ? null : UnitSystem.weightToStorage(weightInput, this);
             Integer birthYearValue = parseOptionalYear(birthYear);
             if (!birthYear.getText().toString().trim().isEmpty()
                     && (birthYearValue == null || !UserValidator.isValidBirthYear(birthYearValue))) {

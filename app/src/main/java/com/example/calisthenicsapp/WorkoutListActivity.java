@@ -43,6 +43,8 @@ public class WorkoutListActivity extends AppCompatActivity {
         list = findViewById(R.id.workoutList);
         count = findViewById(R.id.workoutCount);
         categoryFilter = findViewById(R.id.workoutCategoryFilter);
+        findViewById(R.id.myWorkoutsButton).setOnClickListener(v ->
+                startActivity(new Intent(this, CustomWorkoutsActivity.class)));
         setupFilter();
         BottomNavigationView nav = findViewById(R.id.bottomNavigation);
         nav.setSelectedItemId(R.id.nav_workouts);
