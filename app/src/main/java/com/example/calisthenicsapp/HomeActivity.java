@@ -264,9 +264,9 @@ public class HomeActivity extends AppCompatActivity {
         long minutes = Math.max(0, seconds) / 60;
         long hours = minutes / 60;
         long remainingMinutes = minutes % 60;
-        if (hours == 0) return minutes + " min";
-        if (remainingMinutes == 0) return hours + " h";
-        return hours + " h " + remainingMinutes + " min";
+        if (hours == 0) return getString(R.string.duration_minutes, minutes);
+        if (remainingMinutes == 0) return getString(R.string.duration_hours, hours);
+        return getString(R.string.duration_hours_minutes, hours, remainingMinutes);
     }
 
     private void openExercises() {

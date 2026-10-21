@@ -183,6 +183,11 @@
     </plurals>
     <string name="exercise_list_no_match">No exercises match these filters.</string>
     <string name="exercise_list_form">"Form  →"</string>
+    <!-- The first option of each filter; it means no filter. -->
+    <string name="exercise_list_all_groups">All muscle groups</string>
+    <string name="exercise_list_all_levels">All levels</string>
+    <!-- The badge of an exercise without a muscle group (otherwise its first letters). -->
+    <string name="exercise_list_mark_none">EX</string>
 
     <!-- Exercise detail (activity_exercise_detail) -->
     <string name="exercise_detail_back">"‹  Exercises"</string>
@@ -201,6 +206,13 @@
     <!-- %1$s is the muscle group. -->
     <string name="exercise_detail_compound">%1$s · Compound movement</string>
     <string name="exercise_detail_focused">%1$s · Focused movement</string>
+    <string name="exercise_detail_not_found">This exercise could not be found.</string>
+    <!-- %1$s is the target: exercise_detail_seconds or target_reps, maybe with target_per_side. -->
+    <string name="exercise_detail_suggested">Suggested target: %1$s</string>
+    <plurals name="exercise_detail_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
 
     <!-- Workout list (activity_workout_list) -->
     <string name="workout_list_title">Workouts</string>
@@ -326,7 +338,7 @@
     <string name="session_next_up">Next up · %1$s</string>
     <string name="session_pause">Pause</string>
     <string name="session_resume">Resume</string>
-    <!-- For screen readers; %1$s is the exercise's name. -->
+    <!-- For screen readers; %1$s is the exercise's name. The exercise detail uses it too. -->
     <string name="session_animation_named">%1$s movement animation</string>
     <!-- When the user does not allow the app to see calls, so it cannot pause for one. -->
     <string name="session_call_pause_denied">Workout will continue normally. You can pause it manually during a call.</string>

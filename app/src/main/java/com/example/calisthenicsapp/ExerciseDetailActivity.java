@@ -75,7 +75,7 @@ public class ExerciseDetailActivity extends AppCompatActivity {
                     public void onSuccess(Exercise exercise) {
                         if (exercise == null) {
                             Snackbar.make(findViewById(R.id.exerciseDetailRoot),
-                                    "This exercise could not be found.", Snackbar.LENGTH_LONG).show();
+                                    R.string.exercise_detail_not_found, Snackbar.LENGTH_LONG).show();
                             finish();
                             return;
                         }
@@ -97,15 +97,17 @@ public class ExerciseDetailActivity extends AppCompatActivity {
                 exercise.getMuscleGroup()));
         muscleGroupView.setText(exercise.getMuscleGroup());
         difficultyView.setText(exercise.getDifficulty().getLabel());
-        animationView.setContentDescription(exercise.getName() + " movement animation");
+        animationView.setContentDescription(getString(R.string.session_animation_named, exercise.getName()));
         populateInstructions(exercise.getInstructions());
         equipmentView.setText(exercise.getEquipment().getLabel());
 
-        String target = exercise.isTimed()
-                ? "Suggested target: " + exercise.getDefaultSeconds() + " seconds"
-                : "Suggested target: " + exercise.getDefaultReps() + " reps";
-        if (exercise.isPerSide()) target += " per side";
-        targetView.setText(target);
+        Integer amount = exercise.isTimed() ? exercise.getDefaultSeconds() : exercise.getDefaultReps();
+        String target = amount == null
+                ? getString(exercise.isTimed() ? R.string.target_timed : R.string.target_reps_unknown)
+                : getResources().getQuantityString(exercise.isTimed()
+                        ? R.plurals.exercise_detail_seconds : R.plurals.target_reps, amount, amount);
+        if (exercise.isPerSide()) target = getString(R.string.target_per_side, target);
+        targetView.setText(getString(R.string.exercise_detail_suggested, target));
 
         if (exercise.getAnimationFile() != null) showAnimation(exercise.getAnimationFile());
     }

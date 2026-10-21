@@ -34,8 +34,6 @@ import java.util.List;
 
 public class ExerciseListActivity extends AppCompatActivity {
     public static final String EXTRA_PREVIEW_MODE = HomeActivity.EXTRA_PREVIEW_MODE;
-    private static final String ALL_GROUPS = "All muscle groups";
-    private static final String ALL_LEVELS = "All levels";
 
     private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private final Runnable pendingSearch = this::loadExercises;
@@ -104,13 +102,13 @@ public class ExerciseListActivity extends AppCompatActivity {
             return true;
         }
         Snackbar.make(findViewById(R.id.exerciseListRoot),
-                "This section is coming next.", Snackbar.LENGTH_SHORT).show();
+                R.string.nav_coming_next, Snackbar.LENGTH_SHORT).show();
         return false;
     }
 
     private void setupDifficultyFilter() {
         List<String> levels = new ArrayList<>();
-        levels.add(ALL_LEVELS);
+        levels.add(getString(R.string.exercise_list_all_levels));
         for (Difficulty difficulty : Difficulty.values()) levels.add(difficulty.getLabel());
         difficultyFilter.setAdapter(new ArrayAdapter<>(this,
                 R.layout.spinner_item_selected, levels) {{
@@ -134,7 +132,7 @@ public class ExerciseListActivity extends AppCompatActivity {
             @Override
             public void onSuccess(List<String> groups) {
                 List<String> options = new ArrayList<>();
-                options.add(ALL_GROUPS);
+                options.add(getString(R.string.exercise_list_all_groups));
                 options.addAll(groups);
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(ExerciseListActivity.this,
                         R.layout.spinner_item_selected, options);
@@ -163,11 +161,11 @@ public class ExerciseListActivity extends AppCompatActivity {
 
     private void loadExercises() {
         if (!filtersReady) return;
-        String groupValue = String.valueOf(muscleGroupFilter.getSelectedItem());
-        String levelValue = String.valueOf(difficultyFilter.getSelectedItem());
-        String group = ALL_GROUPS.equals(groupValue) ? null : groupValue;
-        Difficulty difficulty = ALL_LEVELS.equals(levelValue)
-                ? null : Difficulty.fromLabel(levelValue);
+        // The first option of each filter is "All ...", which means no filter.
+        String group = muscleGroupFilter.getSelectedItemPosition() <= 0
+                ? null : String.valueOf(muscleGroupFilter.getSelectedItem());
+        Difficulty difficulty = difficultyFilter.getSelectedItemPosition() <= 0
+                ? null : Difficulty.fromLabel(String.valueOf(difficultyFilter.getSelectedItem()));
 
         exerciseService.searchExercises(searchInput.getText().toString(), group, difficulty,
                 null, new ServiceCallback<List<Exercise>>() {
@@ -266,9 +264,12 @@ public class ExerciseListActivity extends AppCompatActivity {
         nameParams.topMargin = dp(10);
         content.addView(name, nameParams);
 
-        String target = exercise.isTimed() ? exercise.getDefaultSeconds() + " sec"
-                : exercise.getDefaultReps() + " reps";
-        if (exercise.isPerSide()) target += " / side";
+        Integer amount = exercise.isTimed() ? exercise.getDefaultSeconds() : exercise.getDefaultReps();
+        String target = amount == null
+                ? getString(exercise.isTimed() ? R.string.target_timed : R.string.target_reps_unknown)
+                : exercise.isTimed() ? getString(R.string.target_seconds, amount)
+                : getResources().getQuantityString(R.plurals.target_reps, amount, amount);
+        if (exercise.isPerSide()) target = getString(R.string.target_per_side_short, target);
         LinearLayout footer = new LinearLayout(this);
         footer.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout.LayoutParams footerParams = new LinearLayout.LayoutParams(-1, -2);
@@ -341,7 +342,7 @@ public class ExerciseListActivity extends AppCompatActivity {
     }
 
     private String muscleMark(String group) {
-        if (group == null || group.trim().isEmpty()) return "EX";
+        if (group == null || group.trim().isEmpty()) return getString(R.string.exercise_list_mark_none);
         String[] words = group.trim().split("\\s+");
         if (words.length > 1) return ("" + words[0].charAt(0) + words[1].charAt(0)).toUpperCase(java.util.Locale.ROOT);
         return group.length() < 2 ? group.toUpperCase(java.util.Locale.ROOT)
