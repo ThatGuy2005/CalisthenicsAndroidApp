@@ -25,6 +25,14 @@
     <string name="target_reps_unknown">Reps</string>
     <!-- %1$s is a target from above ("12 reps per side"). -->
     <string name="target_per_side">%1$s per side</string>
+    <!-- The same, where space is short (pills, cards). -->
+    <string name="target_per_side_short">%1$s / side</string>
+    <plurals name="target_sets">
+        <item quantity="one">%d set</item>
+        <item quantity="other">%d sets</item>
+    </plurals>
+    <!-- For a bottom bar item that has no screen; every item has one now. -->
+    <string name="nav_coming_next">This section is coming next.</string>
 
     <!-- Shared by the login and sign-up screens -->
     <string name="hint_email">Email</string>
@@ -208,6 +216,12 @@
     <string name="workout_list_routine">%1$s ROUTINE</string>
     <string name="workout_list_view_plan">"View plan  →"</string>
     <string name="workout_list_my_workouts">"My workouts  →"</string>
+    <!-- The first option of the type filter. -->
+    <string name="workout_list_all_types">All workout types</string>
+    <!-- Also used by the workout detail: a workout without a category or level, or a length. -->
+    <string name="workout_no_category">Workout</string>
+    <string name="workout_any_level">All levels</string>
+    <string name="workout_time_varies">time varies</string>
 
     <!-- My workouts (CustomWorkoutsActivity, built in code) -->
     <string name="custom_workouts_loading">Loading your workouts…</string>
@@ -283,6 +297,11 @@
     <string name="workout_detail_meta">"%1$s  ·  %2$s  ·  %3$s"</string>
     <string name="workout_detail_exercise_count">"EXERCISES  ·  %1$d"</string>
     <string name="workout_detail_view_exercise">"View instructions &amp; animation  →"</string>
+    <string name="workout_detail_not_found">Workout not found.</string>
+    <!-- %1$d is the rest in seconds; "sec" stays the same for any count. -->
+    <string name="workout_detail_rest" tools:ignore="PluralsCandidate">Rest %1$d sec</string>
+    <!-- For screen readers: the exercise's place in the workout and its name. -->
+    <string name="workout_detail_card_description">Exercise %1$d: %2$s. Tap to view instructions and animation.</string>
 
     <!-- Workout session (activity_workout_session) -->
     <string name="session_exit">"‹  Exit workout"</string>

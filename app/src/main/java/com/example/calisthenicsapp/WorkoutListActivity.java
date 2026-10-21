@@ -64,7 +64,7 @@ public class WorkoutListActivity extends AppCompatActivity {
 
     private void setupFilter() {
         List<String> options = new ArrayList<>();
-        options.add("All workout types");
+        options.add(getString(R.string.workout_list_all_types));
         for (WorkoutCategory category : WorkoutCategory.values()) options.add(category.getLabel());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 R.layout.spinner_item_selected, options);
@@ -80,11 +80,12 @@ public class WorkoutListActivity extends AppCompatActivity {
     private void render() {
         if (list == null) return;
         list.removeAllViews();
-        String selected = categoryFilter.getSelectedItem() == null ? "All workout types"
+        // The first option shows every type; null means no filter.
+        String selected = categoryFilter.getSelectedItemPosition() <= 0 ? null
                 : categoryFilter.getSelectedItem().toString();
         int shown = 0;
         for (Workout workout : allWorkouts) {
-            if (!"All workout types".equals(selected) && (workout.getCategory() == null
+            if (selected != null && (workout.getCategory() == null
                     || !selected.equals(workout.getCategory().getLabel()))) continue;
             list.addView(createCard(workout));
             shown++;
@@ -122,8 +123,10 @@ public class WorkoutListActivity extends AppCompatActivity {
         content.setPadding(dp(16), dp(15), dp(16), dp(15));
         backdrop.addView(content, new FrameLayout.LayoutParams(-1, -1));
 
-        String category = workout.getCategory() == null ? "Workout" : workout.getCategory().getLabel();
-        String level = workout.getLevel() == null ? "All levels" : workout.getLevel().getLabel();
+        String category = workout.getCategory() == null ? getString(R.string.workout_no_category)
+                : workout.getCategory().getLabel();
+        String level = workout.getLevel() == null ? getString(R.string.workout_any_level)
+                : workout.getLevel().getLabel();
         LinearLayout topRow = new LinearLayout(this);
         topRow.setGravity(Gravity.CENTER_VERTICAL);
         TextView categoryBadge = new TextView(this);
@@ -257,14 +260,14 @@ public class WorkoutListActivity extends AppCompatActivity {
             Intent i = new Intent(this, HistoryActivity.class);
             i.putExtra(HistoryActivity.EXTRA_PREVIEW_MODE, previewMode); startActivity(i); finish(); return true;
         }
-        Snackbar.make(findViewById(R.id.workoutListRoot), "This section is coming next.", Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(findViewById(R.id.workoutListRoot), R.string.nav_coming_next, Snackbar.LENGTH_SHORT).show();
         return false;
     }
 
     private String formatDuration(Integer seconds) {
-        if (seconds == null || seconds <= 0) return "time varies";
+        if (seconds == null || seconds <= 0) return getString(R.string.workout_time_varies);
         int minutes = Math.max(1, seconds / 60);
-        return minutes + " min";
+        return getString(R.string.duration_minutes, minutes);
     }
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 }

@@ -52,7 +52,7 @@ public class WorkoutDetailActivity extends AppCompatActivity {
     }
 
     private void startWorkout(String workoutName) {
-        if (workoutName == null) { showError("Workout not found."); return; }
+        if (workoutName == null) { showError(getString(R.string.workout_detail_not_found)); return; }
         startButton.setEnabled(false);
         ((TextView) startButton).setText(R.string.workout_detail_preparing);
         new WorkoutSessionService(this).startPremade(workoutName, new ServiceCallback<WorkoutSession>() {
@@ -72,13 +72,15 @@ public class WorkoutDetailActivity extends AppCompatActivity {
     }
 
     private void load(String workoutName) {
-        if (workoutName == null) { showError("Workout not found."); return; }
+        if (workoutName == null) { showError(getString(R.string.workout_detail_not_found)); return; }
         workouts.getWorkout(workoutName, new ServiceCallback<Workout>() {
             @Override public void onSuccess(Workout workout) {
-                if (workout == null) { showError("Workout not found."); return; }
+                if (workout == null) { showError(getString(R.string.workout_detail_not_found)); return; }
                 name.setText(workout.getName());
-                String category = workout.getCategory() == null ? "Workout" : workout.getCategory().getLabel();
-                String level = workout.getLevel() == null ? "All levels" : workout.getLevel().getLabel();
+                String category = workout.getCategory() == null ? getString(R.string.workout_no_category)
+                        : workout.getCategory().getLabel();
+                String level = workout.getLevel() == null ? getString(R.string.workout_any_level)
+                        : workout.getLevel().getLabel();
                 meta.setText(getString(R.string.workout_detail_meta, category, level,
                         formatDuration(workout.getEstimatedSeconds())));
                 description.setText(workout.getDescription() == null ? "" : workout.getDescription());
@@ -123,9 +125,11 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         if (seconds == null && reps == null && exercise != null) {
             seconds = exercise.getDefaultSeconds(); reps = exercise.getDefaultReps();
         }
-        String target = timed ? (seconds == null ? "Timed" : seconds + " sec")
-                : (reps == null ? "Reps" : reps + " reps");
-        if (exercise != null && exercise.isPerSide()) target += " / side";
+        String target = timed
+                ? (seconds == null ? getString(R.string.target_timed) : getString(R.string.target_seconds, seconds))
+                : (reps == null ? getString(R.string.target_reps_unknown)
+                        : getResources().getQuantityString(R.plurals.target_reps, reps, reps));
+        if (exercise != null && exercise.isPerSide()) target = getString(R.string.target_per_side_short, target);
         return target;
     }
 
@@ -193,13 +197,17 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             LinearLayout.LayoutParams statsParams = new LinearLayout.LayoutParams(-1, -2);
             statsParams.topMargin = dp(12);
             row.addView(stats, statsParams);
-            stats.addView(pill(entry.getSets() + " sets", UiColors.SURFACE_ALT, UiColors.MUTED));
+            if (entry.getSets() != null) {
+                stats.addView(pill(getResources().getQuantityString(R.plurals.target_sets,
+                        entry.getSets(), entry.getSets()), UiColors.SURFACE_ALT, UiColors.MUTED));
+            }
             TextView target = pill(details.get(i), UiColors.ORANGE_TINT, UiColors.ORANGE_DARK);
             LinearLayout.LayoutParams targetParams = new LinearLayout.LayoutParams(-2, dp(30));
             targetParams.leftMargin = dp(7);
             stats.addView(target, targetParams);
             if (entry.getRestSeconds() != null) {
-                TextView rest = pill("Rest " + entry.getRestSeconds() + " sec", UiColors.SURFACE_ALT, UiColors.MUTED);
+                TextView rest = pill(getString(R.string.workout_detail_rest, entry.getRestSeconds()),
+                        UiColors.SURFACE_ALT, UiColors.MUTED);
                 LinearLayout.LayoutParams restParams = new LinearLayout.LayoutParams(-2, dp(30));
                 restParams.leftMargin = dp(7);
                 stats.addView(rest, restParams);
@@ -218,8 +226,8 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             row.addView(action, actionParams);
 
             card.addView(shell);
-            card.setContentDescription("Exercise " + (i + 1) + ": " + entry.getExerciseName()
-                    + ". Tap to view instructions and animation.");
+            card.setContentDescription(getString(R.string.workout_detail_card_description,
+                    i + 1, entry.getExerciseName()));
             card.setOnClickListener(v -> {
                 Intent intent = new Intent(this, ExerciseDetailActivity.class);
                 intent.putExtra(ExerciseDetailActivity.EXTRA_EXERCISE_NAME, entry.getExerciseName());
@@ -250,8 +258,8 @@ public class WorkoutDetailActivity extends AppCompatActivity {
     }
 
     private String formatDuration(Integer seconds) {
-        if (seconds == null || seconds <= 0) return "time varies";
-        return Math.max(1, seconds / 60) + " min";
+        if (seconds == null || seconds <= 0) return getString(R.string.workout_time_varies);
+        return getString(R.string.duration_minutes, Math.max(1, seconds / 60));
     }
     private void showError(String message) {
         Snackbar.make(findViewById(R.id.workoutDetailRoot), message, Snackbar.LENGTH_LONG).show();
