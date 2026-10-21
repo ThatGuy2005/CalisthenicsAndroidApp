@@ -1,8 +1,6 @@
 package com.example.calisthenicsapp;
 
 import android.graphics.drawable.AnimatedImageDrawable;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.graphics.ImageDecoder;
 import android.os.Build;
@@ -15,6 +13,8 @@ import android.widget.TextView;
 import com.lottiefiles.dotlottie.core.model.Config;
 import com.lottiefiles.dotlottie.core.util.DotLottieSource;
 import com.lottiefiles.dotlottie.core.widget.DotLottieAnimation;
+import com.github.penfeizhou.animation.loader.AssetStreamLoader;
+import com.github.penfeizhou.animation.webp.WebPDrawable;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -197,16 +197,14 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         }
         if (!lowerName.endsWith(".webp")) return;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            try (java.io.InputStream input = getAssets().open(fileName)) {
-                Bitmap firstFrame = BitmapFactory.decodeStream(input);
-                if (firstFrame != null) {
-                    animationView.setImageBitmap(firstFrame);
-                    animationPlaceholder.setVisibility(View.GONE);
-                    animationView.setVisibility(View.VISIBLE);
-                }
-            } catch (IOException | RuntimeException ignored) {
-                // Keep the placeholder if the WebP cannot be loaded.
-            }
+            try {
+                WebPDrawable drawable = new WebPDrawable(new AssetStreamLoader(this, fileName));
+                animationView.setImageDrawable(drawable);
+                animationPlaceholder.setVisibility(View.GONE);
+                animationView.setVisibility(View.VISIBLE);
+                if (drawable instanceof android.graphics.drawable.Animatable)
+                    ((android.graphics.drawable.Animatable) drawable).start();
+            } catch (RuntimeException ignored) { /* Keep placeholder if decoding fails. */ }
             return;
         }
         try {

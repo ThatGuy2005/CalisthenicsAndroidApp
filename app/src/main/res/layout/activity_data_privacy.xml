@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dataPrivacyRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/page_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="22dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="22dp"
+        android:paddingBottom="32dp">
+
+        <TextView
+            android:id="@+id/dataPrivacyBack"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:text="‹  Settings"
+            android:textColor="@color/performance_orange_dark"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="YOUR INFORMATION"
+            android:textColor="@color/performance_orange_dark"
+            android:textSize="12sp"
+            android:letterSpacing="0.1"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="Data &amp; privacy"
+            android:textColor="@color/performance_graphite"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="Download a copy of your information or permanently remove your account."
+            android:textColor="@color/performance_muted"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:layout_marginBottom="10dp"
+            android:text="Download your data"
+            android:textColor="@color/performance_graphite"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
+            android:text="Exports include your profile, custom workouts, workout history and schedule."
+            android:textColor="@color/performance_muted"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/openPrivacyPolicyButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@color/performance_surface_alt"
+            android:text="Read privacy policy"
+            android:textAllCaps="false"
+            android:textColor="@color/performance_graphite"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/exportJsonButton"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:backgroundTint="@color/performance_orange"
+            android:text="Save as JSON"
+            android:textAllCaps="false"
+            android:textColor="@color/performance_ink"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/exportCsvButton"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/performance_surface_alt"
+            android:text="Save tables as CSV (.zip)"
+            android:textAllCaps="false"
+            android:textColor="@color/performance_graphite"
+            android:textSize="15sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="26dp"
+            android:layout_marginBottom="22dp"
+            android:background="@color/performance_border" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="7dp"
+            android:text="Delete account"
+            android:textColor="@color/performance_danger"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="13dp"
+            android:text="This permanently removes your account, profile, custom workouts, schedules and workout history. This can't be undone."
+            android:textColor="@color/performance_muted"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/deleteAccountButton"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:backgroundTint="@color/performance_danger"
+            android:text="Delete my account"
+            android:textAllCaps="false"
+            android:textColor="@color/performance_ink"
+            android:textSize="15sp" />
+    </LinearLayout>
+</ScrollView>

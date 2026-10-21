@@ -16,6 +16,8 @@ public class SettingsActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ProfileActivity.class)));
         findViewById(R.id.settingsSecurity).setOnClickListener(view ->
                 startActivity(new Intent(this, AccountSecurityActivity.class)));
+        findViewById(R.id.settingsDataPrivacy).setOnClickListener(view ->
+                startActivity(new Intent(this, DataPrivacyActivity.class)));
         Spinner units = findViewById(R.id.settingsUnits);
         String[] choices = {"Metric  ·  kg and cm", "Imperial  ·  lb and ft"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item_selected, choices);

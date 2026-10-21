@@ -406,21 +406,20 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private void showOccurrenceMenu(View anchor, ScheduleOccurrence occurrence) {
-        String[] options = occurrence.getSchedule().isCustom()
-                ? new String[]{"Change date and time", "Add to phone calendar", "Email invite", "Delete plan"}
-                : new String[]{"View workout", "Change date and time", "Add to phone calendar", "Email invite", "Delete plan"};
+        String[] options = {"View workout", "Change date and time", "Change repeat",
+                "Add to phone calendar", "Email invite", "Delete plan"};
         android.widget.PopupMenu menu = new android.widget.PopupMenu(this, anchor);
         for (int i = 0; i < options.length; i++) menu.getMenu().add(0, i, i, options[i]);
         menu.setOnMenuItemClickListener(item -> {
             int selected = item.getItemId();
-            boolean custom = occurrence.getSchedule().isCustom();
-            if (!custom && selected == 0) openWorkout(occurrence.getSchedule());
-            else if ((custom && selected == 0) || (!custom && selected == 1)) reschedule(occurrence);
-            else if ((custom && selected == 1) || (!custom && selected == 2))
+            if (selected == 0) openWorkout(occurrence.getSchedule());
+            else if (selected == 1) reschedule(occurrence);
+            else if (selected == 2) editRecurrence(occurrence.getSchedule());
+            else if (selected == 3)
                 addToCalendar(occurrence.getSchedule().getId());
-            else if ((custom && selected == 2) || (!custom && selected == 3))
+            else if (selected == 4)
                 emailInvite(occurrence.getSchedule().getId());
-            else if ((custom && selected == 3) || (!custom && selected == 4))
+            else if (selected == 5)
                 confirmDelete(occurrence.getSchedule());
             else return false;
             return true;
@@ -430,14 +429,44 @@ public class ScheduleActivity extends AppCompatActivity {
 
     private void openWorkout(ScheduledWorkout schedule) {
         if (schedule.isCustom()) {
-            Snackbar.make(findViewById(R.id.scheduleRoot),
-                    "Custom workout details are not available here yet.", Snackbar.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, CustomWorkoutDetailActivity.class);
+            intent.putExtra(CustomWorkoutDetailActivity.EXTRA_WORKOUT_ID, schedule.getCustomWorkoutId());
+            startActivity(intent);
             return;
         }
         Intent intent = new Intent(this, WorkoutDetailActivity.class);
         intent.putExtra(WorkoutListActivity.EXTRA_WORKOUT_NAME, schedule.getWorkoutName());
         intent.putExtra(WorkoutListActivity.EXTRA_PREVIEW_MODE, previewMode);
         startActivity(intent);
+    }
+
+    private void editRecurrence(ScheduledWorkout schedule) {
+        Spinner repeat = new Spinner(this);
+        repeat.setPopupBackgroundResource(R.color.performance_surface);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                R.layout.spinner_item_selected, REPEAT_OPTIONS);
+        adapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
+        repeat.setAdapter(adapter);
+        Recurrence current = schedule.getRecurrence();
+        int selection = current == null ? 0
+                : current.getFrequency() == Recurrence.Frequency.DAILY ? 1
+                : current.getFrequency() == Recurrence.Frequency.WEEKLY ? 2 : 3;
+        repeat.setSelection(selection);
+        LinearLayout form = new LinearLayout(this);
+        form.setPadding(dp(22), dp(8), dp(22), dp(4));
+        form.addView(repeat, new LinearLayout.LayoutParams(-1, dp(50)));
+        new AlertDialog.Builder(this).setTitle("Change repeat")
+                .setMessage("This updates the repeating plan and its future dates.")
+                .setView(form).setNegativeButton("Cancel", null)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    Recurrence updated = recurrenceAt(repeat.getSelectedItemPosition());
+                    scheduleService.setRecurrence(schedule.getId(), updated, new ServiceCallback<Void>() {
+                        @Override public void onSuccess(Void ignored) {
+                            loadWeek(); showMessage("Repeat setting updated.");
+                        }
+                        @Override public void onError(String message) { showMessage(message); }
+                    });
+                }).show();
     }
 
     private void markCompleted(ScheduleOccurrence occurrence) {
