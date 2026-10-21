@@ -14,6 +14,7 @@ final class UiColors {
     static final int INK = 0xFF10140B;
     static final int SUCCESS = 0xFFD08BFF;
     static final int SUCCESS_TINT = 0xFF321943;
+    static final int WARNING = 0xFFFFC66E;
     static final int DIFFICULTY_BEGINNER = 0xFF4DDE91;
     static final int DIFFICULTY_INTERMEDIATE = 0xFFFFD166;
     static final int DIFFICULTY_ADVANCED = 0xFFFF6B72;

@@ -10,6 +10,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
@@ -64,6 +65,10 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
+        WindowInsetsControllerCompat insetsController = new WindowInsetsControllerCompat(
+                getWindow(), getWindow().getDecorView());
+        insetsController.setAppearanceLightStatusBars(false);
+        insetsController.setAppearanceLightNavigationBars(false);
 
         previewMode = getIntent().getBooleanExtra(EXTRA_PREVIEW_MODE, false);
         if (!previewMode) {
@@ -247,9 +252,9 @@ public class HomeActivity extends AppCompatActivity {
                 lastWorkoutDetails.setText(date + " · " + formatDuration(latest.getDurationSeconds())
                         + " · " + String.format(java.util.Locale.getDefault(), "%.0f kcal",
                         latest.getKcal()));
-                lastWorkoutStatus.setText(latest.getStatus());
-                lastWorkoutStatus.setTextColor(WorkoutLog.STATUS_COMPLETED.equals(latest.getStatus())
-                        ? UiColors.SUCCESS : UiColors.ORANGE_DARK);
+                boolean completed = WorkoutLog.STATUS_COMPLETED.equals(latest.getStatus());
+                lastWorkoutStatus.setText(completed ? "Completed" : "Partial");
+                lastWorkoutStatus.setTextColor(completed ? UiColors.SUCCESS : UiColors.WARNING);
             }
 
             @Override
@@ -262,6 +267,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private String formatDuration(long seconds) {
+        if (seconds > 0 && seconds < 60) return "<1 min";
         long minutes = Math.max(0, seconds) / 60;
         long hours = minutes / 60;
         long remainingMinutes = minutes % 60;
