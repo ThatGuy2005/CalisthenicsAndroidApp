@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:gravity="center_vertical"
-            android:text="‹  Data &amp; privacy"
+            android:text="@string/privacy_policy_back"
             android:textColor="@color/performance_orange_dark"
             android:textSize="15sp" />
 
@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="YOUR INFORMATION"
+            android:text="@string/data_privacy_eyebrow"
             android:textColor="@color/performance_orange_dark"
             android:textSize="12sp"
             android:letterSpacing="0.1"
@@ -37,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="Privacy policy"
+            android:text="@string/privacy_policy_title"
             android:textColor="@color/performance_graphite"
             android:textSize="30sp"
             android:textStyle="bold" />
