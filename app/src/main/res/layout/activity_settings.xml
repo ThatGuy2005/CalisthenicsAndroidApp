@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/settingsRoot" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="24dp">
+        <TextView android:id="@+id/settingsBack" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="@string/settings_back" android:textColor="@color/performance_orange_dark"
+            android:textSize="16sp" android:padding="4dp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:text="@string/settings_title" android:textColor="@color/performance_graphite"
+            android:textSize="30sp" android:textStyle="bold" />
+        <TextView android:id="@+id/settingsProfile" android:layout_width="match_parent"
+            android:layout_height="56dp" android:layout_marginTop="18dp"
+            android:background="@drawable/workout_secondary_button" android:gravity="center_vertical"
+            android:paddingStart="16dp" android:paddingEnd="16dp"
+            android:text="@string/settings_edit_profile" android:textColor="@color/performance_orange_dark"
+            android:textSize="15sp" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="22dp" android:text="@string/settings_units_title"
+            android:textColor="@color/performance_graphite" android:textSize="20sp"
+            android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="5dp" android:text="@string/settings_units_subtitle"
+            android:textColor="@color/performance_muted" android:textSize="14sp" />
+        <Spinner android:id="@+id/settingsUnits" android:layout_width="match_parent"
+            android:layout_height="54dp" android:layout_marginTop="10dp"
+            android:background="@drawable/input_background" android:paddingStart="12dp"
+            android:paddingEnd="12dp" android:popupBackground="@color/performance_surface" />
+        <TextView android:id="@+id/settingsSecurity" android:layout_width="match_parent"
+            android:layout_height="56dp" android:layout_marginTop="16dp"
+            android:background="@drawable/workout_secondary_button" android:gravity="center_vertical"
+            android:paddingStart="16dp" android:paddingEnd="16dp"
+            android:text="@string/settings_account_security" android:textColor="@color/performance_orange_dark"
+            android:textSize="15sp" android:textStyle="bold" />
+        <TextView android:id="@+id/settingsDataPrivacy" android:layout_width="match_parent"
+            android:layout_height="56dp" android:layout_marginTop="8dp"
+            android:background="@drawable/workout_secondary_button" android:gravity="center_vertical"
+            android:paddingStart="16dp" android:paddingEnd="16dp"
+            android:text="@string/settings_data_privacy" android:textColor="@color/performance_orange_dark"
+            android:textSize="15sp" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:text="@string/settings_credits_title"
+            android:textColor="@color/performance_graphite" android:textSize="20sp" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:text="@string/settings_credits_count"
+            android:textColor="@color/performance_graphite" android:textSize="15sp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="5dp" android:autoLink="web"
+            android:text="@string/settings_credits_owner"
+            android:textColor="@color/performance_muted" android:textSize="14sp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="5dp" android:autoLink="web"
+            android:text="@string/settings_credits_source"
+            android:textColor="@color/performance_orange_dark" android:textSize="14sp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="5dp" android:text="@string/settings_credits_format"
+            android:textColor="@color/performance_orange_dark" android:textSize="14sp" />
+    </LinearLayout>
+</ScrollView>

@@ -16,32 +16,36 @@ public class UserRepository implements Repository<User>{
     @Override
     public boolean insert(User object) {
         ContentValues cv = new ContentValues();
+        cv.put("Uid", object.getUid());
         cv.put("Username", object.getUsername());
         cv.put("Email", object.getEmail());
-        cv.put("PasswordHash", object.getPasswordHash());
         cv.put("Height", object.getHeight());
         cv.put("Weight", object.getWeight());
         cv.put("Gender", object.getGender());
-        cv.put("Mode", object.getMode());
-        return Repository.insertDB(db,"Users",cv);
+        SqlHelpers.putIntOrNull(cv, "BirthYear", object.getBirthYear());
+        cv.put("CreatedAt", object.getCreatedAt());
+        cv.put("UpdatedAt", object.getUpdatedAt());
+        return SqlHelpers.insertDB(db,"Users",cv);
     };
 
     @Override
     public boolean delete(User object) {
-        return Repository.deleteDB(db, "Users", "Username = ?", object.getUsername());
+        return SqlHelpers.deleteDB(db, "Users", "Uid = ?", object.getUid());
     };
 
     @Override
     public boolean update(User object) {
         ContentValues cv = new ContentValues();
+        cv.put("Username", object.getUsername());
         cv.put("Email", object.getEmail());
-        cv.put("PasswordHash", object.getPasswordHash());
         cv.put("Height", object.getHeight());
         cv.put("Weight", object.getWeight());
         cv.put("Gender", object.getGender());
-        cv.put("Mode", object.getMode());
-        return Repository.updateDB(db, "Users", cv,
-                "Username = ?", object.getUsername());
+        SqlHelpers.putIntOrNull(cv, "BirthYear", object.getBirthYear());
+        // Keep Firestore's updatedAt. If it is unchanged, the trigger bumps it to now instead.
+        cv.put("UpdatedAt", object.getUpdatedAt());
+        return SqlHelpers.updateDB(db, "Users", cv,
+                "Uid = ?", object.getUid());
     }
 
     @Override
@@ -51,39 +55,36 @@ public class UserRepository implements Repository<User>{
         try(Cursor cursor = db.query("Users",null,null,
             null, null, null, null)) {
             while (cursor.moveToNext()) {
-                user = new User(
-                        cursor.getString(cursor.getColumnIndexOrThrow("Username")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("Email")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("PasswordHash")),
-                        cursor.getDouble(cursor.getColumnIndexOrThrow("Height")),
-                        cursor.getDouble(cursor.getColumnIndexOrThrow("Weight")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("Gender")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("Mode")));
+                user = fromCursor(cursor);
                 users.add(user);
             }
         }
         return users;
     };
 
-    public User getOne(String username) {
-        User user;
-        try (Cursor cursor = db.query("Users", null, "Username = ?",
-                new String[]{username}, null, null, null)) {
+    public User getOne(String uid) {
+        try (Cursor cursor = db.query("Users", null, "Uid = ?",
+                new String[]{uid}, null, null, null)) {
             if(cursor.moveToFirst()) {
-                user = new User(
-                        cursor.getString(cursor.getColumnIndexOrThrow("Username")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("Email")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("PasswordHash")),
-                        cursor.getDouble(cursor.getColumnIndexOrThrow("Height")),
-                        cursor.getDouble(cursor.getColumnIndexOrThrow("Weight")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("Gender")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("Mode")));
-                return user;
+                return fromCursor(cursor);
             } else
             {
                 return null;
             }
         }
+    }
+
+    private User fromCursor(Cursor c) {
+        return new User(
+                c.getString(c.getColumnIndexOrThrow("Uid")),
+                c.getString(c.getColumnIndexOrThrow("Username")),
+                c.getString(c.getColumnIndexOrThrow("Email")),
+                c.getDouble(c.getColumnIndexOrThrow("Height")),
+                c.getDouble(c.getColumnIndexOrThrow("Weight")),
+                c.getString(c.getColumnIndexOrThrow("Gender")),
+                SqlHelpers.intOrNull(c, "BirthYear"),
+                c.getLong(c.getColumnIndexOrThrow("CreatedAt")),
+                c.getLong(c.getColumnIndexOrThrow("UpdatedAt")));
     }
 
     private SQLiteDatabase db;

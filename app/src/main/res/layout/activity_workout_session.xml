@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sessionRoot" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:gravity="center_vertical" android:paddingHorizontal="18dp">
+        <TextView android:id="@+id/sessionCancel" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="@string/session_exit"
+            android:textColor="@color/performance_orange_dark" android:textSize="16sp" android:padding="6dp" />
+        <TextView android:id="@+id/sessionElapsed" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end"
+            tools:text="00:00 elapsed" android:textColor="@color/performance_muted" android:textSize="13sp" />
+    </LinearLayout>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingHorizontal="20dp" android:paddingBottom="22dp">
+            <TextView android:id="@+id/sessionWorkoutName" android:layout_width="match_parent"
+                android:layout_height="wrap_content" tools:text="Workout" android:textColor="@color/performance_muted"
+                android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:id="@+id/sessionProgress" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="6dp" tools:text="Exercise 1 of 5 · Set 1 of 3"
+                android:textColor="@color/performance_orange_dark" android:textSize="14sp" />
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/sessionProgressBar" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                android:max="100" android:progress="0" app:indicatorColor="@color/performance_orange"
+                app:trackColor="@color/performance_border" app:trackThickness="6dp" />
+            <TextView android:id="@+id/sessionExerciseName" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="20dp" tools:text="Exercise"
+                android:textColor="@color/performance_graphite" android:textSize="29sp" android:textStyle="bold" />
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+                android:layout_height="206dp" android:layout_marginTop="14dp" app:cardBackgroundColor="@color/performance_surface"
+                app:cardCornerRadius="22dp" app:strokeColor="@color/performance_border" app:strokeWidth="1dp">
+                <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+                    <ImageView android:id="@+id/sessionAnimation" android:layout_width="match_parent"
+                        android:layout_height="match_parent" android:padding="10dp" android:scaleType="fitCenter"
+                        android:contentDescription="@string/session_animation_description" android:visibility="gone" />
+                    <com.lottiefiles.dotlottie.core.widget.DotLottieAnimation
+                        android:id="@+id/sessionLottieAnimation" android:layout_width="match_parent"
+                        android:layout_height="match_parent" android:visibility="gone" />
+                    <LinearLayout android:id="@+id/sessionAnimationPlaceholder" android:layout_width="match_parent"
+                        android:layout_height="match_parent" android:gravity="center" android:orientation="vertical"
+                        android:padding="20dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/session_preview_label" android:textColor="@color/performance_muted" android:textSize="12sp"
+                            android:textStyle="bold" android:letterSpacing="0.1" />
+                        <TextView android:id="@+id/sessionNoAnimation" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:layout_marginTop="9dp"
+                            android:text="@string/session_no_animation" android:textColor="@color/performance_muted"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:gravity="center_vertical">
+                <TextView android:id="@+id/sessionPhaseLabel" android:layout_width="0dp"
+                    android:layout_height="wrap_content" android:layout_weight="1" tools:text="WORK"
+                    android:textColor="@color/performance_orange_dark" android:textSize="12sp" android:letterSpacing="0.1"
+                    android:textStyle="bold" />
+                <TextView android:id="@+id/sessionTarget" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" tools:text="12 reps" android:textColor="@color/performance_orange_dark"
+                    android:textSize="14sp" android:textStyle="bold" />
+            </LinearLayout>
+            <TextView android:id="@+id/sessionTimer" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="2dp"
+                tools:text="12 reps" android:textColor="@color/performance_graphite" android:textSize="52sp"
+                android:textStyle="bold" android:fontFamily="sans" />
+            <TextView android:id="@+id/sessionNext" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="2dp"
+                tools:text="Next: Squats" android:textColor="@color/performance_muted" android:textSize="14sp" />
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="18dp" app:cardBackgroundColor="@color/performance_surface"
+                app:cardCornerRadius="18dp" app:strokeColor="@color/performance_border" app:strokeWidth="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="@string/session_form_guide" android:textColor="@color/performance_muted" android:textSize="11sp"
+                        android:letterSpacing="0.1" android:textStyle="bold" />
+                    <TextView android:id="@+id/sessionInstructions" android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:layout_marginTop="8dp"
+                        tools:text="Follow the movement with controlled form." android:textColor="@color/performance_graphite"
+                        android:textSize="14sp" android:lineSpacingExtra="3dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="18dp" android:gravity="center_vertical">
+                <TextView android:id="@+id/sessionPause" android:layout_width="0dp"
+                    android:layout_height="48dp" android:layout_weight="1" android:gravity="center"
+                    tools:text="Pause" android:textColor="@color/performance_orange_dark" android:textSize="15sp"
+                    android:textStyle="bold" android:background="@drawable/workout_secondary_button"
+                    android:clickable="true" android:focusable="true" />
+                <TextView android:id="@+id/sessionSkipExercise" android:layout_width="0dp"
+                    android:layout_height="48dp" android:layout_weight="1" android:layout_marginStart="10dp"
+                    android:gravity="center" android:text="@string/session_skip_exercise" android:textColor="@color/performance_muted"
+                    android:textSize="14sp" android:background="@drawable/workout_secondary_button"
+                    android:clickable="true" android:focusable="true" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingHorizontal="20dp" android:paddingTop="10dp"
+        android:paddingBottom="14dp" android:background="@drawable/page_background">
+        <TextView android:id="@+id/sessionMainAction" android:layout_width="match_parent"
+            android:layout_height="54dp" android:gravity="center" tools:text="Set done"
+            android:textColor="@color/performance_ink" android:textSize="16sp" android:textStyle="bold"
+            android:background="@drawable/workout_primary_button" android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+</LinearLayout>

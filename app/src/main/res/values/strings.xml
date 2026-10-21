@@ -1,3 +1,597 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">CalisthenicsApp</string>
+
+    <string name="brand" translatable="false">CALISTHENICS</string>
+
+    <!-- Shared by several screens -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_save">Save</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_done">Done</string>
+    <!-- A duration in whole minutes ("42 min"); the abbreviation stays the same for any count. -->
+    <string name="duration_minutes" tools:ignore="PluralsCandidate">%1$d min</string>
+    <string name="duration_hours" tools:ignore="PluralsCandidate">%1$d h</string>
+    <string name="duration_hours_minutes" tools:ignore="PluralsCandidate">%1$d h %2$d min</string>
+    <string name="duration_under_minute">&lt;1 min</string>
+    <!-- Calories rounded to whole kcal ("185 kcal"). -->
+    <string name="energy_kcal">%1$.0f kcal</string>
+    <!-- An exercise's target: seconds ("30 sec") or reps ("12 reps"). -->
+    <string name="target_seconds" tools:ignore="PluralsCandidate">%1$d sec</string>
+    <plurals name="target_reps">
+        <item quantity="one">%d rep</item>
+        <item quantity="other">%d reps</item>
+    </plurals>
+    <!-- When a timed or rep exercise has no number set. -->
+    <string name="target_timed">Timed</string>
+    <string name="target_reps_unknown">Reps</string>
+    <!-- %1$s is a target from above ("12 reps per side"). -->
+    <string name="target_per_side">%1$s per side</string>
+    <!-- The same, where space is short (pills, cards). -->
+    <string name="target_per_side_short">%1$s / side</string>
+    <plurals name="target_sets">
+        <item quantity="one">%d set</item>
+        <item quantity="other">%d sets</item>
+    </plurals>
+    <!-- Rest between sets; "sec" stays the same for any count. -->
+    <string name="target_rest" tools:ignore="PluralsCandidate">%1$d sec rest</string>
+    <!-- Sets, target, rest: "3 sets  ·  12 reps  ·  60 sec rest". -->
+    <string name="target_sets_target_rest">"%1$s  ·  %2$s  ·  %3$s"</string>
+    <!-- For a bottom bar item that has no screen; every item has one now. -->
+    <string name="nav_coming_next">This section is coming next.</string>
+
+    <!-- Shared by the login and sign-up screens -->
+    <string name="hint_email">Email</string>
+
+    <!-- Login (activity_main) -->
+    <string name="login_title">Welcome back</string>
+    <string name="login_subtitle">Log in to continue your training</string>
+    <string name="login_hint_password">Password</string>
+    <string name="login_button">Log in</string>
+    <string name="login_new_here">New to Calisthenics?</string>
+    <string name="login_create_account">Create an account</string>
+    <string name="login_forgot_password">Forgot password?</string>
+    <string name="login_error_empty">Enter your email and password.</string>
+
+    <!-- Sign-up (activity_signup) -->
+    <string name="signup_back">"‹  Back to login"</string>
+    <string name="signup_create_account">Create account</string>
+    <string name="signup_subtitle">A few details to get your training started</string>
+    <string name="signup_hint_username">Username</string>
+    <string name="signup_hint_password">Password (8+ characters, a letter and a digit)</string>
+    <string name="signup_hint_height">Height (cm) — optional</string>
+    <string name="signup_hint_weight">Weight (kg) — optional</string>
+    <string name="signup_hint_weight_imperial">Weight (lb) — optional</string>
+    <string name="signup_hint_birth_year">Birth year — optional</string>
+    <string name="signup_optional_note">Optional profile details · weight improves calorie estimates (70 kg assumed if omitted)</string>
+    <string name="signup_optional_note_imperial">Optional profile details · weight improves calorie estimates (154 lb assumed if omitted)</string>
+    <string name="signup_gender_label">Gender (optional)</string>
+    <!-- The first item means none; the others are saved as the user's gender. -->
+    <string-array name="signup_genders">
+        <item>Select gender</item>
+        <item>Female</item>
+        <item>Male</item>
+        <item>Prefer not to say</item>
+    </string-array>
+    <string name="signup_error_username">Username is required</string>
+    <string name="signup_error_email">Enter a valid email address</string>
+    <string name="signup_error_password">Use 8–64 characters with at least one letter and one digit</string>
+    <!-- %1$d is the earliest year, not a count, so no plural. -->
+    <string name="signup_error_birth_year" tools:ignore="PluralsCandidate">Enter a year between %1$d and this year</string>
+    <string name="signup_success">Account created.</string>
+    <string name="signup_in_progress">Creating your account, please wait.</string>
+
+    <!-- Height in imperial units: whole feet and inches (sign-up and profile, see HeightInput) -->
+    <string name="height_hint_feet">Height (ft)</string>
+    <string name="height_hint_inches">Inches</string>
+
+    <!-- Profile (activity_profile); account security uses the back link and the eyebrow too,
+         data & privacy the back link. -->
+    <string name="profile_back">"‹  Settings"</string>
+    <string name="profile_eyebrow">YOUR ACCOUNT</string>
+    <string name="profile_title">Edit profile</string>
+    <string name="profile_subtitle">Keep your details up to date for a more personal training experience.</string>
+    <string name="profile_username_label">Username</string>
+    <string name="profile_email_label">Email address</string>
+    <string name="profile_email_note">To change your email, use Account security in Settings.</string>
+    <string name="profile_height_label_metric">Height (cm) · optional</string>
+    <string name="profile_height_label_imperial">Height (ft, in) · optional</string>
+    <string name="profile_weight_label_metric">Weight (kg) · optional</string>
+    <string name="profile_weight_label_imperial">Weight (lb) · optional</string>
+    <string name="profile_hint_height">Height in cm</string>
+    <string name="profile_hint_weight">Weight in kg</string>
+    <string name="profile_hint_weight_imperial">Weight in lb</string>
+    <string name="profile_gender_label">Gender · optional</string>
+    <string name="profile_birth_year_label">Birth year · optional</string>
+    <string name="profile_hint_birth_year">e.g. 1995</string>
+    <string name="profile_calories_note">Height, weight and birth year help estimate calories during workouts.</string>
+    <string name="profile_save">Save profile</string>
+    <string name="profile_loading">Loading profile…</string>
+    <string name="profile_saving">Saving…</string>
+    <string name="profile_saved">Profile saved.</string>
+    <string name="profile_unavailable">Your profile isn\'t available yet. Check your connection and try again.</string>
+    <string name="profile_email_not_set">Not set</string>
+    <string name="profile_error_username">Use 3–20 letters or digits.</string>
+    <string name="profile_error_gender">Gender can be at most 30 characters.</string>
+
+    <!-- Account security (activity_account_security) -->
+    <string name="security_title">Account security</string>
+    <string name="security_subtitle">Confirm your current password to make account changes.</string>
+    <string name="security_password_title">Change password</string>
+    <string name="security_hint_current_password">Current password</string>
+    <string name="security_hint_new_password">New password · 8–64 characters</string>
+    <string name="security_hint_confirm_password">Confirm new password</string>
+    <string name="security_update_password">Update password</string>
+    <string name="security_email_title">Change email</string>
+    <string name="security_hint_new_email">New email address</string>
+    <string name="security_email_note">We\'ll email you a confirmation link. Your address changes after you open it.</string>
+    <string name="security_send_link">Send confirmation link</string>
+    <string name="security_error_current_password">Enter your current password.</string>
+    <string name="security_error_mismatch">The passwords don\'t match.</string>
+    <string name="security_updating">Updating…</string>
+    <string name="security_password_updated">Your password has been updated.</string>
+    <string name="security_sending">Sending…</string>
+    <string name="security_email_sent">Confirmation link sent. Your email will change after you open it.</string>
+
+    <!-- Forgot password (activity_forgot_password); the back link is signup_back. -->
+    <string name="forgot_title">Reset password</string>
+    <string name="forgot_subtitle">Enter your account\'s email and we\'ll send you a link to set a new password.</string>
+    <string name="forgot_send">Send reset link</string>
+    <!-- Worded so it never says whether an account exists for the address. -->
+    <string name="forgot_sent">Check your inbox. If an account uses that email, a reset link is on its way.</string>
+
+    <!-- Home (activity_home) -->
+    <string name="home_settings">Settings</string>
+    <string name="home_sign_out">Sign out</string>
+    <string name="home_title">Ready to move?</string>
+    <string name="home_subtitle">Your training, one step at a time.</string>
+    <string name="home_up_next">UP NEXT</string>
+    <string name="home_schedule_loading">Loading your schedule…</string>
+    <string name="home_next_workout_hint">Your next planned workout</string>
+    <string name="home_view_schedule">View schedule</string>
+    <string name="home_this_week">This week</string>
+    <string name="home_this_week_hint">Activity from your logged sessions</string>
+    <string name="home_stat_placeholder" translatable="false">—</string>
+    <string name="home_stat_workouts">sessions</string>
+    <string name="home_stat_time">time trained</string>
+    <string name="home_stat_kcal">kcal burned</string>
+    <string name="home_last_workout">Recent activity</string>
+    <string name="home_history_loading">Loading your history…</string>
+    <string name="home_quick_access">Quick access</string>
+    <string name="home_browse_workouts">Browse workouts</string>
+    <string name="home_exercises">Exercises</string>
+    <string name="home_nothing_scheduled">Nothing scheduled yet</string>
+    <string name="home_nothing_scheduled_hint">Choose a workout and plan your next session.</string>
+    <string name="home_upcoming_workout">Upcoming workout</string>
+    <string name="home_custom_workout">Your custom workout</string>
+    <string name="home_upcoming_unavailable">Upcoming workout unavailable</string>
+    <string name="home_no_workouts">No workouts logged yet</string>
+    <string name="home_no_workouts_hint">Complete your first workout to see it here.</string>
+    <!-- Date and time, duration ("42 min"), kcal. -->
+    <string name="home_last_workout_details">%1$s · %2$s · %3$.0f kcal</string>
+    <string name="home_history_unavailable">Workout history unavailable</string>
+    <string name="home_status_completed">Completed</string>
+    <string name="home_status_partial">Partial</string>
+
+    <!-- Bottom navigation (menu/home_bottom_navigation) -->
+    <string name="nav_home">Home</string>
+    <string name="nav_workouts">Workouts</string>
+    <string name="nav_exercises">Exercises</string>
+    <string name="nav_schedule">Schedule</string>
+    <string name="nav_history">History</string>
+
+    <!-- Exercise library (activity_exercise_list) -->
+    <string name="exercise_list_title">Exercise library</string>
+    <string name="exercise_list_subtitle">Find a movement and learn the right form.</string>
+    <string name="exercise_list_search_hint">Search</string>
+    <string name="exercise_list_loading">Loading exercises…</string>
+    <string name="exercise_list_filters_failed">Couldn\'t load the exercise filters.</string>
+    <string name="exercise_list_failed">Exercises unavailable.</string>
+    <plurals name="exercise_list_count">
+        <item quantity="one">%d exercise</item>
+        <item quantity="other">%d exercises</item>
+    </plurals>
+    <string name="exercise_list_no_match">No exercises match these filters.</string>
+    <string name="exercise_list_form">"Form  →"</string>
+    <!-- The first option of each filter; it means no filter. -->
+    <string name="exercise_list_all_groups">All muscle groups</string>
+    <string name="exercise_list_all_levels">All levels</string>
+    <!-- The badge of an exercise without a muscle group (otherwise its first letters). -->
+    <string name="exercise_list_mark_none">EX</string>
+
+    <!-- Exercise detail (activity_exercise_detail) -->
+    <string name="exercise_detail_back">"‹  Exercises"</string>
+    <string name="exercise_detail_eyebrow">EXERCISE GUIDE</string>
+    <string name="exercise_detail_preview_label">MOVEMENT PREVIEW</string>
+    <string name="exercise_detail_animation_description">Exercise form animation</string>
+    <string name="exercise_detail_preview_icon" translatable="false">↗</string>
+    <string name="exercise_detail_preview_title">Movement demo</string>
+    <string name="exercise_detail_preview_empty">A movement preview will appear here.</string>
+    <string name="exercise_detail_steps_title">How to do it</string>
+    <string name="exercise_detail_steps_hint">Take your time and focus on good form.</string>
+    <string name="exercise_detail_form_tip">FORM TIP</string>
+    <string name="exercise_detail_details_title">Exercise details</string>
+    <string name="exercise_detail_equipment">EQUIPMENT</string>
+    <string name="exercise_detail_target">SUGGESTED TARGET</string>
+    <!-- %1$s is the muscle group. -->
+    <string name="exercise_detail_compound">%1$s · Compound movement</string>
+    <string name="exercise_detail_focused">%1$s · Focused movement</string>
+    <string name="exercise_detail_not_found">This exercise could not be found.</string>
+    <!-- %1$s is the target: exercise_detail_seconds or target_reps, maybe with target_per_side. -->
+    <string name="exercise_detail_suggested">Suggested target: %1$s</string>
+    <plurals name="exercise_detail_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+
+    <!-- Workout list (activity_workout_list) -->
+    <string name="workout_list_title">Workouts</string>
+    <string name="workout_list_subtitle">Choose a ready-made routine for today.</string>
+    <string name="workout_list_loading">Loading workouts…</string>
+    <string name="workout_list_failed">Workouts couldn\'t be loaded.</string>
+    <plurals name="workout_list_count">
+        <item quantity="one">%d workout</item>
+        <item quantity="other">%d workouts</item>
+    </plurals>
+    <string name="workout_list_empty_category">No workouts in this category.</string>
+    <!-- %1$s is the category in capitals. -->
+    <string name="workout_list_routine">%1$s ROUTINE</string>
+    <string name="workout_list_view_plan">"View plan  →"</string>
+    <string name="workout_list_my_workouts">"My workouts  →"</string>
+    <!-- The first option of the type filter. -->
+    <string name="workout_list_all_types">All workout types</string>
+    <!-- Also used by the workout detail: a workout without a category or level, or a length. -->
+    <string name="workout_no_category">Workout</string>
+    <string name="workout_any_level">All levels</string>
+    <string name="workout_time_varies">time varies</string>
+
+    <!-- My workouts (CustomWorkoutsActivity, built in code) -->
+    <string name="custom_workouts_loading">Loading your workouts…</string>
+    <plurals name="custom_workouts_count">
+        <item quantity="one">%d saved workout</item>
+        <item quantity="other">%d saved workouts</item>
+    </plurals>
+    <string name="custom_workouts_failed">Couldn\'t load workouts</string>
+    <!-- %1$s is the workout's name. Deleting it also deletes every schedule entry for it. -->
+    <string name="custom_workouts_delete_message">“%1$s” will be removed, along with all its schedule entries.</string>
+    <string name="custom_workouts_back">"‹  Workouts"</string>
+    <string name="custom_workouts_eyebrow">MY TRAINING</string>
+    <string name="custom_workouts_title">My workouts</string>
+    <string name="custom_workouts_subtitle">Build a routine that fits your goals.</string>
+    <string name="custom_workouts_create">"＋   Create workout"</string>
+    <string name="custom_workouts_copy">Copy a ready-made plan</string>
+    <string name="custom_workouts_empty">No custom workouts yet. Create one or copy a plan to get started.</string>
+    <string name="custom_workouts_no_description">Your custom routine</string>
+    <!-- In place of the length when the workout has none yet. -->
+    <string name="custom_workouts_no_length">Ready to train</string>
+    <string name="custom_workouts_start">Start</string>
+    <string name="custom_workouts_edit">Edit</string>
+    <!-- The "•••" menu of a workout, in this order: view, edit, rename, delete. -->
+    <string-array name="custom_workouts_actions">
+        <item>View workout</item>
+        <item>Edit workout</item>
+        <item>Rename</item>
+        <item>Delete</item>
+    </string-array>
+    <string name="custom_workouts_copy_title">Choose a plan to copy</string>
+    <string name="custom_workouts_copied">Workout copied — you can edit it now.</string>
+    <string name="custom_workouts_rename_title">Rename workout</string>
+    <string name="custom_workouts_delete_title">Delete workout?</string>
+
+    <!-- Custom workout editor (CustomWorkoutEditorActivity, built in code) -->
+    <string name="custom_editor_count_empty">Choose at least one exercise</string>
+    <plurals name="custom_editor_count">
+        <item quantity="one">%d exercise · arrange the order with the arrows</item>
+        <item quantity="other">%d exercises · arrange the order with the arrows</item>
+    </plurals>
+    <string name="custom_editor_create">Create workout</string>
+    <string name="custom_editor_save">Save changes</string>
+    <string name="custom_editor_saving">Saving…</string>
+    <string name="custom_editor_back">"‹  My workouts"</string>
+    <string name="custom_editor_eyebrow_new">BUILD YOUR ROUTINE</string>
+    <string name="custom_editor_eyebrow_edit">MAKE IT YOURS</string>
+    <!-- The title of a new workout is custom_editor_create. -->
+    <string name="custom_editor_title_edit">Edit workout</string>
+    <string name="custom_editor_intro">Give your session a name, then choose and arrange its exercises.</string>
+    <string name="custom_editor_details_label">WORKOUT DETAILS</string>
+    <string name="custom_editor_hint_name">Workout name</string>
+    <string name="custom_editor_hint_description">Description (optional)</string>
+    <string name="custom_editor_exercises_label">EXERCISES</string>
+    <string name="custom_editor_add_exercises">"＋   Add exercises"</string>
+    <string name="custom_editor_loading_library">Loading exercise library…</string>
+    <string name="custom_editor_select_title">Select exercises</string>
+    <!-- For screen readers; %1$s is the exercise's name. -->
+    <string name="custom_editor_settings_description">Edit sets, target and rest for %1$s</string>
+    <string name="custom_editor_edit_description">Edit settings for %1$s</string>
+    <string name="custom_editor_up_description">Move %1$s earlier</string>
+    <string name="custom_editor_down_description">Move %1$s later</string>
+    <string name="custom_editor_remove_description">Remove %1$s</string>
+    <!-- The settings dialog of one exercise; its title is the exercise's name. -->
+    <string name="custom_editor_sets_label">SETS</string>
+    <string name="custom_editor_seconds_label">DURATION PER SET · SECONDS</string>
+    <string name="custom_editor_reps_label">REPS PER SET</string>
+    <string name="custom_editor_rest_label">REST BETWEEN SETS · SECONDS</string>
+    <string name="custom_editor_rest_after_label">REST AFTER EXERCISE · SECONDS</string>
+    <string name="custom_editor_error_settings">Use whole numbers. Sets and targets must be at least 1; rest can be 0 or more.</string>
+    <string name="custom_editor_error_name">Add a name for this workout</string>
+    <string name="custom_editor_error_no_exercises">Add at least one exercise to your workout.</string>
+    <string name="custom_editor_created">Workout created.</string>
+    <string name="custom_editor_updated">Workout updated.</string>
+
+    <!-- Custom workout detail (activity_custom_workout_detail). It shares the back link with
+         the editor, and the name placeholder, exercise count and start button with the
+         workout detail. -->
+    <string name="custom_detail_eyebrow">YOUR ROUTINE</string>
+    <!-- %2$s is the length (duration_minutes) or custom_workouts_no_length. -->
+    <plurals name="custom_detail_meta">
+        <item quantity="one">"%1$d exercise  ·  %2$s"</item>
+        <item quantity="other">"%1$d exercises  ·  %2$s"</item>
+    </plurals>
+    <string name="custom_detail_no_description">Your personal workout routine.</string>
+    <string name="custom_detail_gone">This custom workout is no longer available.</string>
+    <string name="custom_detail_preparing">Getting ready…</string>
+
+    <!-- Workout detail (activity_workout_detail) -->
+    <string name="workout_detail_back">"‹  All workouts"</string>
+    <string name="workout_detail_eyebrow">WORKOUT PLAN</string>
+    <string name="workout_detail_name_placeholder">Workout</string>
+    <string name="workout_detail_exercises">EXERCISES</string>
+    <string name="workout_detail_start">Start workout</string>
+    <string name="workout_detail_hint">Tap any exercise to review its movement and form.</string>
+    <string name="workout_detail_preparing">Preparing workout…</string>
+    <!-- Category, level, estimated duration. -->
+    <string name="workout_detail_meta">"%1$s  ·  %2$s  ·  %3$s"</string>
+    <string name="workout_detail_exercise_count">"EXERCISES  ·  %1$d"</string>
+    <string name="workout_detail_view_exercise">"View instructions &amp; animation  →"</string>
+    <string name="workout_detail_not_found">Workout not found.</string>
+    <!-- %1$d is the rest in seconds; "sec" stays the same for any count. -->
+    <string name="workout_detail_rest" tools:ignore="PluralsCandidate">Rest %1$d sec</string>
+    <!-- For screen readers: the exercise's place in the workout and its name. -->
+    <string name="workout_detail_card_description">Exercise %1$d: %2$s. Tap to view instructions and animation.</string>
+
+    <!-- Workout session (activity_workout_session) -->
+    <string name="session_exit">"‹  Exit workout"</string>
+    <string name="session_animation_description">Exercise movement animation</string>
+    <string name="session_preview_label">MOVEMENT PREVIEW</string>
+    <string name="session_no_animation">Follow the movement guide below</string>
+    <string name="session_form_guide">FORM GUIDE</string>
+    <string name="session_skip_exercise">Skip exercise</string>
+    <string name="session_progress">"Exercise %1$d of %2$d  ·  Set %3$d of %4$d"</string>
+    <string name="session_default_instructions">Move with control and keep a comfortable range of motion.</string>
+    <!-- %1$s is the elapsed time ("12:34"). -->
+    <string name="session_elapsed">"%1$s elapsed  ·  %2$.0f kcal"</string>
+    <string name="session_phase_rest">REST · RECOVER FOR THE NEXT SET</string>
+    <string name="session_phase_paused">PAUSED</string>
+    <string name="session_phase_set">YOUR SET</string>
+    <string name="session_skip_rest">Skip rest</string>
+    <string name="session_finish_set">Finish set</string>
+    <string name="session_set_done">Set done</string>
+    <!-- Exercise name, set number. -->
+    <string name="session_get_ready">Get ready for %1$s · Set %2$d</string>
+    <string name="session_last_exercise">Last exercise · you’re doing great</string>
+    <string name="session_next_up">Next up · %1$s</string>
+    <string name="session_pause">Pause</string>
+    <string name="session_resume">Resume</string>
+    <!-- For screen readers; %1$s is the exercise's name. The exercise detail uses it too. -->
+    <string name="session_animation_named">%1$s movement animation</string>
+    <!-- When the user does not allow the app to see calls, so it cannot pause for one. -->
+    <string name="session_call_pause_denied">Workout will continue normally. You can pause it manually during a call.</string>
+    <string name="session_keep_going">Keep going</string>
+    <string name="session_skip_title">Skip this exercise?</string>
+    <string name="session_skip_message">Its remaining sets will be skipped and the workout will be saved as partial.</string>
+    <string name="session_end_title">End workout?</string>
+    <string name="session_end_message_nothing">No completed sets will be saved.</string>
+    <string name="session_end_message_partial">Your completed sets will be saved as a partial workout.</string>
+    <string name="session_end_workout">End workout</string>
+
+    <!-- Workout summary (activity_workout_summary) -->
+    <string name="summary_eyebrow">WORKOUT COMPLETE</string>
+    <string name="summary_duration_label">DURATION</string>
+    <string name="summary_calories_label">CALORIES</string>
+    <string name="summary_exercises_label">YOUR EXERCISES</string>
+    <string name="summary_home">Back to home</string>
+    <string name="summary_workouts">Choose another workout</string>
+    <string name="summary_title_complete">Nice work!</string>
+    <string name="summary_title_partial">Good effort!</string>
+    <string name="summary_workout_completed">%1$s · Completed</string>
+    <string name="summary_workout_partial">%1$s · Partial workout</string>
+    <!-- Completed sets of all sets; the quantity is the total. -->
+    <plurals name="summary_sets">
+        <item quantity="one">%1$d of %2$d set completed</item>
+        <item quantity="other">%1$d of %2$d sets completed</item>
+    </plurals>
+    <plurals name="summary_exercise_sets">
+        <item quantity="one">%1$d / %2$d set</item>
+        <item quantity="other">%1$d / %2$d sets</item>
+    </plurals>
+    <string name="summary_nothing_to_save">No completed sets to save.</string>
+    <string name="summary_saving">Saving your workout…</string>
+    <string name="summary_saved">Workout saved to your history.</string>
+    <string name="summary_save_failed">Could not save yet. Tap here to retry.</string>
+
+    <!-- Schedule (activity_schedule) -->
+    <string name="schedule_title">Your schedule</string>
+    <string name="schedule_subtitle">Make a little time for your next session.</string>
+    <string name="schedule_previous_week" translatable="false">‹</string>
+    <string name="schedule_next_week" translatable="false">›</string>
+    <string name="schedule_add">"＋  Plan a workout"</string>
+    <string name="schedule_today">Today</string>
+    <!-- %1$s is how it repeats ("Every Monday", "One-time workout"). -->
+    <string name="schedule_repeat_custom">"%1$s  ·  CUSTOM"</string>
+    <string name="schedule_repeat_workout">"%1$s  ·  WORKOUT"</string>
+    <string name="schedule_mark_complete">"Mark as complete  ✓"</string>
+    <string name="schedule_add_to_calendar">Add to my phone calendar</string>
+    <string name="schedule_day_subtitle">Your plan for this day</string>
+    <plurals name="schedule_plan_count">
+        <item quantity="one">YOUR PLAN · %d SESSION</item>
+        <item quantity="other">YOUR PLAN · %d SESSIONS</item>
+    </plurals>
+    <string name="schedule_load_failed">Your schedule could not be loaded.</string>
+    <string name="schedule_empty_title">A little space for your next session.</string>
+    <string name="schedule_empty_message">Nothing planned yet. Pick a workout and set a time that works for you.</string>
+    <string name="schedule_preview_title">Your training week starts here</string>
+    <string name="schedule_preview_message">Choose a date and plan your first workout.</string>
+    <!-- In place of the repeat ("Every Monday") for a workout planned once. -->
+    <string name="schedule_one_time">One-time workout</string>
+    <string name="schedule_status_completed">COMPLETED</string>
+    <string name="schedule_status_missed">MISSED</string>
+    <string name="schedule_status_planned">PLANNED</string>
+    <string name="schedule_options">Workout options</string>
+    <string name="schedule_card_custom">Scheduled custom workout</string>
+    <!-- %1$s is the workout's name. -->
+    <string name="schedule_card_workout">Scheduled workout %1$s</string>
+    <!-- The menu of a planned workout, in this order: view, reschedule, repeat, calendar, email, delete. -->
+    <string-array name="schedule_occurrence_actions">
+        <item>View workout</item>
+        <item>Change date and time</item>
+        <item>Change repeat</item>
+        <item>Add to phone calendar</item>
+        <item>Email invite</item>
+        <item>Delete plan</item>
+    </string-array>
+    <string name="schedule_custom_workout">Custom workout</string>
+    <!-- The "Change repeat" dialog; its choices are schedule_repeat_options. -->
+    <string name="schedule_repeat_title">Change repeat</string>
+    <string name="schedule_repeat_message">This updates the repeating plan and its future dates.</string>
+    <string name="schedule_repeat_updated">Repeat setting updated.</string>
+    <string name="schedule_marked_complete">Workout marked complete.</string>
+    <string name="schedule_delete_title">Delete this plan?</string>
+    <string name="schedule_delete_message_repeating">This removes the repeating workout and its future dates.</string>
+    <string name="schedule_delete_message_once">This removes the workout from your schedule.</string>
+    <string name="schedule_delete_keep">Keep it</string>
+    <string name="schedule_deleted">Plan deleted.</string>
+    <string name="schedule_rescheduled">Workout rescheduled.</string>
+    <string name="schedule_added_to_calendar">Added to your phone calendar.</string>
+    <string name="schedule_no_email_app">No email app is available.</string>
+    <string name="schedule_calendar_denied">Plan saved. Calendar access was not granted.</string>
+    <string name="schedule_saved_without_calendar">Plan saved without adding it to your phone calendar.</string>
+    <string name="schedule_preview_sign_in">Sign in to add workouts to your schedule.</string>
+    <string name="schedule_workouts_loading">Loading your workouts. Try again in a moment.</string>
+    <string name="schedule_no_workouts">Create or choose a workout before planning a session.</string>
+    <!-- The "Plan a workout" dialog. -->
+    <string name="schedule_form_title">Plan a workout</string>
+    <string name="schedule_form_workout">WORKOUT</string>
+    <string name="schedule_form_date_time">DATE AND TIME</string>
+    <string name="schedule_form_repeat">REPEAT</string>
+    <!-- In this order: none, daily, weekly, monthly (see recurrenceAt). -->
+    <string-array name="schedule_repeat_options">
+        <item>Does not repeat</item>
+        <item>Every day</item>
+        <item>Every week</item>
+        <item>Every month</item>
+    </string-array>
+    <!-- A custom workout in the workout picker; %1$s is its name. -->
+    <string name="schedule_my_workout_option">%1$s · My workout</string>
+    <string name="schedule_form_save">Save plan</string>
+    <string name="schedule_choose_workout">Choose a workout first.</string>
+    <string name="schedule_past_time">Choose a future date and time.</string>
+    <string name="schedule_added">Workout added to your schedule.</string>
+
+    <!-- History (activity_history); the zeros show until the stats load. -->
+    <string name="history_title">Training history</string>
+    <string name="history_subtitle">Your progress, one workout at a time.</string>
+    <string name="history_period_week">This week</string>
+    <string name="history_period_month">This month</string>
+    <string name="history_period_all">All time</string>
+    <string name="history_workouts_label">WORKOUTS</string>
+    <string name="history_workouts_placeholder">0</string>
+    <string name="history_time_label">TRAINING TIME</string>
+    <string name="history_time_placeholder">0 min</string>
+    <string name="history_calories_label">CALORIES</string>
+    <string name="history_calories_placeholder">0 kcal</string>
+    <string name="history_completion_placeholder">"0 completed  ·  0 partial"</string>
+    <string name="history_recent">Recent workouts</string>
+    <string name="history_log_count_placeholder">0 workouts</string>
+    <string name="history_loading">Loading your workouts…</string>
+    <string name="history_stats_failed">Could not load statistics. Pull down or choose a period to retry.</string>
+    <string name="history_logs_failed">Workout history could not be loaded. Choose a period to retry.</string>
+    <string name="history_empty">No workouts in this period yet. Complete a workout and it will appear here.</string>
+    <!-- "completed" and "partial" stay the same for any count, so no plural. -->
+    <string name="history_completion" tools:ignore="PluralsCandidate">"%1$d completed  ·  %2$d partial"</string>
+    <plurals name="history_log_count">
+        <item quantity="one">%d workout</item>
+        <item quantity="other">%d workouts</item>
+    </plurals>
+    <string name="history_card_hint">"Tap for workout details  ·  Hold to delete"</string>
+    <!-- Date and time, then duration, kcal and status. -->
+    <string name="history_log_summary">%1$s\n%2$s · %3$.0f kcal · %4$s</string>
+    <string name="history_exercises_header">EXERCISES</string>
+    <!-- Exercise name, then sets and target. -->
+    <string name="history_exercise_line">%1$s\n%2$s</string>
+    <string name="history_status_completed">COMPLETED</string>
+    <string name="history_status_partial">PARTIAL</string>
+    <plurals name="history_exercise_count">
+        <item quantity="one">%d exercise</item>
+        <item quantity="other">%d exercises</item>
+    </plurals>
+    <!-- For screen readers: the workout's name and its status. -->
+    <string name="history_card_description">%1$s, %2$s. Tap to see details.</string>
+    <string name="history_preview_no_delete">Preview workout logs cannot be deleted.</string>
+    <!-- Sets done of all sets, then the target; the quantity is all sets. -->
+    <plurals name="history_sets_done">
+        <item quantity="one">"%1$d of %2$d set  ·  %3$s"</item>
+        <item quantity="other">"%1$d of %2$d sets  ·  %3$s"</item>
+    </plurals>
+    <string name="history_delete_title">Delete workout log?</string>
+    <!-- %1$s is the workout's name. -->
+    <string name="history_delete_message">“%1$s” will be removed from your history.</string>
+    <string name="history_delete_keep">Keep</string>
+    <string name="history_deleted">Workout removed from history.</string>
+
+    <!-- Settings (activity_settings) -->
+    <string name="settings_back">"‹  Home"</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_edit_profile">"Edit profile  →"</string>
+    <string name="settings_units_title">Units</string>
+    <string name="settings_units_subtitle">Choose how height and weight are displayed.</string>
+    <string name="settings_account_security">"Account security  →"</string>
+    <string name="settings_data_privacy">"Data &amp; privacy  →"</string>
+    <string name="settings_units_set_imperial">Units set to pounds and feet.</string>
+    <string name="settings_units_set_metric">Units set to kilograms and centimetres.</string>
+    <string name="settings_credits_title">Animation credits</string>
+    <string name="settings_credits_count">Exercise animations (23)</string>
+    <string name="settings_credits_owner">© Gym visual — https://gymvisual.com/</string>
+    <string name="settings_credits_source">Source: https://github.com/hasaneyldrm/exercises-dataset</string>
+    <string name="settings_credits_format">180×180 source animations, converted to animated WebP.</string>
+
+    <!-- Data & privacy (activity_data_privacy); the back link is profile_back. -->
+    <string name="data_privacy_eyebrow">YOUR INFORMATION</string>
+    <string name="data_privacy_title">Data &amp; privacy</string>
+    <string name="data_privacy_subtitle">Download a copy of your information or permanently remove your account.</string>
+    <string name="data_privacy_export_title">Download your data</string>
+    <string name="data_privacy_export_note">Exports include your profile, custom workouts, workout history and schedule.</string>
+    <string name="data_privacy_read_policy">Read privacy policy</string>
+    <string name="data_privacy_save_json">Save as JSON</string>
+    <string name="data_privacy_save_csv">Save tables as CSV (.zip)</string>
+    <string name="data_privacy_preparing">Preparing export…</string>
+    <string name="data_privacy_json_saved">JSON export saved.</string>
+    <string name="data_privacy_json_failed">Could not save the JSON export.</string>
+    <string name="data_privacy_csv_saved">CSV export saved as a ZIP file.</string>
+    <string name="data_privacy_delete_title">Delete account</string>
+    <string name="data_privacy_delete_note">This permanently removes your account, profile, custom workouts, schedules and workout history. This can\'t be undone.</string>
+    <string name="data_privacy_delete_button">Delete my account</string>
+    <string name="data_privacy_deleting">Deleting account…</string>
+    <!-- The first dialog: a warning. -->
+    <string name="data_privacy_confirm_title">Delete account permanently?</string>
+    <string name="data_privacy_confirm_message">Your profile, custom workouts, schedules and workout history will be deleted. This cannot be undone.</string>
+    <string name="data_privacy_confirm_keep">Keep account</string>
+    <string name="data_privacy_confirm_continue">Continue</string>
+    <!-- The second dialog asks for the password (hint: security_hint_current_password). -->
+    <string name="data_privacy_password_title">Confirm it\'s you</string>
+    <string name="data_privacy_password_message">Enter your password to permanently delete the account.</string>
+    <string name="data_privacy_password_delete">Delete account</string>
+    <string name="data_privacy_error_password">Enter your current password to continue.</string>
+
+    <!-- Privacy policy (activity_privacy_policy); the eyebrow is data_privacy_eyebrow.
+         The body is HTML for Html.fromHtml: <b> headings, <br><br> between paragraphs
+         and <a> links. -->
+    <string name="privacy_policy_back">"‹  Data &amp; privacy"</string>
+    <string name="privacy_policy_title">Privacy policy</string>
+    <string name="privacy_policy_body"><![CDATA[<b>Last updated: 21 October 2026</b><br><br>
+<b>Who is responsible?</b><br>Tamas Csongor is the controller for personal data processed by Calisthenics. Contact: <a href=\"mailto:tamas.csongor@stud.umfst.ro\">tamas.csongor@stud.umfst.ro</a>.<br><br>
+<b>What information is used?</b><br>Your account username and email address; optional profile details such as height, weight, gender and birth year; and the custom workouts, scheduled workouts and workout history you create. Passwords are handled by Firebase Authentication and are not stored in the app\'s workout database. Firebase Authentication may also process IP addresses and device/browser information for sign-in security. The app keeps a local database copy so your training information can be displayed on the device.<br><br>
+<b>Why is it used?</b><br>Account and workout information is used to sign you in, sync your information between devices, show your training plans and history, and calculate estimates when relevant profile details are provided. This processing is needed to provide the features you choose to use.<br><br>
+<b>Service providers and sharing</b><br>Firebase Authentication and Cloud Firestore, provided by Google, support sign-in and cloud storage/synchronization. Google may process service data as described in its <a href=\"https://firebase.google.com/support/privacy\">Firebase privacy information</a> and <a href=\"https://policies.google.com/privacy\">Privacy Policy</a>. Firebase Authentication processes data in the United States; Cloud Firestore stores your account and workout data in Google\'s eur3 multi-region, which is located in the European Union. Sign-in data may therefore be processed outside the European Economic Area. Google describes its data-processing safeguards in its <a href=\"https://firebase.google.com/terms/data-processing-terms\">Firebase data processing terms</a>. When you choose to add a workout to your device calendar or share it by email, the app passes the requested workout details to the selected device app. That app\'s provider then handles the information under its own terms.<br><br>
+<b>Storage and deletion</b><br>Account information is kept while your account is active. You can export a JSON copy or CSV files from Settings → Data &amp; privacy. If you request account deletion, the app removes your profile, custom workouts, schedules, workout history and sign-in account from active systems after password confirmation. We aim to complete deletion of our active account records within 30 days (the in-app deletion normally starts immediately). Google states that some Firebase account data may remain in live or backup systems for up to 180 days after deletion is initiated. Limited technical records may also be retained under provider terms or where required by law.<br><br>
+<b>Your choices and rights</b><br>You can update profile details in the app, export your information, or delete your account. Depending on applicable law, you may also request access, correction, restriction or portability, or object to processing, by contacting the address above. You may lodge a complaint with the Romanian National Supervisory Authority for Personal Data Processing (<a href=\"https://www.dataprotection.ro/\">ANSPDCP</a>).<br><br>
+<b>Security</b><br>The app uses authenticated accounts and account-scoped cloud records. Keep your password private and contact us if you believe your account has been accessed without permission.]]></string>
 </resources>

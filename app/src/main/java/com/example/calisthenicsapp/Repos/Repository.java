@@ -1,42 +1,13 @@
 package com.example.calisthenicsapp.Repos;
 
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteConstraintException;
-import android.database.sqlite.SQLiteDatabase;
-
-import com.example.calisthenicsapp.CoreComponents.User;
-
-import java.util.List;
-
-public interface Repository<T> {
+/**
+ * A table the app also writes to: the per-user data, which SyncManager mirrors from Firestore.
+ * Premade data is read-only and implements only {@link ReadRepository}.
+ */
+public interface Repository<T> extends ReadRepository<T> {
     boolean insert(T object);
 
     boolean update(T object);
+
     boolean delete(T object);
-
-    List<T> getAll();
-    static boolean insertDB(SQLiteDatabase db, String table, ContentValues cv) {
-        try {
-            return db.insertOrThrow(table, null, cv) != -1;
-        } catch (SQLiteConstraintException e) {
-            return false;
-        }
-    }
-
-    static boolean updateDB(SQLiteDatabase db, String table, ContentValues cv,
-                            String where, String... args) {
-        try {
-            return db.update(table, cv, where, args) > 0;
-        } catch (SQLiteConstraintException e) {
-            return false;
-        }
-    }
-
-    static boolean deleteDB(SQLiteDatabase db, String table, String where, String... args) {
-        try {
-            return db.delete(table, where, args) > 0;
-        } catch (SQLiteConstraintException e) {
-            return false; // e.g. exercise still referenced (RESTRICT)
-        }
-    }
 }

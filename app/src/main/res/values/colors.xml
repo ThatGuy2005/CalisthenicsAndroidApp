@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="performance_orange">#FFC35CFF</color>
+    <color name="performance_orange_dark">#FFB84DFF</color>
+    <color name="performance_graphite">#FFF2F4F1</color>
+    <color name="performance_muted">#FFA0AAA5</color>
+    <color name="performance_canvas">#FF090B0D</color>
+    <color name="performance_surface">#FF191D21</color>
+    <color name="performance_border">#FF30363B</color>
+    <color name="performance_orange_tint">#FF321A42</color>
+    <color name="performance_highlight_soft">#FFDDBAF5</color>
+    <color name="performance_surface_alt">#FF24292E</color>
+    <color name="performance_success">#FFD08BFF</color>
+    <color name="performance_danger">#FFFF776D</color>
+    <color name="performance_ink">#FF10140B</color>
+    <color name="performance_feature">#FF17101F</color>
+    <color name="performance_nav_inactive">#FF87918C</color>
+    <color name="performance_animation_muted">#FF69736E</color>
 </resources>
