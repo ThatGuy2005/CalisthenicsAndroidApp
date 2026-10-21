@@ -103,7 +103,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         LinearLayout.LayoutParams descParams = matchWrap(); descParams.topMargin = dp(10); page.addView(description, descParams);
 
         page.addView(sectionLabel("EXERCISES", 22));
-        count = text("Choose at least one exercise", 13, UiColors.MUTED, true);
+        count = text(getString(R.string.custom_editor_count_empty), 13, UiColors.MUTED, true);
         page.addView(count);
         Button choose = button("＋   Add exercises", false);
         LinearLayout.LayoutParams chooseParams = matchWrap(); chooseParams.topMargin = dp(10); page.addView(choose, chooseParams);
@@ -112,7 +112,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         LinearLayout.LayoutParams selectedParams = matchWrap(); selectedParams.topMargin = dp(12);
         page.addView(selectedList, selectedParams);
 
-        save = text(workoutId == null ? "Create workout" : "Save changes", 15, UiColors.INK, true);
+        save = text(getString(saveLabel()), 15, UiColors.INK, true);
         save.setGravity(Gravity.CENTER); save.setBackground(rounded(UiColors.ORANGE_DARK, dp(16)));
         save.setPadding(dp(16), dp(14), dp(16), dp(14));
         LinearLayout.LayoutParams saveParams = matchWrap(); saveParams.topMargin = dp(22); page.addView(save, saveParams);
@@ -157,8 +157,9 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
     private void renderSelected() {
         if (selectedList == null) return;
         selectedList.removeAllViews();
-        count.setText(selected.size() == 1 ? "1 exercise · drag the order with arrows" :
-                selected.size() + " exercises · arrange the order with arrows");
+        count.setText(selected.isEmpty() ? getString(R.string.custom_editor_count_empty)
+                : getResources().getQuantityString(R.plurals.custom_editor_count,
+                        selected.size(), selected.size()));
         for (int i = 0; i < selected.size(); i++) {
             final int index = i; Exercise exercise = selected.get(i);
             MaterialCardView card = new MaterialCardView(this); card.setRadius(dp(16));
@@ -198,7 +199,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         String workoutName = name.getText().toString().trim();
         if (workoutName.isEmpty()) { name.setError("Add a name for this workout"); name.requestFocus(); return; }
         if (selected.isEmpty()) { show("Add at least one exercise to your workout."); return; }
-        save.setEnabled(false); save.setText("Saving…");
+        save.setEnabled(false); save.setText(R.string.custom_editor_saving);
         List<CustomExerciseOrderEntry> entries = new ArrayList<>();
         for (int i = 0; i < selected.size(); i++) {
             Exercise exercise = selected.get(i); CustomExerciseOrderEntry old = savedSettings.get(exercise.getName());
@@ -234,7 +235,8 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         });
     }
 
-    private void restoreSave(String message) { save.setEnabled(true); save.setText(workoutId == null ? "Create workout" : "Save changes"); show(message); }
+    private void restoreSave(String message) { save.setEnabled(true); save.setText(saveLabel()); show(message); }
+    private int saveLabel() { return workoutId == null ? R.string.custom_editor_create : R.string.custom_editor_save; }
     private boolean contains(String name) { for (Exercise e : selected) if (e.getName().equals(name)) return true; return false; }
     private void remove(String name) { for (int i = selected.size() - 1; i >= 0; i--) if (selected.get(i).getName().equals(name)) selected.remove(i); }
     private EditText field(String hint, int inputType) {

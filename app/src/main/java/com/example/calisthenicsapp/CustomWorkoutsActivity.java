@@ -79,7 +79,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         page.addView(copy, copyParams);
         copy.setOnClickListener(v -> choosePremade());
 
-        status = text("Loading your workouts…", 13, UiColors.MUTED, true);
+        status = text(getString(R.string.custom_workouts_loading), 13, UiColors.MUTED, true);
         LinearLayout.LayoutParams statusParams = matchWrap(); statusParams.topMargin = dp(22);
         page.addView(status, statusParams);
         list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
@@ -90,11 +90,12 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
 
     private void load() {
         if (list == null) return;
-        status.setText("Loading your workouts…");
+        status.setText(R.string.custom_workouts_loading);
         customService.getMyCustomWorkouts(new ServiceCallback<List<CustomWorkout>>() {
             @Override public void onSuccess(List<CustomWorkout> workouts) {
                 list.removeAllViews();
-                status.setText(workouts.size() == 1 ? "1 saved workout" : workouts.size() + " saved workouts");
+                status.setText(getResources().getQuantityString(R.plurals.custom_workouts_count,
+                        workouts.size(), workouts.size()));
                 for (CustomWorkout workout : workouts) list.addView(workoutCard(workout));
                 if (workouts.isEmpty()) {
                     TextView empty = text("No custom workouts yet. Create one or copy a plan to get started.",
@@ -102,7 +103,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
                     empty.setPadding(dp(4), dp(8), dp(4), dp(12)); list.addView(empty);
                 }
             }
-            @Override public void onError(String message) { status.setText("Couldn't load workouts"); show(message); }
+            @Override public void onError(String message) { status.setText(R.string.custom_workouts_failed); show(message); }
         });
     }
 
@@ -180,7 +181,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
 
     private void confirmDelete(CustomWorkout workout) {
         new AlertDialog.Builder(this).setTitle("Delete workout?")
-                .setMessage("“" + workout.getName() + "” will be removed, along with its future schedule entries.")
+                .setMessage(getString(R.string.custom_workouts_delete_message, workout.getName()))
                 .setNegativeButton("Cancel", null).setPositiveButton("Delete", (d, w) ->
                         customService.delete(workout.getId(), new ServiceCallback<Void>() {
                             @Override public void onSuccess(Void result) { load(); }

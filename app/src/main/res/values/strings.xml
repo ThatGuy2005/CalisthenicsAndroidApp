@@ -48,12 +48,39 @@
     <string name="height_hint_feet">Height (ft)</string>
     <string name="height_hint_inches">Inches</string>
 
-    <!-- Profile (activity_profile) -->
+    <!-- Profile (activity_profile); account security uses the back link and the eyebrow too. -->
+    <string name="profile_back">"‹  Settings"</string>
+    <string name="profile_eyebrow">YOUR ACCOUNT</string>
+    <string name="profile_title">Edit profile</string>
+    <string name="profile_subtitle">Keep your details up to date for a more personal training experience.</string>
+    <string name="profile_username_label">Username</string>
+    <string name="profile_email_label">Email address</string>
+    <string name="profile_email_note">To change your email, use Account security in Settings.</string>
     <string name="profile_height_label_metric">Height (cm) · optional</string>
     <string name="profile_height_label_imperial">Height (ft, in) · optional</string>
     <string name="profile_weight_label_metric">Weight (kg) · optional</string>
     <string name="profile_weight_label_imperial">Weight (lb) · optional</string>
+    <string name="profile_hint_height">Height in cm</string>
+    <string name="profile_hint_weight">Weight in kg</string>
     <string name="profile_hint_weight_imperial">Weight in lb</string>
+    <string name="profile_gender_label">Gender · optional</string>
+    <string name="profile_birth_year_label">Birth year · optional</string>
+    <string name="profile_hint_birth_year">e.g. 1995</string>
+    <string name="profile_calories_note">Height, weight and birth year help estimate calories during workouts.</string>
+    <string name="profile_save">Save profile</string>
+
+    <!-- Account security (activity_account_security) -->
+    <string name="security_title">Account security</string>
+    <string name="security_subtitle">Confirm your current password to make account changes.</string>
+    <string name="security_password_title">Change password</string>
+    <string name="security_hint_current_password">Current password</string>
+    <string name="security_hint_new_password">New password · 8–64 characters</string>
+    <string name="security_hint_confirm_password">Confirm new password</string>
+    <string name="security_update_password">Update password</string>
+    <string name="security_email_title">Change email</string>
+    <string name="security_hint_new_email">New email address</string>
+    <string name="security_email_note">We\'ll email you a confirmation link. Your address changes after you open it.</string>
+    <string name="security_send_link">Send confirmation link</string>
 
     <!-- Forgot password (activity_forgot_password); the back link is signup_back. -->
     <string name="forgot_title">Reset password</string>
@@ -144,6 +171,27 @@
     <!-- %1$s is the category in capitals. -->
     <string name="workout_list_routine">%1$s ROUTINE</string>
     <string name="workout_list_view_plan">"View plan  →"</string>
+    <string name="workout_list_my_workouts">"My workouts  →"</string>
+
+    <!-- My workouts (CustomWorkoutsActivity, built in code) -->
+    <string name="custom_workouts_loading">Loading your workouts…</string>
+    <plurals name="custom_workouts_count">
+        <item quantity="one">%d saved workout</item>
+        <item quantity="other">%d saved workouts</item>
+    </plurals>
+    <string name="custom_workouts_failed">Couldn\'t load workouts</string>
+    <!-- %1$s is the workout's name. Deleting it also deletes every schedule entry for it. -->
+    <string name="custom_workouts_delete_message">“%1$s” will be removed, along with all its schedule entries.</string>
+
+    <!-- Custom workout editor (CustomWorkoutEditorActivity, built in code) -->
+    <string name="custom_editor_count_empty">Choose at least one exercise</string>
+    <plurals name="custom_editor_count">
+        <item quantity="one">%d exercise · arrange the order with the arrows</item>
+        <item quantity="other">%d exercises · arrange the order with the arrows</item>
+    </plurals>
+    <string name="custom_editor_create">Create workout</string>
+    <string name="custom_editor_save">Save changes</string>
+    <string name="custom_editor_saving">Saving…</string>
 
     <!-- Workout detail (activity_workout_detail) -->
     <string name="workout_detail_back">"‹  All workouts"</string>
@@ -255,6 +303,10 @@
     <!-- Settings (activity_settings) -->
     <string name="settings_back">"‹  Home"</string>
     <string name="settings_title">Settings</string>
+    <string name="settings_edit_profile">"Edit profile  →"</string>
+    <string name="settings_units_title">Units</string>
+    <string name="settings_units_subtitle">Choose how height and weight are displayed.</string>
+    <string name="settings_account_security">"Account security  →"</string>
     <string name="settings_credits_title">Animation credits</string>
     <string name="settings_credits_count">Exercise animations (23)</string>
     <string name="settings_credits_owner">© Gym visual — https://gymvisual.com/</string>

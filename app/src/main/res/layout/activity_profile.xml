@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:gravity="center_vertical"
-            android:text="‹  Settings"
+            android:text="@string/profile_back"
             android:textColor="@color/performance_orange_dark"
             android:textSize="15sp" />
 
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="YOUR ACCOUNT"
+            android:text="@string/profile_eyebrow"
             android:textColor="@color/performance_orange_dark"
             android:textSize="12sp"
             android:letterSpacing="0.1"
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="Edit profile"
+            android:text="@string/profile_title"
             android:textColor="@color/performance_graphite"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="20dp"
-            android:text="Keep your details up to date for a more personal training experience."
+            android:text="@string/profile_subtitle"
             android:textColor="@color/performance_muted"
             android:textSize="14sp" />
 
@@ -57,13 +57,14 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginBottom="7dp"
-            android:text="Username"
+            android:text="@string/profile_username_label"
             android:textColor="@color/performance_muted"
             android:textSize="13sp" />
         <EditText
             android:id="@+id/profileUsername"
             style="@style/SignupField"
-            android:hint="Username"
+            android:autofillHints="username"
+            android:hint="@string/signup_hint_username"
             android:inputType="text"
             android:maxLength="20" />
 
@@ -73,7 +74,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="7dp"
-            android:text="Email address"
+            android:text="@string/profile_email_label"
             android:textColor="@color/performance_muted"
             android:textSize="13sp" />
         <TextView
@@ -91,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="5dp"
-            android:text="To change your email, use Account security in Settings."
+            android:text="@string/profile_email_note"
             android:textColor="@color/performance_muted"
             android:textSize="12sp" />
 
@@ -108,7 +109,8 @@
         <EditText
             android:id="@+id/profileHeight"
             style="@style/SignupField"
-            android:hint="Height in cm"
+            android:hint="@string/profile_hint_height"
+            android:importantForAutofill="no"
             android:inputType="numberDecimal" />
         <LinearLayout
             android:id="@+id/profileHeightImperial"
@@ -152,7 +154,8 @@
         <EditText
             android:id="@+id/profileWeight"
             style="@style/SignupField"
-            android:hint="Weight in kg"
+            android:hint="@string/profile_hint_weight"
+            android:importantForAutofill="no"
             android:inputType="numberDecimal" />
 
         <TextView
@@ -161,7 +164,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="7dp"
-            android:text="Gender · optional"
+            android:text="@string/profile_gender_label"
             android:textColor="@color/performance_muted"
             android:textSize="13sp" />
         <Spinner
@@ -179,13 +182,14 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="18dp"
             android:layout_marginBottom="7dp"
-            android:text="Birth year · optional"
+            android:text="@string/profile_birth_year_label"
             android:textColor="@color/performance_muted"
             android:textSize="13sp" />
         <EditText
             android:id="@+id/profileBirthYear"
             style="@style/SignupField"
-            android:hint="e.g. 1995"
+            android:autofillHints="birthDateYear"
+            android:hint="@string/profile_hint_birth_year"
             android:inputType="number"
             android:maxLength="4" />
 
@@ -194,7 +198,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="2dp"
-            android:text="Height, weight and birth year help estimate calories during workouts."
+            android:text="@string/profile_calories_note"
             android:textColor="@color/performance_muted"
             android:textSize="12sp" />
 
@@ -204,7 +208,7 @@
             android:layout_height="56dp"
             android:layout_marginTop="24dp"
             android:backgroundTint="@color/performance_orange"
-            android:text="Save profile"
+            android:text="@string/profile_save"
             android:textAllCaps="false"
             android:textColor="@color/performance_ink"
             android:textSize="16sp" />
