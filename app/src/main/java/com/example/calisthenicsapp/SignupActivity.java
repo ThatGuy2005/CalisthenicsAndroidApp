@@ -12,12 +12,18 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.calisthenicsapp.CoreComponents.UnitSystem;
+import com.example.calisthenicsapp.CoreComponents.Units;
 import com.example.calisthenicsapp.Service.AuthService;
 import com.example.calisthenicsapp.Verificate.UserValidator;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Locale;
+
 public class SignupActivity extends AppCompatActivity {
     private TextView backToLogin;
+    private UnitSystem units;
+    private HeightInput height;
 
     /**
      * Blocks back while the account is being created. Firebase signs the new account in before
@@ -37,8 +43,11 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         AuthService authService = new AuthService(this);
-        if (UnitSystem.isImperial(this)) {
-            ((EditText) findViewById(R.id.signupHeight)).setHint(R.string.signup_hint_height_imperial);
+        units = UnitPreference.get(this);
+        height = new HeightInput(findViewById(R.id.signupHeight),
+                findViewById(R.id.signupHeightImperial), findViewById(R.id.signupHeightFeet),
+                findViewById(R.id.signupHeightInches), units);
+        if (units == UnitSystem.IMPERIAL) {
             ((EditText) findViewById(R.id.signupWeight)).setHint(R.string.signup_hint_weight_imperial);
             ((TextView) findViewById(R.id.signupProfileNote)).setText(R.string.signup_optional_note_imperial);
         }
@@ -63,7 +72,6 @@ public class SignupActivity extends AppCompatActivity {
         EditText username = findViewById(R.id.signupUsername);
         EditText email = findViewById(R.id.signupEmail);
         EditText password = findViewById(R.id.signupPassword);
-        EditText height = findViewById(R.id.signupHeight);
         EditText weight = findViewById(R.id.signupWeight);
         EditText birthYear = findViewById(R.id.signupBirthYear);
         Spinner gender = findViewById(R.id.signupGender);
@@ -82,25 +90,20 @@ public class SignupActivity extends AppCompatActivity {
             password.setError(getString(R.string.signup_error_password));
             password.requestFocus();
         } else {
-            boolean imperial = UnitSystem.isImperial(this);
-            Double heightInput = parseOptionalNumber(height);
-            if (!height.getText().toString().trim().isEmpty() && (heightInput == null
-                    || !UserValidator.isValidHeight(UnitSystem.heightToStorage(heightInput, this)))) {
-                height.setError(getString(imperial ? R.string.signup_error_height_imperial
-                        : R.string.signup_error_height));
-                height.requestFocus();
+            Locale locale = Locale.getDefault();
+            Double heightValue = height.toCm();
+            if (!height.isEmpty() && (heightValue == null || !UserValidator.isValidHeight(heightValue))) {
+                height.errorField().setError(Units.heightError(units, locale));
+                height.errorField().requestFocus();
                 return;
             }
-            Double weightInput = parseOptionalNumber(weight);
-            if (!weight.getText().toString().trim().isEmpty() && (weightInput == null
-                    || !UserValidator.isValidWeight(UnitSystem.weightToStorage(weightInput, this)))) {
-                weight.setError(getString(imperial ? R.string.signup_error_weight_imperial
-                        : R.string.signup_error_weight));
+            Double weightValue = Units.weightToKg(parseOptionalNumber(weight), units);
+            if (!weight.getText().toString().trim().isEmpty()
+                    && (weightValue == null || !UserValidator.isValidWeight(weightValue))) {
+                weight.setError(Units.weightError(units, locale));
                 weight.requestFocus();
                 return;
             }
-            Double heightValue = heightInput == null ? null : UnitSystem.heightToStorage(heightInput, this);
-            Double weightValue = weightInput == null ? null : UnitSystem.weightToStorage(weightInput, this);
             Integer birthYearValue = parseOptionalYear(birthYear);
             if (!birthYear.getText().toString().trim().isEmpty()
                     && (birthYearValue == null || !UserValidator.isValidBirthYear(birthYearValue))) {
@@ -136,7 +139,7 @@ public class SignupActivity extends AppCompatActivity {
         String value = field.getText().toString().trim();
         if (value.isEmpty()) return null;
         try {
-            return Double.parseDouble(value);
+            return Double.parseDouble(value.replace(',', '.'));
         } catch (NumberFormatException exception) {
             return null;
         }

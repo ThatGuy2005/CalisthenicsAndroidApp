@@ -5,17 +5,24 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.calisthenicsapp.CoreComponents.UnitSystem;
+import com.example.calisthenicsapp.CoreComponents.Units;
 import com.example.calisthenicsapp.CoreComponents.User;
 import com.example.calisthenicsapp.Service.ProfileService;
 import com.example.calisthenicsapp.Service.ServiceCallback;
 import com.example.calisthenicsapp.Verificate.UserValidator;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.Locale;
+
 public class ProfileActivity extends AppCompatActivity {
-    private EditText username, height, weight, birthYear;
+    private EditText username, weight, birthYear;
+    private HeightInput height;
+    private UnitSystem units;
     private Spinner gender;
     private Button save;
     private ProfileService profiles;
@@ -25,18 +32,19 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         profiles = new ProfileService(this);
         username = findViewById(R.id.profileUsername);
-        height = findViewById(R.id.profileHeight);
+        units = UnitPreference.get(this);
+        height = new HeightInput(findViewById(R.id.profileHeight),
+                findViewById(R.id.profileHeightImperial), findViewById(R.id.profileHeightFeet),
+                findViewById(R.id.profileHeightInches), units);
         weight = findViewById(R.id.profileWeight);
         birthYear = findViewById(R.id.profileBirthYear);
         gender = findViewById(R.id.profileGender);
         save = findViewById(R.id.profileSave);
-        boolean imperial = UnitSystem.isImperial(this);
-        ((android.widget.TextView) findViewById(R.id.profileHeightLabel)).setText(
-                "Height (" + UnitSystem.heightUnit(this) + ") · optional");
-        ((android.widget.TextView) findViewById(R.id.profileWeightLabel)).setText(
-                "Weight (" + UnitSystem.weightUnit(this) + ") · optional");
-        height.setHint(imperial ? "Height in feet, e.g. 5.75" : "Height in cm");
-        weight.setHint(imperial ? "Weight in lb" : "Weight in kg");
+        if (units == UnitSystem.IMPERIAL) {
+            ((TextView) findViewById(R.id.profileHeightLabel)).setText(R.string.profile_height_label_imperial);
+            ((TextView) findViewById(R.id.profileWeightLabel)).setText(R.string.profile_weight_label_imperial);
+            weight.setHint(R.string.profile_hint_weight_imperial);
+        }
         findViewById(R.id.profileBack).setOnClickListener(v -> finish());
         setupGender();
         save.setOnClickListener(v -> saveProfile());
@@ -66,10 +74,8 @@ public class ProfileActivity extends AppCompatActivity {
                 username.setText(user.getUsername() == null ? "" : user.getUsername());
                 ((android.widget.TextView) findViewById(R.id.profileEmail)).setText(
                         user.getEmail() == null ? "Not set" : user.getEmail());
-                if (user.getHeight() != null && user.getHeight() > 0)
-                    height.setText(UnitSystem.formatInputValue(UnitSystem.heightFromStorage(user.getHeight(), ProfileActivity.this)));
-                if (user.getWeight() != null && user.getWeight() > 0)
-                    weight.setText(UnitSystem.formatInputValue(UnitSystem.weightFromStorage(user.getWeight(), ProfileActivity.this)));
+                height.show(user.getHeight());
+                weight.setText(number(Units.weightFromKg(user.getWeight(), units)));
                 if (user.getBirthYear() != null) birthYear.setText(String.valueOf(user.getBirthYear()));
                 String value = user.getGender();
                 if (value != null) {
@@ -91,20 +97,17 @@ public class ProfileActivity extends AppCompatActivity {
         if (!UserValidator.isValidUsername(usernameValue)) {
             username.setError("Use 3–20 letters, digits, '.', '_' or '-'."); username.requestFocus(); return;
         }
-        Double heightInput = parseNumber(height);
-        if (!height.getText().toString().trim().isEmpty()
-                && (heightInput == null || !UserValidator.isValidHeight(UnitSystem.heightToStorage(heightInput, this)))) {
-            height.setError(UnitSystem.isImperial(this) ? "Height must be between 1.64 and 9.84 ft."
-                    : "Height must be between 50 and 300 cm."); height.requestFocus(); return;
+        Locale locale = Locale.getDefault();
+        Double heightValue = height.toCm();
+        if (!height.isEmpty() && (heightValue == null || !UserValidator.isValidHeight(heightValue))) {
+            height.errorField().setError(Units.heightError(units, locale));
+            height.errorField().requestFocus(); return;
         }
-        Double weightInput = parseNumber(weight);
+        Double weightValue = Units.weightToKg(parseNumber(weight), units);
         if (!weight.getText().toString().trim().isEmpty()
-                && (weightInput == null || !UserValidator.isValidWeight(UnitSystem.weightToStorage(weightInput, this)))) {
-            weight.setError(UnitSystem.isImperial(this) ? "Weight must be between 44 and 1102 lb."
-                    : "Weight must be between 20 and 500 kg."); weight.requestFocus(); return;
+                && (weightValue == null || !UserValidator.isValidWeight(weightValue))) {
+            weight.setError(Units.weightError(units, locale)); weight.requestFocus(); return;
         }
-        Double heightValue = heightInput == null ? null : UnitSystem.heightToStorage(heightInput, this);
-        Double weightValue = weightInput == null ? null : UnitSystem.weightToStorage(weightInput, this);
         String genderValue = gender.getSelectedItemPosition() == 0
                 ? null : gender.getSelectedItem().toString();
         if (!UserValidator.isValidGender(genderValue)) { show("Gender can be at most 30 characters."); return; }

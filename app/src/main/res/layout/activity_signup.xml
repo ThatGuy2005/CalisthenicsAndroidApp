@@ -83,6 +83,35 @@
             android:hint="@string/signup_hint_height"
             android:inputType="numberDecimal" />
 
+        <LinearLayout
+            android:id="@+id/signupHeightImperial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/signupHeightFeet"
+                style="@style/SignupField"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                android:hint="@string/height_hint_feet"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="1" />
+
+            <EditText
+                android:id="@+id/signupHeightInches"
+                style="@style/SignupField"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:hint="@string/height_hint_inches"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="2" />
+        </LinearLayout>
+
         <EditText
             android:id="@+id/signupWeight"
             android:importantForAutofill="no"

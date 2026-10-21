@@ -24,7 +24,6 @@
     <string name="signup_hint_password">Password (8+ characters, a letter and a digit)</string>
     <string name="signup_hint_height">Height (cm) — optional</string>
     <string name="signup_hint_weight">Weight (kg) — optional</string>
-    <string name="signup_hint_height_imperial">Height (ft, e.g. 5.75) — optional</string>
     <string name="signup_hint_weight_imperial">Weight (lb) — optional</string>
     <string name="signup_hint_birth_year">Birth year — optional</string>
     <string name="signup_optional_note">Optional profile details · weight improves calorie estimates (70 kg assumed if omitted)</string>
@@ -40,14 +39,21 @@
     <string name="signup_error_username">Username is required</string>
     <string name="signup_error_email">Enter a valid email address</string>
     <string name="signup_error_password">Use 8–64 characters with at least one letter and one digit</string>
-    <string name="signup_error_height">Height must be between 50 and 300 cm</string>
-    <string name="signup_error_height_imperial">Height must be between 1.64 and 9.84 ft</string>
-    <string name="signup_error_weight">Weight must be between 20 and 500 kg</string>
-    <string name="signup_error_weight_imperial">Weight must be between 44 and 1102 lb</string>
     <!-- %1$d is the earliest year, not a count, so no plural. -->
     <string name="signup_error_birth_year" tools:ignore="PluralsCandidate">Enter a year between %1$d and this year</string>
     <string name="signup_success">Account created.</string>
     <string name="signup_in_progress">Creating your account, please wait.</string>
+
+    <!-- Height in imperial units: whole feet and inches (sign-up and profile, see HeightInput) -->
+    <string name="height_hint_feet">Height (ft)</string>
+    <string name="height_hint_inches">Inches</string>
+
+    <!-- Profile (activity_profile) -->
+    <string name="profile_height_label_metric">Height (cm) · optional</string>
+    <string name="profile_height_label_imperial">Height (ft, in) · optional</string>
+    <string name="profile_weight_label_metric">Weight (kg) · optional</string>
+    <string name="profile_weight_label_imperial">Weight (lb) · optional</string>
+    <string name="profile_hint_weight_imperial">Weight in lb</string>
 
     <!-- Forgot password (activity_forgot_password); the back link is signup_back. -->
     <string name="forgot_title">Reset password</string>

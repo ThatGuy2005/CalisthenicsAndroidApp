@@ -162,7 +162,9 @@ to this year.
 
 **Units (FR-1.7).** The services always take and return kg and cm. The kg/lb, cm/ft toggle is a
 setting of the device: save `UnitSystem.name()` (for example in `SharedPreferences`) and read it
-back with `UnitSystem.fromName(saved)`, which gives `METRIC` when nothing is saved.
+back with `UnitSystem.fromName(saved)`, which gives `METRIC` when nothing is saved. The screens
+already do this through `UnitPreference.get` / `set` (Settings has the toggle), and sign-up and
+the profile take a height through `HeightInput` (cm, or ft and in fields).
 `CoreComponents/Units` does the rest:
 
 - Show a value: `formatWeight(kg, system, locale)` gives "70 kg" or "154.3 lb", and
@@ -327,5 +329,4 @@ database matches a fresh install.
 
 ## Known gaps
 
-- **UI-only features:** the units toggle (FR-1.7, with `Units` and `UnitSystem` ready for it)
-  and the FR-5.2 items above belong to the screens.
+- **UI-only features:** the FR-5.2 items above belong to the screens.

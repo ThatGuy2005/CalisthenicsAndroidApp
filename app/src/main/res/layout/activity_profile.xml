@@ -102,7 +102,7 @@
             android:layout_marginTop="18dp"
             android:layout_marginBottom="7dp"
             android:id="@+id/profileHeightLabel"
-            android:text="Height · optional"
+            android:text="@string/profile_height_label_metric"
             android:textColor="@color/performance_muted"
             android:textSize="13sp" />
         <EditText
@@ -110,6 +110,34 @@
             style="@style/SignupField"
             android:hint="Height in cm"
             android:inputType="numberDecimal" />
+        <LinearLayout
+            android:id="@+id/profileHeightImperial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/profileHeightFeet"
+                style="@style/SignupField"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                android:hint="@string/height_hint_feet"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="1" />
+
+            <EditText
+                android:id="@+id/profileHeightInches"
+                style="@style/SignupField"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:hint="@string/height_hint_inches"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="2" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
@@ -118,7 +146,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginBottom="7dp"
             android:id="@+id/profileWeightLabel"
-            android:text="Weight · optional"
+            android:text="@string/profile_weight_label_metric"
             android:textColor="@color/performance_muted"
             android:textSize="13sp" />
         <EditText
