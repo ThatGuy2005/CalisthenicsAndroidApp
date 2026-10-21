@@ -3,6 +3,20 @@
 
     <string name="brand" translatable="false">CALISTHENICS</string>
 
+    <!-- Shared by several screens -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_save">Save</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_done">Done</string>
+    <!-- A duration in whole minutes ("42 min"); the abbreviation stays the same for any count. -->
+    <string name="duration_minutes" tools:ignore="PluralsCandidate">%1$d min</string>
+    <!-- An exercise's target: seconds ("30 sec") or reps ("12 reps"). -->
+    <string name="target_seconds" tools:ignore="PluralsCandidate">%1$d sec</string>
+    <plurals name="target_reps">
+        <item quantity="one">%d rep</item>
+        <item quantity="other">%d reps</item>
+    </plurals>
+
     <!-- Shared by the login and sign-up screens -->
     <string name="hint_email">Email</string>
 
@@ -68,6 +82,13 @@
     <string name="profile_hint_birth_year">e.g. 1995</string>
     <string name="profile_calories_note">Height, weight and birth year help estimate calories during workouts.</string>
     <string name="profile_save">Save profile</string>
+    <string name="profile_loading">Loading profile…</string>
+    <string name="profile_saving">Saving…</string>
+    <string name="profile_saved">Profile saved.</string>
+    <string name="profile_unavailable">Your profile isn\'t available yet. Check your connection and try again.</string>
+    <string name="profile_email_not_set">Not set</string>
+    <string name="profile_error_username">Use 3–20 letters, digits, \'.\', \'_\' or \'-\'.</string>
+    <string name="profile_error_gender">Gender can be at most 30 characters.</string>
 
     <!-- Account security (activity_account_security) -->
     <string name="security_title">Account security</string>
@@ -81,6 +102,12 @@
     <string name="security_hint_new_email">New email address</string>
     <string name="security_email_note">We\'ll email you a confirmation link. Your address changes after you open it.</string>
     <string name="security_send_link">Send confirmation link</string>
+    <string name="security_error_current_password">Enter your current password.</string>
+    <string name="security_error_mismatch">The passwords don\'t match.</string>
+    <string name="security_updating">Updating…</string>
+    <string name="security_password_updated">Your password has been updated.</string>
+    <string name="security_sending">Sending…</string>
+    <string name="security_email_sent">Confirmation link sent. Your email will change after you open it.</string>
 
     <!-- Forgot password (activity_forgot_password); the back link is signup_back. -->
     <string name="forgot_title">Reset password</string>
@@ -182,6 +209,28 @@
     <string name="custom_workouts_failed">Couldn\'t load workouts</string>
     <!-- %1$s is the workout's name. Deleting it also deletes every schedule entry for it. -->
     <string name="custom_workouts_delete_message">“%1$s” will be removed, along with all its schedule entries.</string>
+    <string name="custom_workouts_back">"‹  Workouts"</string>
+    <string name="custom_workouts_eyebrow">MY TRAINING</string>
+    <string name="custom_workouts_title">My workouts</string>
+    <string name="custom_workouts_subtitle">Build a routine that fits your goals.</string>
+    <string name="custom_workouts_create">"＋   Create workout"</string>
+    <string name="custom_workouts_copy">Copy a ready-made plan</string>
+    <string name="custom_workouts_empty">No custom workouts yet. Create one or copy a plan to get started.</string>
+    <string name="custom_workouts_no_description">Your custom routine</string>
+    <!-- In place of the length when the workout has none yet. -->
+    <string name="custom_workouts_no_length">Ready to train</string>
+    <string name="custom_workouts_start">Start</string>
+    <string name="custom_workouts_edit">Edit</string>
+    <!-- The "•••" menu of a workout, in this order: edit, rename, delete. -->
+    <string-array name="custom_workouts_actions">
+        <item>Edit workout</item>
+        <item>Rename</item>
+        <item>Delete</item>
+    </string-array>
+    <string name="custom_workouts_copy_title">Choose a plan to copy</string>
+    <string name="custom_workouts_copied">Workout copied — you can edit it now.</string>
+    <string name="custom_workouts_rename_title">Rename workout</string>
+    <string name="custom_workouts_delete_title">Delete workout?</string>
 
     <!-- Custom workout editor (CustomWorkoutEditorActivity, built in code) -->
     <string name="custom_editor_count_empty">Choose at least one exercise</string>
@@ -192,6 +241,26 @@
     <string name="custom_editor_create">Create workout</string>
     <string name="custom_editor_save">Save changes</string>
     <string name="custom_editor_saving">Saving…</string>
+    <string name="custom_editor_back">"‹  My workouts"</string>
+    <string name="custom_editor_eyebrow_new">BUILD YOUR ROUTINE</string>
+    <string name="custom_editor_eyebrow_edit">MAKE IT YOURS</string>
+    <!-- The title of a new workout is custom_editor_create. -->
+    <string name="custom_editor_title_edit">Edit workout</string>
+    <string name="custom_editor_intro">Give your session a name, then choose and arrange its exercises.</string>
+    <string name="custom_editor_details_label">WORKOUT DETAILS</string>
+    <string name="custom_editor_hint_name">Workout name</string>
+    <string name="custom_editor_hint_description">Description (optional)</string>
+    <string name="custom_editor_exercises_label">EXERCISES</string>
+    <string name="custom_editor_add_exercises">"＋   Add exercises"</string>
+    <string name="custom_editor_loading_library">Loading exercise library…</string>
+    <string name="custom_editor_select_title">Select exercises</string>
+    <!-- %1$s is the muscle group, %2$s the exercise's own target (target_seconds or target_reps). -->
+    <string name="custom_editor_exercise_meta">"%1$s  ·  %2$s default"</string>
+    <string name="custom_editor_no_muscle_group">Exercise</string>
+    <string name="custom_editor_error_name">Add a name for this workout</string>
+    <string name="custom_editor_error_no_exercises">Add at least one exercise to your workout.</string>
+    <string name="custom_editor_created">Workout created.</string>
+    <string name="custom_editor_updated">Workout updated.</string>
 
     <!-- Workout detail (activity_workout_detail) -->
     <string name="workout_detail_back">"‹  All workouts"</string>
@@ -307,6 +376,8 @@
     <string name="settings_units_title">Units</string>
     <string name="settings_units_subtitle">Choose how height and weight are displayed.</string>
     <string name="settings_account_security">"Account security  →"</string>
+    <string name="settings_units_set_imperial">Units set to pounds and feet.</string>
+    <string name="settings_units_set_metric">Units set to kilograms and centimetres.</string>
     <string name="settings_credits_title">Animation credits</string>
     <string name="settings_credits_count">Exercise animations (23)</string>
     <string name="settings_credits_owner">© Gym visual — https://gymvisual.com/</string>

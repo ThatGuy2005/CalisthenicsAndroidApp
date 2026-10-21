@@ -37,23 +37,23 @@ public class AccountSecurityActivity extends AppCompatActivity {
         String current = currentPassword.getText().toString();
         String next = newPassword.getText().toString();
         String confirmation = confirmPassword.getText().toString();
-        if (current.isEmpty()) { currentPassword.setError("Enter your current password."); currentPassword.requestFocus(); return; }
+        if (current.isEmpty()) { currentPassword.setError(getString(R.string.security_error_current_password)); currentPassword.requestFocus(); return; }
         if (!UserValidator.isValidPassword(next)) {
-            newPassword.setError("Use 8–64 characters with at least one letter and one digit.");
+            newPassword.setError(getString(R.string.signup_error_password));
             newPassword.requestFocus(); return;
         }
         if (!next.equals(confirmation)) {
-            confirmPassword.setError("The passwords don't match."); confirmPassword.requestFocus(); return;
+            confirmPassword.setError(getString(R.string.security_error_mismatch)); confirmPassword.requestFocus(); return;
         }
-        setBusy(passwordButton, true, "Updating…");
+        setBusy(passwordButton, true, R.string.security_updating);
         account.changePassword(current, next, new ServiceCallback<Void>() {
             @Override public void onSuccess(Void result) {
-                setBusy(passwordButton, false, "Update password");
+                setBusy(passwordButton, false, R.string.security_update_password);
                 currentPassword.setText(""); newPassword.setText(""); confirmPassword.setText("");
-                show("Your password has been updated.");
+                show(getString(R.string.security_password_updated));
             }
             @Override public void onError(String message) {
-                setBusy(passwordButton, false, "Update password"); show(message);
+                setBusy(passwordButton, false, R.string.security_update_password); show(message);
             }
         });
     }
@@ -61,22 +61,22 @@ public class AccountSecurityActivity extends AppCompatActivity {
     private void changeEmail() {
         String current = emailCurrentPassword.getText().toString();
         String email = UserValidator.normalizeEmail(newEmail.getText().toString());
-        if (current.isEmpty()) { emailCurrentPassword.setError("Enter your current password."); emailCurrentPassword.requestFocus(); return; }
-        if (!UserValidator.isValidEmail(email)) { newEmail.setError("Enter a valid email address."); newEmail.requestFocus(); return; }
-        setBusy(emailButton, true, "Sending…");
+        if (current.isEmpty()) { emailCurrentPassword.setError(getString(R.string.security_error_current_password)); emailCurrentPassword.requestFocus(); return; }
+        if (!UserValidator.isValidEmail(email)) { newEmail.setError(getString(R.string.signup_error_email)); newEmail.requestFocus(); return; }
+        setBusy(emailButton, true, R.string.security_sending);
         account.changeEmail(current, email, new ServiceCallback<Void>() {
             @Override public void onSuccess(Void result) {
-                setBusy(emailButton, false, "Send confirmation link");
+                setBusy(emailButton, false, R.string.security_send_link);
                 emailCurrentPassword.setText("");
-                show("Confirmation link sent. Your email will change after you open it.");
+                show(getString(R.string.security_email_sent));
             }
             @Override public void onError(String message) {
-                setBusy(emailButton, false, "Send confirmation link"); show(message);
+                setBusy(emailButton, false, R.string.security_send_link); show(message);
             }
         });
     }
 
-    private void setBusy(Button button, boolean busy, String label) {
+    private void setBusy(Button button, boolean busy, int label) {
         button.setEnabled(!busy); button.setText(label);
     }
     private void show(String message) {

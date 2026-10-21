@@ -57,24 +57,24 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         page.setPadding(dp(22), dp(20), dp(22), dp(28));
         scroll.addView(page);
 
-        TextView back = text("‹  Workouts", 15, UiColors.ORANGE_DARK, false);
+        TextView back = text(getString(R.string.custom_workouts_back), 15, UiColors.ORANGE_DARK, false);
         back.setPadding(dp(2), dp(4), dp(4), dp(4));
         back.setOnClickListener(v -> finish());
         page.addView(back);
         page.addView(space(16));
-        page.addView(text("MY TRAINING", 12, UiColors.ORANGE_DARK, true));
-        TextView title = text("My workouts", 30, UiColors.GRAPHITE, true);
+        page.addView(text(getString(R.string.custom_workouts_eyebrow), 12, UiColors.ORANGE_DARK, true));
+        TextView title = text(getString(R.string.custom_workouts_title), 30, UiColors.GRAPHITE, true);
         LinearLayout.LayoutParams titleParams = matchWrap(); titleParams.topMargin = dp(6);
         page.addView(title, titleParams);
-        TextView subtitle = text("Build a routine that fits your goals.", 15, UiColors.MUTED, false);
+        TextView subtitle = text(getString(R.string.custom_workouts_subtitle), 15, UiColors.MUTED, false);
         LinearLayout.LayoutParams subParams = matchWrap(); subParams.topMargin = dp(4);
         page.addView(subtitle, subParams);
 
-        Button create = button("＋   Create workout", true);
+        Button create = button(getString(R.string.custom_workouts_create), true);
         LinearLayout.LayoutParams actionParams = matchWrap(); actionParams.topMargin = dp(20);
         page.addView(create, actionParams);
         create.setOnClickListener(v -> openEditor(null));
-        Button copy = button("Copy a ready-made plan", false);
+        Button copy = button(getString(R.string.custom_workouts_copy), false);
         LinearLayout.LayoutParams copyParams = matchWrap(); copyParams.topMargin = dp(8);
         page.addView(copy, copyParams);
         copy.setOnClickListener(v -> choosePremade());
@@ -98,7 +98,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
                         workouts.size(), workouts.size()));
                 for (CustomWorkout workout : workouts) list.addView(workoutCard(workout));
                 if (workouts.isEmpty()) {
-                    TextView empty = text("No custom workouts yet. Create one or copy a plan to get started.",
+                    TextView empty = text(getString(R.string.custom_workouts_empty),
                             14, UiColors.MUTED, false);
                     empty.setPadding(dp(4), dp(8), dp(4), dp(12)); list.addView(empty);
                 }
@@ -118,15 +118,15 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         TextView title = text(workout.getName(), 18, UiColors.GRAPHITE, true); content.addView(title);
         String description = workout.getDescription();
         TextView details = text((description == null || description.trim().isEmpty()
-                ? "Your custom routine" : description) + "\n" + duration(workout.getEstimatedSeconds()),
+                ? getString(R.string.custom_workouts_no_description) : description) + "\n" + duration(workout.getEstimatedSeconds()),
                 13, UiColors.MUTED, false);
         LinearLayout.LayoutParams detailParams = matchWrap(); detailParams.topMargin = dp(7);
         content.addView(details, detailParams);
         LinearLayout actions = new LinearLayout(this); actions.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout.LayoutParams actionsParams = matchWrap(); actionsParams.topMargin = dp(12);
         content.addView(actions, actionsParams);
-        Button start = smallButton("Start", true); actions.addView(start, weightButton());
-        Button edit = smallButton("Edit", false); LinearLayout.LayoutParams editParams = weightButton();
+        Button start = smallButton(getString(R.string.custom_workouts_start), true); actions.addView(start, weightButton());
+        Button edit = smallButton(getString(R.string.custom_workouts_edit), false); LinearLayout.LayoutParams editParams = weightButton();
         editParams.leftMargin = dp(7); actions.addView(edit, editParams);
         Button more = smallButton("•••", false); LinearLayout.LayoutParams moreParams = new LinearLayout.LayoutParams(dp(54), dp(40));
         moreParams.leftMargin = dp(7); actions.addView(more, moreParams);
@@ -138,7 +138,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
     }
 
     private void showActions(CustomWorkout workout) {
-        String[] actions = {"Edit workout", "Rename", "Delete"};
+        String[] actions = getResources().getStringArray(R.array.custom_workouts_actions);
         new AlertDialog.Builder(this).setTitle(workout.getName()).setItems(actions, (dialog, which) -> {
             if (which == 0) openEditor(workout);
             else if (which == 1) rename(workout);
@@ -158,10 +158,10 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
     private void showPremadeDialog() {
         String[] names = new String[premade.size()];
         for (int i = 0; i < premade.size(); i++) names[i] = premade.get(i).getName();
-        new AlertDialog.Builder(this).setTitle("Choose a plan to copy").setItems(names, (d, which) -> {
+        new AlertDialog.Builder(this).setTitle(R.string.custom_workouts_copy_title).setItems(names, (d, which) -> {
             Workout selected = premade.get(which);
             customService.duplicatePremade(selected.getName(), null, new ServiceCallback<String>() {
-                @Override public void onSuccess(String id) { load(); show("Workout copied — you can edit it now."); }
+                @Override public void onSuccess(String id) { load(); show(getString(R.string.custom_workouts_copied)); }
                 @Override public void onError(String message) { show(message); }
             });
         }).show();
@@ -171,8 +171,8 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         android.widget.EditText input = new android.widget.EditText(this);
         input.setSingleLine(true); input.setText(workout.getName());
         input.setPadding(dp(14), dp(10), dp(14), dp(10));
-        new AlertDialog.Builder(this).setTitle("Rename workout").setView(input)
-                .setNegativeButton("Cancel", null).setPositiveButton("Save", (d, w) ->
+        new AlertDialog.Builder(this).setTitle(R.string.custom_workouts_rename_title).setView(input)
+                .setNegativeButton(R.string.common_cancel, null).setPositiveButton(R.string.common_save, (d, w) ->
                         customService.rename(workout.getId(), input.getText().toString(), new ServiceCallback<Void>() {
                             @Override public void onSuccess(Void result) { load(); }
                             @Override public void onError(String message) { show(message); }
@@ -180,9 +180,9 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
     }
 
     private void confirmDelete(CustomWorkout workout) {
-        new AlertDialog.Builder(this).setTitle("Delete workout?")
+        new AlertDialog.Builder(this).setTitle(R.string.custom_workouts_delete_title)
                 .setMessage(getString(R.string.custom_workouts_delete_message, workout.getName()))
-                .setNegativeButton("Cancel", null).setPositiveButton("Delete", (d, w) ->
+                .setNegativeButton(R.string.common_cancel, null).setPositiveButton(R.string.common_delete, (d, w) ->
                         customService.delete(workout.getId(), new ServiceCallback<Void>() {
                             @Override public void onSuccess(Void result) { load(); }
                             @Override public void onError(String message) { show(message); }
@@ -228,7 +228,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
     private LinearLayout.LayoutParams weightButton() { return new LinearLayout.LayoutParams(0, dp(40), 1f); }
     private int dp(int n) { return (int) (n * getResources().getDisplayMetrics().density + .5f); }
     private String duration(Integer seconds) {
-        if (seconds == null || seconds <= 0) return "Ready to train";
-        int mins = Math.max(1, (seconds + 59) / 60); return mins + " min";
+        if (seconds == null || seconds <= 0) return getString(R.string.custom_workouts_no_length);
+        int mins = Math.max(1, (seconds + 59) / 60); return getString(R.string.duration_minutes, mins);
     }
 }

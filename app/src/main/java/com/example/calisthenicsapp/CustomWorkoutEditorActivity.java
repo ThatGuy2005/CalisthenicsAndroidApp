@@ -83,29 +83,29 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         scroll.setBackgroundResource(R.drawable.page_background); root = scroll;
         LinearLayout page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL);
         page.setPadding(dp(22), dp(20), dp(22), dp(30)); scroll.addView(page);
-        TextView back = text("‹  My workouts", 15, UiColors.ORANGE_DARK, true);
+        TextView back = text(getString(R.string.custom_editor_back), 15, UiColors.ORANGE_DARK, true);
         back.setPadding(dp(2), dp(4), dp(4), dp(4)); back.setOnClickListener(v -> finish()); page.addView(back);
         page.addView(gap(15));
-        page.addView(text(workoutId == null ? "BUILD YOUR ROUTINE" : "MAKE IT YOURS", 12,
+        page.addView(text(getString(workoutId == null ? R.string.custom_editor_eyebrow_new : R.string.custom_editor_eyebrow_edit), 12,
                 UiColors.ORANGE_DARK, true));
-        TextView title = text(workoutId == null ? "Create workout" : "Edit workout", 29, UiColors.GRAPHITE, true);
+        TextView title = text(getString(workoutId == null ? R.string.custom_editor_create : R.string.custom_editor_title_edit), 29, UiColors.GRAPHITE, true);
         LinearLayout.LayoutParams titleParams = matchWrap(); titleParams.topMargin = dp(5); page.addView(title, titleParams);
-        TextView intro = text("Give your session a name, then choose and arrange its exercises.",
+        TextView intro = text(getString(R.string.custom_editor_intro),
                 14, UiColors.MUTED, false);
         LinearLayout.LayoutParams introParams = matchWrap(); introParams.topMargin = dp(4); page.addView(intro, introParams);
 
-        page.addView(sectionLabel("WORKOUT DETAILS", 22));
-        name = field("Workout name", InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        page.addView(sectionLabel(getString(R.string.custom_editor_details_label), 22));
+        name = field(getString(R.string.custom_editor_hint_name), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         page.addView(name, matchWrap());
-        description = field("Description (optional)", InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+        description = field(getString(R.string.custom_editor_hint_description), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
                 | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         description.setMinLines(2); description.setMaxLines(4);
         LinearLayout.LayoutParams descParams = matchWrap(); descParams.topMargin = dp(10); page.addView(description, descParams);
 
-        page.addView(sectionLabel("EXERCISES", 22));
+        page.addView(sectionLabel(getString(R.string.custom_editor_exercises_label), 22));
         count = text(getString(R.string.custom_editor_count_empty), 13, UiColors.MUTED, true);
         page.addView(count);
-        Button choose = button("＋   Add exercises", false);
+        Button choose = button(getString(R.string.custom_editor_add_exercises), false);
         LinearLayout.LayoutParams chooseParams = matchWrap(); chooseParams.topMargin = dp(10); page.addView(choose, chooseParams);
         choose.setOnClickListener(v -> chooseExercises());
         selectedList = new LinearLayout(this); selectedList.setOrientation(LinearLayout.VERTICAL);
@@ -134,24 +134,24 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
     }
 
     private void chooseExercises() {
-        if (loading) { show("Loading exercise library…"); return; }
+        if (loading) { show(getString(R.string.custom_editor_loading_library)); return; }
         String[] labels = new String[library.size()]; boolean[] checked = new boolean[library.size()];
         for (int i = 0; i < library.size(); i++) {
             Exercise e = library.get(i); labels[i] = e.getName() + "  ·  " + e.getMuscleGroup();
             checked[i] = contains(e.getName());
         }
         List<String> before = new ArrayList<>(); for (Exercise e : selected) before.add(e.getName());
-        new androidx.appcompat.app.AlertDialog.Builder(this).setTitle("Select exercises")
+        new androidx.appcompat.app.AlertDialog.Builder(this).setTitle(R.string.custom_editor_select_title)
                 .setMultiChoiceItems(labels, checked, (dialog, which, isChecked) -> {
                     Exercise exercise = library.get(which);
                     if (isChecked && !contains(exercise.getName())) selected.add(exercise);
                     else if (!isChecked) remove(exercise.getName());
-                }).setNegativeButton("Cancel", (dialog, which) -> {
+                }).setNegativeButton(R.string.common_cancel, (dialog, which) -> {
                     selected.clear();
                     for (String exerciseName : before) for (Exercise exercise : library)
                         if (exercise.getName().equals(exerciseName)) { selected.add(exercise); break; }
                     renderSelected();
-                }).setPositiveButton("Done", (dialog, which) -> renderSelected()).show();
+                }).setPositiveButton(R.string.common_done, (dialog, which) -> renderSelected()).show();
     }
 
     private void renderSelected() {
@@ -175,9 +175,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
             LinearLayout.LayoutParams labelsParams = new LinearLayout.LayoutParams(0, -2, 1f);
             labelsParams.leftMargin = dp(9); row.addView(labels, labelsParams);
             labels.addView(text(exercise.getName(), 14, UiColors.GRAPHITE, true));
-            String target = exercise.isTimed() ? exercise.getDefaultSeconds() + " sec" : exercise.getDefaultReps() + " reps";
-            TextView meta = text((exercise.getMuscleGroup() == null ? "Exercise" : exercise.getMuscleGroup())
-                    + "  ·  " + target + " default", 11, UiColors.MUTED, false);
+            TextView meta = text(defaultsOf(exercise), 11, UiColors.MUTED, false);
             LinearLayout.LayoutParams mp = matchWrap(); mp.topMargin = dp(2); labels.addView(meta, mp);
             TextView up = mini("↑", index > 0); row.addView(up, miniParams());
             TextView down = mini("↓", index < selected.size() - 1); LinearLayout.LayoutParams downParams = miniParams();
@@ -197,8 +195,8 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
 
     private void saveWorkout() {
         String workoutName = name.getText().toString().trim();
-        if (workoutName.isEmpty()) { name.setError("Add a name for this workout"); name.requestFocus(); return; }
-        if (selected.isEmpty()) { show("Add at least one exercise to your workout."); return; }
+        if (workoutName.isEmpty()) { name.setError(getString(R.string.custom_editor_error_name)); name.requestFocus(); return; }
+        if (selected.isEmpty()) { show(getString(R.string.custom_editor_error_no_exercises)); return; }
         save.setEnabled(false); save.setText(R.string.custom_editor_saving);
         List<CustomExerciseOrderEntry> entries = new ArrayList<>();
         for (int i = 0; i < selected.size(); i++) {
@@ -210,7 +208,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         }
         if (workoutId == null) {
             workouts.create(workoutName, description.getText().toString(), entries, new ServiceCallback<String>() {
-                @Override public void onSuccess(String id) { show("Workout created."); finish(); }
+                @Override public void onSuccess(String id) { show(getString(R.string.custom_editor_created)); finish(); }
                 @Override public void onError(String message) { restoreSave(message); }
             });
         } else {
@@ -224,7 +222,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
                 workouts.setDescription(workoutId, newDescription, new ServiceCallback<Void>() {
                     @Override public void onSuccess(Void result) {
                         workouts.replaceExercises(workoutId, entries, new ServiceCallback<Void>() {
-                            @Override public void onSuccess(Void result) { show("Workout updated."); finish(); }
+                            @Override public void onSuccess(Void result) { show(getString(R.string.custom_editor_updated)); finish(); }
                             @Override public void onError(String message) { restoreSave(message); }
                         });
                     }
@@ -237,6 +235,16 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
 
     private void restoreSave(String message) { save.setEnabled(true); save.setText(saveLabel()); show(message); }
     private int saveLabel() { return workoutId == null ? R.string.custom_editor_create : R.string.custom_editor_save; }
+    /** "Chest  ·  12 reps default": the muscle group and the exercise's own target, if it has one. */
+    private String defaultsOf(Exercise exercise) {
+        String group = exercise.getMuscleGroup() == null
+                ? getString(R.string.custom_editor_no_muscle_group) : exercise.getMuscleGroup();
+        Integer amount = exercise.isTimed() ? exercise.getDefaultSeconds() : exercise.getDefaultReps();
+        if (amount == null) return group;
+        String target = exercise.isTimed() ? getString(R.string.target_seconds, amount)
+                : getResources().getQuantityString(R.plurals.target_reps, amount, amount);
+        return getString(R.string.custom_editor_exercise_meta, group, target);
+    }
     private boolean contains(String name) { for (Exercise e : selected) if (e.getName().equals(name)) return true; return false; }
     private void remove(String name) { for (int i = selected.size() - 1; i >= 0; i--) if (selected.get(i).getName().equals(name)) selected.remove(i); }
     private EditText field(String hint, int inputType) {

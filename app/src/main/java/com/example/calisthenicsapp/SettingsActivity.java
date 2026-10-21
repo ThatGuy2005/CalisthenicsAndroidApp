@@ -33,8 +33,8 @@ public class SettingsActivity extends AppCompatActivity {
                 if (chosen != UnitPreference.get(SettingsActivity.this)) {
                     UnitPreference.set(SettingsActivity.this, chosen);
                     Snackbar.make(findViewById(R.id.settingsRoot),
-                            chosen == UnitSystem.IMPERIAL ? "Units set to pounds and feet."
-                                    : "Units set to kilograms and centimetres.",
+                            chosen == UnitSystem.IMPERIAL ? R.string.settings_units_set_imperial
+                                    : R.string.settings_units_set_metric,
                             Snackbar.LENGTH_SHORT).show();
                 }
             }

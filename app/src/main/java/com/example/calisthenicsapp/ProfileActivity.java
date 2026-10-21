@@ -61,19 +61,19 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loadProfile() {
-        setSaving(true, "Loading profile…");
+        setSaving(true, R.string.profile_loading);
         profiles.getMyProfile(new ServiceCallback<User>() {
             @Override public void onSuccess(User user) {
-                setSaving(false, "Save profile");
+                setSaving(false, R.string.profile_save);
                 if (user == null) {
                     Snackbar.make(findViewById(R.id.profileRoot),
-                            "Your profile isn't available yet. Check your connection and try again.",
+                            R.string.profile_unavailable,
                             Snackbar.LENGTH_LONG).show();
                     return;
                 }
                 username.setText(user.getUsername() == null ? "" : user.getUsername());
                 ((android.widget.TextView) findViewById(R.id.profileEmail)).setText(
-                        user.getEmail() == null ? "Not set" : user.getEmail());
+                        user.getEmail() == null ? getString(R.string.profile_email_not_set) : user.getEmail());
                 height.show(user.getHeight());
                 weight.setText(number(Units.weightFromKg(user.getWeight(), units)));
                 if (user.getBirthYear() != null) birthYear.setText(String.valueOf(user.getBirthYear()));
@@ -87,7 +87,7 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             }
             @Override public void onError(String message) {
-                setSaving(false, "Save profile"); show(message);
+                setSaving(false, R.string.profile_save); show(message);
             }
         });
     }
@@ -95,7 +95,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void saveProfile() {
         String usernameValue = username.getText().toString().trim();
         if (!UserValidator.isValidUsername(usernameValue)) {
-            username.setError("Use 3–20 letters, digits, '.', '_' or '-'."); username.requestFocus(); return;
+            username.setError(getString(R.string.profile_error_username)); username.requestFocus(); return;
         }
         Locale locale = Locale.getDefault();
         Double heightValue = height.toCm();
@@ -110,25 +110,25 @@ public class ProfileActivity extends AppCompatActivity {
         }
         String genderValue = gender.getSelectedItemPosition() == 0
                 ? null : gender.getSelectedItem().toString();
-        if (!UserValidator.isValidGender(genderValue)) { show("Gender can be at most 30 characters."); return; }
+        if (!UserValidator.isValidGender(genderValue)) { show(getString(R.string.profile_error_gender)); return; }
         Integer yearValue = null;
         String yearText = birthYear.getText().toString().trim();
         if (!yearText.isEmpty()) {
             try { yearValue = Integer.valueOf(yearText); }
-            catch (NumberFormatException ignored) { birthYear.setError("Enter a valid birth year."); birthYear.requestFocus(); return; }
+            catch (NumberFormatException ignored) { birthYear.setError(birthYearError()); birthYear.requestFocus(); return; }
         }
         if (!UserValidator.isValidBirthYear(yearValue)) {
-            birthYear.setError("Enter a year from 1900 to the current year."); birthYear.requestFocus(); return;
+            birthYear.setError(birthYearError()); birthYear.requestFocus(); return;
         }
 
-        setSaving(true, "Saving…");
+        setSaving(true, R.string.profile_saving);
         profiles.updateProfile(usernameValue, heightValue, weightValue, genderValue, yearValue,
                 new ServiceCallback<Void>() {
                     @Override public void onSuccess(Void result) {
-                        setSaving(false, "Save profile");
-                        Snackbar.make(findViewById(R.id.profileRoot), "Profile saved.", Snackbar.LENGTH_SHORT).show();
+                        setSaving(false, R.string.profile_save);
+                        Snackbar.make(findViewById(R.id.profileRoot), R.string.profile_saved, Snackbar.LENGTH_SHORT).show();
                     }
-                    @Override public void onError(String message) { setSaving(false, "Save profile"); show(message); }
+                    @Override public void onError(String message) { setSaving(false, R.string.profile_save); show(message); }
                 });
     }
 
@@ -143,7 +143,11 @@ public class ProfileActivity extends AppCompatActivity {
         if (value == Math.rint(value)) return String.valueOf(value.intValue());
         return String.valueOf(value);
     }
-    private void setSaving(boolean saving, String label) {
+    /** The sign-up message, for a year that is no number or out of range alike. */
+    private String birthYearError() {
+        return getString(R.string.signup_error_birth_year, UserValidator.BIRTH_YEAR_MIN);
+    }
+    private void setSaving(boolean saving, int label) {
         save.setEnabled(!saving); save.setText(label);
         username.setEnabled(!saving); height.setEnabled(!saving); weight.setEnabled(!saving);
         birthYear.setEnabled(!saving); gender.setEnabled(!saving);
