@@ -326,6 +326,17 @@
     <string name="session_next_up">Next up · %1$s</string>
     <string name="session_pause">Pause</string>
     <string name="session_resume">Resume</string>
+    <!-- For screen readers; %1$s is the exercise's name. -->
+    <string name="session_animation_named">%1$s movement animation</string>
+    <!-- When the user does not allow the app to see calls, so it cannot pause for one. -->
+    <string name="session_call_pause_denied">Workout will continue normally. You can pause it manually during a call.</string>
+    <string name="session_keep_going">Keep going</string>
+    <string name="session_skip_title">Skip this exercise?</string>
+    <string name="session_skip_message">Its remaining sets will be skipped and the workout will be saved as partial.</string>
+    <string name="session_end_title">End workout?</string>
+    <string name="session_end_message_nothing">No completed sets will be saved.</string>
+    <string name="session_end_message_partial">Your completed sets will be saved as a partial workout.</string>
+    <string name="session_end_workout">End workout</string>
 
     <!-- Workout summary (activity_workout_summary) -->
     <string name="summary_eyebrow">WORKOUT COMPLETE</string>

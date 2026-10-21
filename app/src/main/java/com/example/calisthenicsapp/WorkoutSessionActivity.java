@@ -190,8 +190,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             registerPhoneListener();
         } else {
-            android.widget.Toast.makeText(this,
-                    "Workout will continue normally. You can pause it manually during a call.",
+            android.widget.Toast.makeText(this, R.string.session_call_pause_denied,
                     android.widget.Toast.LENGTH_LONG).show();
         }
         if (session != null && session.isPaused() && !pausedByCall) session.resume();
@@ -200,9 +199,12 @@ public class WorkoutSessionActivity extends AppCompatActivity {
 
     private String targetText(WorkoutSession.SessionExercise exercise) {
         String value;
-        if (exercise.isTimed()) value = (exercise.getTargetSeconds() == null ? "Timed" : exercise.getTargetSeconds() + " sec");
-        else value = (exercise.getTargetReps() == null ? "Reps" : exercise.getTargetReps() + " reps");
-        return exercise.isPerSide() ? value + " / side" : value;
+        if (exercise.isTimed()) value = exercise.getTargetSeconds() == null ? getString(R.string.target_timed)
+                : getString(R.string.target_seconds, exercise.getTargetSeconds());
+        else value = exercise.getTargetReps() == null ? getString(R.string.target_reps_unknown)
+                : getResources().getQuantityString(R.plurals.target_reps,
+                        exercise.getTargetReps(), exercise.getTargetReps());
+        return exercise.isPerSide() ? getString(R.string.target_per_side_short, value) : value;
     }
 
     private void mainAction() {
@@ -227,22 +229,22 @@ public class WorkoutSessionActivity extends AppCompatActivity {
 
     private void confirmSkipExercise() {
         new MaterialAlertDialogBuilder(this)
-                .setTitle("Skip this exercise?")
-                .setMessage("Its remaining sets will be skipped and the workout will be saved as partial.")
-                .setNegativeButton("Keep going", null)
-                .setPositiveButton("Skip exercise", (d, w) -> {
+                .setTitle(R.string.session_skip_title)
+                .setMessage(R.string.session_skip_message)
+                .setNegativeButton(R.string.session_keep_going, null)
+                .setPositiveButton(R.string.session_skip_exercise, (d, w) -> {
                     session.skipExercise(); cue(); afterAction();
                 }).show();
     }
 
     private void confirmCancel() {
         new MaterialAlertDialogBuilder(this)
-                .setTitle("End workout?")
+                .setTitle(R.string.session_end_title)
                 .setMessage(session.getCompletedSets() == 0
-                        ? "No completed sets will be saved."
-                        : "Your completed sets will be saved as a partial workout.")
-                .setNegativeButton("Keep going", null)
-                .setPositiveButton("End workout", (d, w) -> {
+                        ? R.string.session_end_message_nothing
+                        : R.string.session_end_message_partial)
+                .setNegativeButton(R.string.session_keep_going, null)
+                .setPositiveButton(R.string.session_end_workout, (d, w) -> {
                     session.cancel();
                     if (session.isLoggable()) openSummary(); else finish();
                 }).show();
@@ -284,7 +286,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             try (java.io.InputStream input = getAssets().open(fileName)) {
                 animation.setImageBitmap(BitmapFactory.decodeStream(input));
-                animation.setContentDescription(exercise + " movement animation");
+                animation.setContentDescription(getString(R.string.session_animation_named, exercise));
                 animation.setVisibility(View.VISIBLE);
                 placeholder.setVisibility(View.GONE);
             } catch (IOException | RuntimeException ignored) { }
@@ -293,7 +295,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         try {
             Drawable drawable = ImageDecoder.decodeDrawable(ImageDecoder.createSource(getAssets(), fileName));
             animation.setImageDrawable(drawable);
-            animation.setContentDescription(exercise + " movement animation");
+            animation.setContentDescription(getString(R.string.session_animation_named, exercise));
             animation.setVisibility(View.VISIBLE);
             placeholder.setVisibility(View.GONE);
             if (drawable instanceof AnimatedImageDrawable) ((AnimatedImageDrawable) drawable).start();

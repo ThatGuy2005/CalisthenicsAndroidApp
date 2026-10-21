@@ -55,7 +55,7 @@ public class WorkoutSummaryActivity extends AppCompatActivity {
                 ? R.string.summary_workout_completed : R.string.summary_workout_partial,
                 session.getWorkoutName()));
         ((TextView) findViewById(R.id.summaryDuration)).setText(formatTime(session.getTotalSeconds()));
-        ((TextView) findViewById(R.id.summaryCalories)).setText(String.format(Locale.getDefault(), "%.0f kcal", session.getTotalKcal()));
+        ((TextView) findViewById(R.id.summaryCalories)).setText(getString(R.string.energy_kcal, session.getTotalKcal()));
         int totalSets = 0;
         for (WorkoutSession.SessionExercise e : session.getExercises()) totalSets += e.getSets();
         ((TextView) findViewById(R.id.summarySets)).setText(getResources().getQuantityString(
