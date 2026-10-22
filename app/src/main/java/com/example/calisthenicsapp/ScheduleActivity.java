@@ -40,6 +40,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -49,9 +50,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ScheduleActivity extends AppCompatActivity {
     public static final String EXTRA_PREVIEW_MODE = HomeActivity.EXTRA_PREVIEW_MODE;
 
-    private final Calendar selectedDay = startOfDay(Calendar.getInstance());
+    private final ScheduleWeek week = new ScheduleWeek();
     private final List<WorkoutOption> workoutOptions = new ArrayList<>();
-    private final List<ScheduleOccurrence> weekOccurrences = new ArrayList<>();
     private LinearLayout weekDays;
     private LinearLayout agenda;
     private TextView monthTitle;
@@ -92,11 +92,7 @@ public class ScheduleActivity extends AppCompatActivity {
         findViewById(R.id.schedulePreviousWeek).setOnClickListener(v -> changeWeek(-1));
         findViewById(R.id.scheduleNextWeek).setOnClickListener(v -> changeWeek(1));
         findViewById(R.id.scheduleTodayButton).setOnClickListener(v -> {
-            selectedDay.setTimeInMillis(System.currentTimeMillis());
-            selectedDay.set(Calendar.HOUR_OF_DAY, 0);
-            selectedDay.set(Calendar.MINUTE, 0);
-            selectedDay.set(Calendar.SECOND, 0);
-            selectedDay.set(Calendar.MILLISECOND, 0);
+            week.selectToday();
             renderWeek();
             loadWeek();
         });
@@ -118,25 +114,23 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private void changeWeek(int offset) {
-        selectedDay.add(Calendar.DAY_OF_MONTH, offset * 7);
+        week.moveWeeks(offset);
         renderWeek();
         loadWeek();
     }
 
     private void renderWeek() {
-        Calendar firstDay = (Calendar) selectedDay.clone();
-        int difference = (firstDay.get(Calendar.DAY_OF_WEEK) - firstDay.getFirstDayOfWeek() + 7) % 7;
-        firstDay.add(Calendar.DAY_OF_MONTH, -difference);
+        Calendar selectedDay = week.getSelectedDay();
         monthTitle.setText(new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(selectedDay.getTime()));
         selectedDateTitle.setText(new SimpleDateFormat("EEEE, MMM d", Locale.getDefault())
                 .format(selectedDay.getTime()));
-        daySubtitle.setText(isToday(selectedDay) ? R.string.schedule_today : R.string.schedule_day_subtitle);
+        daySubtitle.setText(week.isTodaySelected() ? R.string.schedule_today : R.string.schedule_day_subtitle);
         weekDays.removeAllViews();
 
-        for (int i = 0; i < 7; i++) {
-            Calendar day = (Calendar) firstDay.clone();
-            day.add(Calendar.DAY_OF_MONTH, i);
-            boolean selected = sameDay(day, selectedDay);
+        List<Calendar> days = week.days();
+        for (int i = 0; i < days.size(); i++) {
+            Calendar day = days.get(i);
+            boolean selected = week.isSelected(day);
             LinearLayout tile = new LinearLayout(this);
             tile.setOrientation(LinearLayout.VERTICAL);
             tile.setGravity(Gravity.CENTER);
@@ -168,7 +162,7 @@ public class ScheduleActivity extends AppCompatActivity {
             dot.setBackground(rounded(selected ? 0xFFC35CFF : 0xFFD08BFF, dp(this, 4)));
             LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(dp(this, 4), dp(this, 4));
             dotParams.topMargin = dp(this, 4);
-            dot.setVisibility(hasOccurrenceOn(day) ? View.VISIBLE : View.INVISIBLE);
+            dot.setVisibility(week.hasOccurrenceOn(day) ? View.VISIBLE : View.INVISIBLE);
             tile.addView(dot, dotParams);
 
             LinearLayout.LayoutParams tileParams = new LinearLayout.LayoutParams(0, dp(this, 72), 1f);
@@ -177,7 +171,7 @@ public class ScheduleActivity extends AppCompatActivity {
             tile.setClickable(true);
             tile.setFocusable(true);
             tile.setOnClickListener(v -> {
-                selectedDay.setTimeInMillis(day.getTimeInMillis());
+                week.select(day.getTimeInMillis());
                 renderWeek();
                 renderAgendaForSelectedDay();
             });
@@ -185,19 +179,15 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private void loadWeek() {
-        Calendar start = weekStart(selectedDay);
-        Calendar end = (Calendar) start.clone();
-        end.add(Calendar.DAY_OF_MONTH, 7);
-        scheduleService.getOccurrences(start.getTimeInMillis() / 1000L,
-                end.getTimeInMillis() / 1000L, new ServiceCallback<List<ScheduleOccurrence>>() {
+        scheduleService.getOccurrences(week.fromSeconds(), week.toSeconds(),
+                new ServiceCallback<List<ScheduleOccurrence>>() {
                     @Override public void onSuccess(List<ScheduleOccurrence> result) {
-                        weekOccurrences.clear();
-                        weekOccurrences.addAll(result);
+                        week.setOccurrences(result);
                         renderWeek();
                         renderAgendaForSelectedDay();
                     }
                     @Override public void onError(String message) {
-                        weekOccurrences.clear();
+                        week.setOccurrences(Collections.emptyList());
                         renderWeek();
                         showEmptyState(getString(R.string.schedule_load_failed), message);
                     }
@@ -205,10 +195,7 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private void renderAgendaForSelectedDay() {
-        List<ScheduleOccurrence> selected = new ArrayList<>();
-        for (ScheduleOccurrence occurrence : weekOccurrences) {
-            if (sameDay(occurrence.getStartSeconds(), selectedDay)) selected.add(occurrence);
-        }
+        List<ScheduleOccurrence> selected = week.occurrencesOnSelectedDay();
         if (selected.isEmpty()) {
             showEmptyState(getString(R.string.schedule_empty_title),
                     getString(R.string.schedule_empty_message));
@@ -480,11 +467,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 scheduleService.reschedule(occurrence.getSchedule().getId(),
                         updated.getTimeInMillis() / 1000L, new ServiceCallback<Void>() {
                             @Override public void onSuccess(Void ignored) {
-                                selectedDay.setTimeInMillis(updated.getTimeInMillis());
-                                selectedDay.set(Calendar.HOUR_OF_DAY, 0);
-                                selectedDay.set(Calendar.MINUTE, 0);
-                                selectedDay.set(Calendar.SECOND, 0);
-                                selectedDay.set(Calendar.MILLISECOND, 0);
+                                week.select(updated.getTimeInMillis());
                                 renderWeek();
                                 loadWeek();
                                 showMessage(getString(R.string.schedule_rescheduled));
@@ -594,7 +577,7 @@ public class ScheduleActivity extends AppCompatActivity {
         form.addView(workoutSpinner, new LinearLayout.LayoutParams(-1, dp(this, 48)));
 
         addFormLabel(form, R.string.schedule_form_date_time);
-        Calendar chosen = (Calendar) selectedDay.clone();
+        Calendar chosen = week.getSelectedDay();
         chosen.set(Calendar.HOUR_OF_DAY, 18);
         chosen.set(Calendar.MINUTE, 0);
         chosen.set(Calendar.SECOND, 0);
@@ -658,11 +641,7 @@ public class ScheduleActivity extends AppCompatActivity {
         }
         ServiceCallback<String> callback = new ServiceCallback<String>() {
             @Override public void onSuccess(String id) {
-                selectedDay.setTimeInMillis(at * 1000L);
-                selectedDay.set(Calendar.HOUR_OF_DAY, 0);
-                selectedDay.set(Calendar.MINUTE, 0);
-                selectedDay.set(Calendar.SECOND, 0);
-                selectedDay.set(Calendar.MILLISECOND, 0);
+                week.select(at * 1000L);
                 renderWeek();
                 loadWeek();
                 showMessage(getString(R.string.schedule_added));
@@ -715,43 +694,6 @@ public class ScheduleActivity extends AppCompatActivity {
             if (option.custom && option.id.equals(id)) return option.name;
         }
         return getString(R.string.schedule_custom_workout);
-    }
-
-    private boolean hasOccurrenceOn(Calendar day) {
-        for (ScheduleOccurrence occurrence : weekOccurrences) {
-            if (sameDay(occurrence.getStartSeconds(), day)) return true;
-        }
-        return false;
-    }
-
-    private boolean sameDay(long seconds, Calendar day) {
-        Calendar date = Calendar.getInstance();
-        date.setTimeInMillis(seconds * 1000L);
-        return sameDay(date, day);
-    }
-
-    private boolean sameDay(Calendar first, Calendar second) {
-        return first.get(Calendar.YEAR) == second.get(Calendar.YEAR)
-                && first.get(Calendar.DAY_OF_YEAR) == second.get(Calendar.DAY_OF_YEAR);
-    }
-
-    private boolean isToday(Calendar day) {
-        return sameDay(day, Calendar.getInstance());
-    }
-
-    private Calendar weekStart(Calendar day) {
-        Calendar start = startOfDay((Calendar) day.clone());
-        int difference = (start.get(Calendar.DAY_OF_WEEK) - start.getFirstDayOfWeek() + 7) % 7;
-        start.add(Calendar.DAY_OF_MONTH, -difference);
-        return start;
-    }
-
-    private static Calendar startOfDay(Calendar calendar) {
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar;
     }
 
     private String formatDateTime(Calendar calendar) {
