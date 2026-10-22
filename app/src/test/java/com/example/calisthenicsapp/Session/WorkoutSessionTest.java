@@ -140,7 +140,6 @@ public class WorkoutSessionTest {
         session.pause();
         advance(300);
         assertTrue(session.isPaused());
-        assertEquals(10, session.getStepElapsedSeconds());
         assertFalse(session.tick());
         session.resume();
         advance(5);

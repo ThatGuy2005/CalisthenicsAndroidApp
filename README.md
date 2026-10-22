@@ -126,8 +126,8 @@ syncs later.
 | `signOut()` | Also clears the local copy of the user's data. |
 | `getCurrentUser()` | Null when nobody is signed in. |
 
-`SessionManager`: `isSignedIn()`, `getCurrentUid()`, and `addAuthStateListener(...)` to react
-to sign-in and sign-out. Use it to choose between the sign-in screen and the main screen.
+`SessionManager`: `getCurrentUid()`, and `addAuthStateListener(...)` to react to sign-in and
+sign-out.
 
 `ProfileService`
 
@@ -167,9 +167,6 @@ already do this through `UnitPreference.get` / `set` (Settings has the toggle), 
 the profile take a height through `HeightInput` (cm, or ft and in fields).
 `CoreComponents/Units` does the rest:
 
-- Show a value: `formatWeight(kg, system, locale)` gives "70 kg" or "154.3 lb", and
-  `formatHeight(cm, system, locale)` gives "175 cm" or "5 ft 9 in". Both return null when the
-  value was never given.
 - Fill a form field: `weightFromKg(kg, system)` and `cmToFeetInches(cm)` (use two fields for ft and in).
 - Before calling a service: `weightToKg(typed, system)` and `feetInchesToCm(feet, inches)`.
   Convert a height back only if the user changed it, since whole inches are coarser than cm.
@@ -279,7 +276,7 @@ phone call.
 
 | Method | Notes |
 |---|---|
-| `schedulePremade(name, at, recurrence, addToCalendar, cb)` and `scheduleCustom(id, at, recurrence, addToCalendar, cb)` | Return the schedule id. `recurrence` is null for a one-off workout, or e.g. `Recurrence.weekly()` or `new Recurrence(Recurrence.Frequency.DAILY, 2)`. Shorter overloads without these arguments exist. |
+| `schedulePremade(name, at, recurrence, addToCalendar, cb)` and `scheduleCustom(id, at, recurrence, addToCalendar, cb)` | Return the schedule id. `recurrence` is null for a one-off workout, or e.g. `Recurrence.weekly()` or `new Recurrence(Recurrence.Frequency.DAILY, 2)`. |
 | `reschedule(id, at, cb)`, `setRecurrence(id, recurrence, cb)`, `delete(id, cb)` | The calendar event follows these changes automatically. |
 
 **Listing schedules:**

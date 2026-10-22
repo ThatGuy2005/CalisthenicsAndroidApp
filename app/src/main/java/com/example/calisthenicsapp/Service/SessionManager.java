@@ -35,10 +35,6 @@ public class SessionManager {
         return user == null ? null : user.getUid();
     }
 
-    public boolean isSignedIn() {
-        return getCurrentUser() != null;
-    }
-
     public void addAuthStateListener(SignedInListener listener) {
         firebaseAuth.addAuthStateListener(auth -> {
             FirebaseUser user = auth.getCurrentUser();

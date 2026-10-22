@@ -21,9 +21,6 @@ public class CustomWorkout extends Workout{
     public String getId() {
         return this.id;
     }
-    public void setId(String id) {
-        this.id = id;
-    }
     private String uid;
     private String id;
 }

@@ -151,26 +151,16 @@ public class WorkoutSession implements Serializable {
 
     private transient LongSupplier clock;
 
-    public WorkoutSession(String workoutName, List<SessionExercise> exercises, double weightKg) {
-        this(workoutName, exercises, weightKg, SystemClock::elapsedRealtime,
-                System.currentTimeMillis() / 1000L);
-    }
-
-    /** customWorkoutId: the custom workout this runs, or null for a premade one. */
-    public WorkoutSession(String workoutName, String customWorkoutId, List<SessionExercise> exercises,
-                          double weightKg) {
-        this(workoutName, customWorkoutId, exercises, weightKg, null);
-    }
-
     /**
+     * customWorkoutId: the custom workout this runs, or null for a premade one.
      * kcalPerMetHour: kcal burned per MET per hour, see {@link Bmr#kcalPerMetHour}; null uses
      * weightKg (1 kcal per kg per hour).
      */
     public WorkoutSession(String workoutName, String customWorkoutId, List<SessionExercise> exercises,
                           double weightKg, Double kcalPerMetHour) {
-        this(workoutName, exercises, weightKg);
+        this(workoutName, exercises, weightKg, kcalPerMetHour, SystemClock::elapsedRealtime,
+                System.currentTimeMillis() / 1000L);
         this.customWorkoutId = customWorkoutId;
-        this.kcalPerMetHour = kcalPerMetHour;
     }
 
     /** For tests: clock returns milliseconds and must never go backwards. */
@@ -294,7 +284,6 @@ public class WorkoutSession implements Serializable {
     /** The custom workout it was started from, or null for a premade workout. */
     public String getCustomWorkoutId() { return customWorkoutId; }
     public long getStartedAt() { return startedAt; }
-    public double getWeightKg() { return weightKg; }
     /** kcal per MET per hour: the user's BMR / 24 when known, otherwise the weight in kg. */
     public double getKcalPerMetHour() {
         return kcalPerMetHour == null ? weightKg : kcalPerMetHour;
@@ -336,11 +325,6 @@ public class WorkoutSession implements Serializable {
         }
         long left = Math.max(0L, targetMillis - stepElapsedMillis());
         return (int) ((left + 999L) / 1000L);
-    }
-
-    /** Seconds spent in the current step so far (for a rep-based set's stopwatch). */
-    public int getStepElapsedSeconds() {
-        return (int) (stepElapsedMillis() / 1000L);
     }
 
     /** Workout duration so far, rests included, pauses excluded. */

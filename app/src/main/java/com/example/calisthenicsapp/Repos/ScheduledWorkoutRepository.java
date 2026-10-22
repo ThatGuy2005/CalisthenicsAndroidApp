@@ -11,7 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> {

@@ -1,11 +1,6 @@
 package com.example.calisthenicsapp.CoreComponents;
 
 public class ExerciseOrderEntry {
-    public ExerciseOrderEntry(String workoutName, String exerciseName, Integer position,
-                              Integer sets, Integer reps, Integer seconds,
-                              Integer restSeconds) {
-        this(workoutName, exerciseName, position, sets, reps, seconds, restSeconds, null);
-    }
     /** restAfterSeconds: the rest after the last set, before the next exercise; null = restSeconds. */
     public ExerciseOrderEntry(String workoutName, String exerciseName, Integer position,
                               Integer sets, Integer reps, Integer seconds,

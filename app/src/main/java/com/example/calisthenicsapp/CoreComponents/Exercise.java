@@ -4,22 +4,7 @@ public class Exercise {
     /**
      * defaultSeconds is used when isTimed is true, defaultReps when it is false.
      * The other one is null (the database column is NULL).
-     */
-    public Exercise(String name, String instructions, boolean isTimed,
-                    Integer defaultSeconds, Integer defaultReps, double met,
-                    String animationFile, String muscleGroup, Difficulty difficulty) {
-        this(name, instructions, isTimed, defaultSeconds, defaultReps, met, animationFile,
-                muscleGroup, difficulty, false);
-    }
-    /** isPerSide: the reps or seconds are per side (each leg or arm), as in lunges (FR-4.2). */
-    public Exercise(String name, String instructions, boolean isTimed,
-                    Integer defaultSeconds, Integer defaultReps, double met,
-                    String animationFile, String muscleGroup, Difficulty difficulty,
-                    boolean isPerSide) {
-        this(name, instructions, isTimed, defaultSeconds, defaultReps, met, animationFile,
-                muscleGroup, difficulty, isPerSide, Equipment.NONE, false);
-    }
-    /**
+     * isPerSide: the reps or seconds are per side (each leg or arm), as in lunges (FR-4.2).
      * equipment: what it needs besides the floor; null means none. isMultiMuscle: it works
      * several muscle groups rather than mainly one (FR-3.2).
      */

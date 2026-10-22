@@ -63,17 +63,6 @@ public class UnitsTest {
     }
 
     @Test
-    public void formatsInTheChosenUnits() {
-        assertEquals("70 kg", Units.formatWeight(70.0, UnitSystem.METRIC, US));
-        assertEquals("154.3 lb", Units.formatWeight(70.0, UnitSystem.IMPERIAL, US));
-        assertEquals("154,3 lb", Units.formatWeight(70.0, UnitSystem.IMPERIAL, Locale.GERMANY));
-        assertEquals("175.5 cm", Units.formatHeight(175.5, UnitSystem.METRIC, US));
-        assertEquals("5 ft 9 in", Units.formatHeight(175.0, UnitSystem.IMPERIAL, US));
-        assertNull(Units.formatHeight(null, UnitSystem.IMPERIAL, US));
-        assertNull(Units.formatWeight(0.0, UnitSystem.IMPERIAL, US));
-    }
-
-    @Test
     public void metricErrorsAreTheBackEndsOwnMessages() {
         assertEquals("Height must be between 50 and 300 cm.", Units.heightError(UnitSystem.METRIC, US));
         assertEquals("Weight must be between 20 and 500 kg.", Units.weightError(UnitSystem.METRIC, US));

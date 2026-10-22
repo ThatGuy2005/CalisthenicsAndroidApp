@@ -125,22 +125,12 @@ public class ScheduleService extends UserDataService {
         return DeviceCalendar.hasPermission(context());
     }
 
-    /** On success, returns the new schedule's id. */
-    public void schedulePremade(String workoutName, long scheduledAt, ServiceCallback<String> callback) {
-        schedulePremade(workoutName, scheduledAt, false, callback);
-    }
-
     /**
+     * recurrence: null for a one-off workout; otherwise scheduledAt is the first occurrence.
      * With addToCalendar, also adds the event if the calendar permission is granted. A failed
      * calendar add does not undo the schedule: its getCalendarEventId() stays null, and
      * {@link #addToCalendar} can try again. On success, returns the new schedule's id.
      */
-    public void schedulePremade(String workoutName, long scheduledAt, boolean addToCalendar,
-                                ServiceCallback<String> callback) {
-        schedulePremade(workoutName, scheduledAt, null, addToCalendar, callback);
-    }
-
-    /** Like the other overloads; with a recurrence, scheduledAt is the first occurrence. */
     public void schedulePremade(String workoutName, long scheduledAt, Recurrence recurrence,
                                 boolean addToCalendar, ServiceCallback<String> callback) {
         String uid = sessionManager.getCurrentUid();
@@ -157,18 +147,7 @@ public class ScheduleService extends UserDataService {
         });
     }
 
-    /** On success, returns the new schedule's id. */
-    public void scheduleCustom(String customWorkoutId, long scheduledAt, ServiceCallback<String> callback) {
-        scheduleCustom(customWorkoutId, scheduledAt, false, callback);
-    }
-
-    /** See {@link #schedulePremade(String, long, boolean, ServiceCallback)}. */
-    public void scheduleCustom(String customWorkoutId, long scheduledAt, boolean addToCalendar,
-                               ServiceCallback<String> callback) {
-        scheduleCustom(customWorkoutId, scheduledAt, null, addToCalendar, callback);
-    }
-
-    /** Like the other overloads; with a recurrence, scheduledAt is the first occurrence. */
+    /** See {@link #schedulePremade}. */
     public void scheduleCustom(String customWorkoutId, long scheduledAt, Recurrence recurrence,
                                boolean addToCalendar, ServiceCallback<String> callback) {
         String uid = sessionManager.getCurrentUid();

@@ -84,20 +84,6 @@ public final class Units {
         return system == UnitSystem.IMPERIAL ? kgToLb(kg) : kg;
     }
 
-    /** "70 kg" or "154.3 lb". Null or 0 (not set) gives null. */
-    public static String formatWeight(Double kg, UnitSystem system, Locale locale) {
-        if (!isSet(kg)) return null;
-        return system == UnitSystem.IMPERIAL
-                ? number(kgToLb(kg), locale) + " lb" : number(kg, locale) + " kg";
-    }
-
-    /** "175 cm" or "5 ft 9 in". Null or 0 (not set) gives null. */
-    public static String formatHeight(Double cm, UnitSystem system, Locale locale) {
-        if (!isSet(cm)) return null;
-        return system == UnitSystem.IMPERIAL
-                ? cmToFeetInches(cm).toString() : number(cm, locale) + " cm";
-    }
-
     /**
      * The allowed range in the system's units. In metric it is the back end's own message; the
      * imperial limits are rounded inwards, so both ends shown are accepted.

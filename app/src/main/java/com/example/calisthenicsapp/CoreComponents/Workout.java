@@ -1,15 +1,11 @@
 package com.example.calisthenicsapp.CoreComponents;
 
 public class Workout {
-    /** level: the difficulty rating of a premade workout (FR-4.1); null for a custom workout. */
-    public Workout(String name, Difficulty level) {
-        this(name, level, null);
-    }
-    /** category: the general category of a premade workout (FR-4.1). */
-    public Workout(String name, Difficulty level, WorkoutCategory category) {
-        this(name, level, category, null);
-    }
-    /** description: a sentence or two about the workout (DR-2). */
+    /**
+     * level: the difficulty rating of a premade workout (FR-4.1); null for a custom workout.
+     * category: the general category of a premade workout (FR-4.1).
+     * description: a sentence or two about the workout (DR-2).
+     */
     public Workout(String name, Difficulty level, WorkoutCategory category, String description) {
         this(name, level, category, description, null);
     }
@@ -21,9 +17,6 @@ public class Workout {
         this.category = category;
         this.description = description;
         this.estimatedSeconds = estimatedSeconds;
-    }
-    public Workout(String name) {
-        this(name,null);
     }
     public String getName() {
         return this.name;

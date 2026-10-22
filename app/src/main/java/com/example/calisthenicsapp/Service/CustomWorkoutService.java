@@ -79,12 +79,6 @@ public class CustomWorkoutService extends UserDataService {
                 uid -> new CustomExerciseOrderRepository(db()).getByCustomWorkout(customWorkoutId));
     }
 
-    /** On success, returns the new workout's id. */
-    public void create(String name, List<CustomExerciseOrderEntry> exercises,
-                       ServiceCallback<String> callback) {
-        create(name, null, exercises, callback);
-    }
-
     /**
      * description is optional: null or blank for none, otherwise at most
      * {@link #DESCRIPTION_MAX} characters. On success, returns the new workout's id.
