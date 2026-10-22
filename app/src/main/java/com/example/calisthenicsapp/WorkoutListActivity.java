@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
@@ -19,7 +18,6 @@ import com.example.calisthenicsapp.CoreComponents.Workout;
 import com.example.calisthenicsapp.CoreComponents.WorkoutCategory;
 import com.example.calisthenicsapp.Service.ServiceCallback;
 import com.example.calisthenicsapp.Service.WorkoutService;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -45,9 +43,7 @@ public class WorkoutListActivity extends AppCompatActivity {
         findViewById(R.id.myWorkoutsButton).setOnClickListener(v ->
                 startActivity(new Intent(this, CustomWorkoutsActivity.class)));
         setupFilter();
-        BottomNavigationView nav = findViewById(R.id.bottomNavigation);
-        nav.setSelectedItemId(R.id.nav_workouts);
-        nav.setOnItemSelectedListener(this::onNavigationSelected);
+        BottomNav.attach(this, R.id.nav_workouts, previewMode);
         new WorkoutService(this).getAllWorkouts(new ServiceCallback<List<Workout>>() {
             @Override public void onSuccess(List<Workout> workouts) {
                 allWorkouts.clear();
@@ -213,28 +209,6 @@ public class WorkoutListActivity extends AppCompatActivity {
         if ("Lower Body Burn".equals(name)) return R.drawable.workout_05;
         if ("Upper Body Strength".equals(name)) return R.drawable.workout_06;
         return R.drawable.workout_02;
-    }
-
-    private boolean onNavigationSelected(MenuItem item) {
-        if (item.getItemId() == R.id.nav_workouts) return true;
-        if (item.getItemId() == R.id.nav_exercises) {
-            Intent i = new Intent(this, ExerciseListActivity.class);
-            i.putExtra(ExerciseListActivity.EXTRA_PREVIEW_MODE, previewMode); startActivity(i); finish(); return true;
-        }
-        if (item.getItemId() == R.id.nav_home) {
-            Intent i = new Intent(this, HomeActivity.class);
-            i.putExtra(HomeActivity.EXTRA_PREVIEW_MODE, previewMode); startActivity(i); finish(); return true;
-        }
-        if (item.getItemId() == R.id.nav_schedule) {
-            Intent i = new Intent(this, ScheduleActivity.class);
-            i.putExtra(ScheduleActivity.EXTRA_PREVIEW_MODE, previewMode); startActivity(i); finish(); return true;
-        }
-        if (item.getItemId() == R.id.nav_history) {
-            Intent i = new Intent(this, HistoryActivity.class);
-            i.putExtra(HistoryActivity.EXTRA_PREVIEW_MODE, previewMode); startActivity(i); finish(); return true;
-        }
-        Snackbar.make(findViewById(R.id.workoutListRoot), R.string.nav_coming_next, Snackbar.LENGTH_SHORT).show();
-        return false;
     }
 
     private String formatDuration(Integer seconds) {

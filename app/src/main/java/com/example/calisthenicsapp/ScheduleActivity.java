@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -32,7 +31,6 @@ import com.example.calisthenicsapp.Service.DataChanges;
 import com.example.calisthenicsapp.Service.ScheduleService;
 import com.example.calisthenicsapp.Service.ServiceCallback;
 import com.example.calisthenicsapp.Service.WorkoutService;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -102,9 +100,7 @@ public class ScheduleActivity extends AppCompatActivity {
         });
         findViewById(R.id.scheduleAddButton).setOnClickListener(v -> showAddWorkoutDialog());
 
-        BottomNavigationView navigation = findViewById(R.id.bottomNavigation);
-        navigation.setSelectedItemId(R.id.nav_schedule);
-        navigation.setOnItemSelectedListener(this::onNavigationSelected);
+        BottomNav.attach(this, R.id.nav_schedule, previewMode);
 
         if (previewMode) {
             renderWeek();
@@ -117,26 +113,6 @@ public class ScheduleActivity extends AppCompatActivity {
             DataChanges.observe(this, dataListener,
                     DataChanges.Kind.SCHEDULES, DataChanges.Kind.CUSTOM_WORKOUTS);
         }
-    }
-
-    private boolean onNavigationSelected(MenuItem item) {
-        if (item.getItemId() == R.id.nav_schedule) return true;
-        Intent intent;
-        if (item.getItemId() == R.id.nav_home) {
-            intent = new Intent(this, HomeActivity.class);
-        } else if (item.getItemId() == R.id.nav_workouts) {
-            intent = new Intent(this, WorkoutListActivity.class);
-        } else if (item.getItemId() == R.id.nav_exercises) {
-            intent = new Intent(this, ExerciseListActivity.class);
-        } else if (item.getItemId() == R.id.nav_history) {
-            intent = new Intent(this, HistoryActivity.class);
-        } else {
-            return false;
-        }
-        intent.putExtra(HomeActivity.EXTRA_PREVIEW_MODE, previewMode);
-        startActivity(intent);
-        finish();
-        return true;
     }
 
     private void changeWeek(int offset) {

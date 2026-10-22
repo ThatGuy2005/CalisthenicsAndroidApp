@@ -8,7 +8,6 @@ import android.os.Looper;
 import android.text.Editable;
 import android.view.Gravity;
 import android.text.TextWatcher;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -23,7 +22,6 @@ import com.example.calisthenicsapp.CoreComponents.Difficulty;
 import com.example.calisthenicsapp.CoreComponents.Exercise;
 import com.example.calisthenicsapp.Service.ExerciseService;
 import com.example.calisthenicsapp.Service.ServiceCallback;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -57,51 +55,10 @@ public class ExerciseListActivity extends AppCompatActivity {
         exerciseList = findViewById(R.id.exerciseList);
         exerciseCount = findViewById(R.id.exerciseCount);
 
-        setupBottomNavigation();
+        BottomNav.attach(this, R.id.nav_exercises, previewMode);
         setupDifficultyFilter();
         setupSearch();
         loadMuscleGroups();
-    }
-
-    private void setupBottomNavigation() {
-        BottomNavigationView navigation = findViewById(R.id.bottomNavigation);
-        navigation.setSelectedItemId(R.id.nav_exercises);
-        navigation.setOnItemSelectedListener(this::onNavigationSelected);
-    }
-
-    private boolean onNavigationSelected(MenuItem item) {
-        if (item.getItemId() == R.id.nav_exercises) return true;
-        if (item.getItemId() == R.id.nav_home) {
-            Intent home = new Intent(this, HomeActivity.class);
-            home.putExtra(HomeActivity.EXTRA_PREVIEW_MODE, previewMode);
-            startActivity(home);
-            finish();
-            return true;
-        }
-        if (item.getItemId() == R.id.nav_workouts) {
-            Intent workouts = new Intent(this, WorkoutListActivity.class);
-            workouts.putExtra(WorkoutListActivity.EXTRA_PREVIEW_MODE, previewMode);
-            startActivity(workouts);
-            finish();
-            return true;
-        }
-        if (item.getItemId() == R.id.nav_schedule) {
-            Intent schedule = new Intent(this, ScheduleActivity.class);
-            schedule.putExtra(ScheduleActivity.EXTRA_PREVIEW_MODE, previewMode);
-            startActivity(schedule);
-            finish();
-            return true;
-        }
-        if (item.getItemId() == R.id.nav_history) {
-            Intent history = new Intent(this, HistoryActivity.class);
-            history.putExtra(HistoryActivity.EXTRA_PREVIEW_MODE, previewMode);
-            startActivity(history);
-            finish();
-            return true;
-        }
-        Snackbar.make(findViewById(R.id.exerciseListRoot),
-                R.string.nav_coming_next, Snackbar.LENGTH_SHORT).show();
-        return false;
     }
 
     private void setupDifficultyFilter() {

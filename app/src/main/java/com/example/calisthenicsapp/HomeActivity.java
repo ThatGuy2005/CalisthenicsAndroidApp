@@ -3,7 +3,6 @@ package com.example.calisthenicsapp;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -27,7 +26,6 @@ import com.example.calisthenicsapp.Service.ScheduleService;
 import com.example.calisthenicsapp.Service.ServiceCallback;
 import com.example.calisthenicsapp.Service.StatsService;
 import com.example.calisthenicsapp.Service.WorkoutLogService;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DateFormat;
@@ -108,13 +106,14 @@ public class HomeActivity extends AppCompatActivity {
             finish();
         });
 
-        findViewById(R.id.homeScheduleAction).setOnClickListener(view -> openSchedule());
-        findViewById(R.id.homeWorkoutsAction).setOnClickListener(view -> openWorkouts());
-        findViewById(R.id.homeExercisesAction).setOnClickListener(view -> openExercises());
+        findViewById(R.id.homeScheduleAction).setOnClickListener(view ->
+                BottomNav.open(this, R.id.nav_schedule, previewMode));
+        findViewById(R.id.homeWorkoutsAction).setOnClickListener(view ->
+                BottomNav.open(this, R.id.nav_workouts, previewMode));
+        findViewById(R.id.homeExercisesAction).setOnClickListener(view ->
+                BottomNav.open(this, R.id.nav_exercises, previewMode));
 
-        BottomNavigationView navigation = findViewById(R.id.bottomNavigation);
-        navigation.setSelectedItemId(R.id.nav_home);
-        navigation.setOnItemSelectedListener(this::onNavigationSelected);
+        BottomNav.attach(this, R.id.nav_home, previewMode);
 
         if (previewMode) {
             showPreviewData(signOut);
@@ -142,29 +141,6 @@ public class HomeActivity extends AppCompatActivity {
         lastWorkoutDetails.setText(date + " · 42 min · 185 kcal");
         lastWorkoutStatus.setText("COMPLETED");
         lastWorkoutStatus.setVisibility(View.VISIBLE);
-    }
-
-    private boolean onNavigationSelected(MenuItem item) {
-        if (item.getItemId() == R.id.nav_home) return true;
-        if (item.getItemId() == R.id.nav_exercises) {
-            openExercises();
-            return true;
-        }
-        if (item.getItemId() == R.id.nav_workouts) {
-            openWorkouts();
-            return true;
-        }
-        if (item.getItemId() == R.id.nav_schedule) {
-            openSchedule();
-            return true;
-        }
-        if (item.getItemId() == R.id.nav_history) {
-            Intent intent = new Intent(this, HistoryActivity.class);
-            intent.putExtra(HistoryActivity.EXTRA_PREVIEW_MODE, previewMode);
-            startActivity(intent);
-            return true;
-        }
-        return false;
     }
 
     private void loadUpcomingWorkout() {
@@ -276,24 +252,6 @@ public class HomeActivity extends AppCompatActivity {
         if (hours == 0) return getString(R.string.duration_minutes, minutes);
         if (remainingMinutes == 0) return getString(R.string.duration_hours, hours);
         return getString(R.string.duration_hours_minutes, hours, remainingMinutes);
-    }
-
-    private void openExercises() {
-        Intent intent = new Intent(this, ExerciseListActivity.class);
-        intent.putExtra(ExerciseListActivity.EXTRA_PREVIEW_MODE, previewMode);
-        startActivity(intent);
-    }
-
-    private void openWorkouts() {
-        Intent intent = new Intent(this, WorkoutListActivity.class);
-        intent.putExtra(WorkoutListActivity.EXTRA_PREVIEW_MODE, previewMode);
-        startActivity(intent);
-    }
-
-    private void openSchedule() {
-        Intent intent = new Intent(this, ScheduleActivity.class);
-        intent.putExtra(ScheduleActivity.EXTRA_PREVIEW_MODE, previewMode);
-        startActivity(intent);
     }
 
     private void showMessage(String message) {

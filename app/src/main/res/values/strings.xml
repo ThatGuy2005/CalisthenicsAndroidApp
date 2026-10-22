@@ -36,8 +36,6 @@
     <string name="target_rest" tools:ignore="PluralsCandidate">%1$d sec rest</string>
     <!-- Sets, target, rest: "3 sets  ·  12 reps  ·  60 sec rest". -->
     <string name="target_sets_target_rest">"%1$s  ·  %2$s  ·  %3$s"</string>
-    <!-- For a bottom bar item that has no screen; every item has one now. -->
-    <string name="nav_coming_next">This section is coming next.</string>
 
     <!-- Shared by the login and sign-up screens -->
     <string name="hint_email">Email</string>

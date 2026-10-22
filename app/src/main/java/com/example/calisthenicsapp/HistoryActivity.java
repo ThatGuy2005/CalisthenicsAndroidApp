@@ -1,11 +1,9 @@
 package com.example.calisthenicsapp;
 
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,7 +18,6 @@ import com.example.calisthenicsapp.Service.DataChanges;
 import com.example.calisthenicsapp.Service.ServiceCallback;
 import com.example.calisthenicsapp.Service.StatsService;
 import com.example.calisthenicsapp.Service.WorkoutLogService;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -68,9 +65,7 @@ public class HistoryActivity extends AppCompatActivity {
         week.setOnClickListener(v -> selectPeriod(StatsPeriod.WEEK));
         month.setOnClickListener(v -> selectPeriod(StatsPeriod.MONTH));
         allTime.setOnClickListener(v -> selectPeriod(StatsPeriod.ALL_TIME));
-        BottomNavigationView nav = findViewById(R.id.bottomNavigation);
-        nav.setSelectedItemId(R.id.nav_history);
-        nav.setOnItemSelectedListener(this::onNavigationSelected);
+        BottomNav.attach(this, R.id.nav_history, previewMode);
         renderPeriodPicker();
         if (previewMode) renderPreview();
         else DataChanges.observe(this, dataListener, DataChanges.Kind.WORKOUT_LOGS);
@@ -316,19 +311,6 @@ public class HistoryActivity extends AppCompatActivity {
                 logs.size() > 1 ? 1 : 0, logs.stream().mapToLong(WorkoutLog::getDurationSeconds).sum(),
                 logs.stream().mapToDouble(WorkoutLog::getKcal).sum()));
         renderLogs();
-    }
-
-    private boolean onNavigationSelected(MenuItem item) {
-        if (item.getItemId() == R.id.nav_history) return true;
-        Intent intent;
-        if (item.getItemId() == R.id.nav_home) intent = new Intent(this, HomeActivity.class);
-        else if (item.getItemId() == R.id.nav_workouts) intent = new Intent(this, WorkoutListActivity.class);
-        else if (item.getItemId() == R.id.nav_exercises) intent = new Intent(this, ExerciseListActivity.class);
-        else intent = new Intent(this, ScheduleActivity.class);
-        intent.putExtra(HomeActivity.EXTRA_PREVIEW_MODE, previewMode);
-        startActivity(intent);
-        finish();
-        return true;
     }
 
     private String formatDuration(long seconds) {
