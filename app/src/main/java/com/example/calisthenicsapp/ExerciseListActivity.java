@@ -1,7 +1,6 @@
 package com.example.calisthenicsapp;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,7 +20,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.calisthenicsapp.CoreComponents.Difficulty;
-import com.example.calisthenicsapp.CoreComponents.Equipment;
 import com.example.calisthenicsapp.CoreComponents.Exercise;
 import com.example.calisthenicsapp.Service.ExerciseService;
 import com.example.calisthenicsapp.Service.ServiceCallback;
