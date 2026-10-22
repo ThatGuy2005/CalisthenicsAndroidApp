@@ -197,7 +197,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onSuccess(WorkoutStats result) {
                 weeklyWorkoutCount.setText(String.valueOf(result.getWorkouts()));
-                weeklyTrainingTime.setText(formatDuration(result.getTotalSeconds()));
+                weeklyTrainingTime.setText(Durations.spent(HomeActivity.this, result.getTotalSeconds()));
                 weeklyCalories.setText(String.format(java.util.Locale.getDefault(),
                         "%.0f", result.getTotalKcal()));
             }
@@ -228,7 +228,7 @@ public class HomeActivity extends AppCompatActivity {
                 String date = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
                         DateFormat.SHORT).format(new Date(latest.getStartedAt() * 1000L));
                 lastWorkoutDetails.setText(getString(R.string.home_last_workout_details, date,
-                        formatDuration(latest.getDurationSeconds()), latest.getKcal()));
+                        Durations.spent(HomeActivity.this, latest.getDurationSeconds()), latest.getKcal()));
                 boolean completed = WorkoutLog.STATUS_COMPLETED.equals(latest.getStatus());
                 lastWorkoutStatus.setText(completed ? R.string.home_status_completed : R.string.home_status_partial);
                 lastWorkoutStatus.setTextColor(completed ? UiColors.SUCCESS : UiColors.WARNING);
@@ -242,16 +242,6 @@ public class HomeActivity extends AppCompatActivity {
                 lastWorkoutStatus.setVisibility(View.GONE);
             }
         });
-    }
-
-    private String formatDuration(long seconds) {
-        if (seconds > 0 && seconds < 60) return getString(R.string.duration_under_minute);
-        long minutes = Math.max(0, seconds) / 60;
-        long hours = minutes / 60;
-        long remainingMinutes = minutes % 60;
-        if (hours == 0) return getString(R.string.duration_minutes, minutes);
-        if (remainingMinutes == 0) return getString(R.string.duration_hours, hours);
-        return getString(R.string.duration_hours_minutes, hours, remainingMinutes);
     }
 
     private void showMessage(String message) {

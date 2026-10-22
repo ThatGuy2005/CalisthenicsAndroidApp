@@ -1,10 +1,12 @@
 package com.example.calisthenicsapp;
 
+import static com.example.calisthenicsapp.Views.dp;
+import static com.example.calisthenicsapp.Views.rounded;
+
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -138,9 +140,9 @@ public class ScheduleActivity extends AppCompatActivity {
             LinearLayout tile = new LinearLayout(this);
             tile.setOrientation(LinearLayout.VERTICAL);
             tile.setGravity(Gravity.CENTER);
-            tile.setBackground(rounded(selected ? UiColors.ORANGE : Color.TRANSPARENT, dp(15)));
+            tile.setBackground(rounded(selected ? UiColors.ORANGE : Color.TRANSPARENT, dp(this, 15)));
             // Keep the two-letter weekday labels inside narrow tiles on small screens.
-            tile.setPadding(dp(3), dp(7), dp(3), dp(5));
+            tile.setPadding(dp(this, 3), dp(this, 7), dp(this, 3), dp(this, 5));
             TextView dayName = new TextView(this);
             dayName.setText(new SimpleDateFormat("EE", Locale.getDefault()).format(day.getTime())
                     .replace(".", "").toUpperCase(Locale.getDefault()));
@@ -159,18 +161,18 @@ public class ScheduleActivity extends AppCompatActivity {
             dayNumber.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams numberParams = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            numberParams.topMargin = dp(4);
+            numberParams.topMargin = dp(this, 4);
             tile.addView(dayNumber, numberParams);
 
             View dot = new View(this);
-            dot.setBackground(rounded(selected ? 0xFFC35CFF : 0xFFD08BFF, dp(4)));
-            LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(dp(4), dp(4));
-            dotParams.topMargin = dp(4);
+            dot.setBackground(rounded(selected ? 0xFFC35CFF : 0xFFD08BFF, dp(this, 4)));
+            LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(dp(this, 4), dp(this, 4));
+            dotParams.topMargin = dp(this, 4);
             dot.setVisibility(hasOccurrenceOn(day) ? View.VISIBLE : View.INVISIBLE);
             tile.addView(dot, dotParams);
 
-            LinearLayout.LayoutParams tileParams = new LinearLayout.LayoutParams(0, dp(72), 1f);
-            if (i > 0) tileParams.leftMargin = dp(2);
+            LinearLayout.LayoutParams tileParams = new LinearLayout.LayoutParams(0, dp(this, 72), 1f);
+            if (i > 0) tileParams.leftMargin = dp(this, 2);
             weekDays.addView(tile, tileParams);
             tile.setClickable(true);
             tile.setFocusable(true);
@@ -221,7 +223,7 @@ public class ScheduleActivity extends AppCompatActivity {
         section.setLetterSpacing(0.08f);
         section.setTypeface(null, android.graphics.Typeface.BOLD);
         LinearLayout.LayoutParams sectionParams = new LinearLayout.LayoutParams(-1, -2);
-        sectionParams.bottomMargin = dp(9);
+        sectionParams.bottomMargin = dp(this, 9);
         agenda.addView(section, sectionParams);
         for (ScheduleOccurrence occurrence : selected) addOccurrenceCard(occurrence);
     }
@@ -229,22 +231,22 @@ public class ScheduleActivity extends AppCompatActivity {
     private void showEmptyState(String title, String subtitle) {
         agenda.removeAllViews();
         MaterialCardView card = new MaterialCardView(this);
-        card.setRadius(dp(20));
+        card.setRadius(dp(this, 20));
         card.setCardBackgroundColor(UiColors.SURFACE);
         card.setStrokeColor(UiColors.BORDER);
-        card.setStrokeWidth(dp(1));
+        card.setStrokeWidth(dp(this, 1));
         card.setCardElevation(0);
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         content.setGravity(Gravity.CENTER);
-        content.setPadding(dp(22), dp(25), dp(22), dp(24));
+        content.setPadding(dp(this, 22), dp(this, 25), dp(this, 22), dp(this, 24));
         TextView icon = new TextView(this);
         icon.setText("＋");
         icon.setTextColor(UiColors.ORANGE_DARK);
         icon.setTextSize(25);
         icon.setGravity(Gravity.CENTER);
-        icon.setBackground(rounded(UiColors.ORANGE_TINT, dp(28)));
-        content.addView(icon, new LinearLayout.LayoutParams(dp(50), dp(50)));
+        icon.setBackground(rounded(UiColors.ORANGE_TINT, dp(this, 28)));
+        content.addView(icon, new LinearLayout.LayoutParams(dp(this, 50), dp(this, 50)));
         TextView heading = new TextView(this);
         heading.setText(title);
         heading.setTextColor(UiColors.GRAPHITE);
@@ -252,7 +254,7 @@ public class ScheduleActivity extends AppCompatActivity {
         heading.setTypeface(null, android.graphics.Typeface.BOLD);
         heading.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams headingParams = new LinearLayout.LayoutParams(-1, -2);
-        headingParams.topMargin = dp(12);
+        headingParams.topMargin = dp(this, 12);
         content.addView(heading, headingParams);
         TextView message = new TextView(this);
         message.setText(subtitle);
@@ -260,7 +262,7 @@ public class ScheduleActivity extends AppCompatActivity {
         message.setTextSize(13);
         message.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams messageParams = new LinearLayout.LayoutParams(-1, -2);
-        messageParams.topMargin = dp(5);
+        messageParams.topMargin = dp(this, 5);
         content.addView(message, messageParams);
         card.addView(content);
         agenda.addView(card);
@@ -275,13 +277,13 @@ public class ScheduleActivity extends AppCompatActivity {
         ScheduledWorkout schedule = occurrence.getSchedule();
         MaterialCardView card = new MaterialCardView(this);
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(-1, -2);
-        cardParams.bottomMargin = dp(10);
+        cardParams.bottomMargin = dp(this, 10);
         card.setLayoutParams(cardParams);
-        card.setRadius(dp(20));
+        card.setRadius(dp(this, 20));
         card.setCardBackgroundColor(UiColors.SURFACE);
         card.setStrokeColor(UiColors.BORDER);
-        card.setStrokeWidth(dp(1));
-        card.setCardElevation(dp(1));
+        card.setStrokeWidth(dp(this, 1));
+        card.setCardElevation(dp(this, 1));
 
         LinearLayout shell = new LinearLayout(this);
         shell.setOrientation(LinearLayout.HORIZONTAL);
@@ -290,11 +292,11 @@ public class ScheduleActivity extends AppCompatActivity {
                 ? UiColors.SUCCESS : occurrence.getStatus() == OccurrenceStatus.MISSED
                 ? 0xFFB66D58 : UiColors.ORANGE_DARK;
         accent.setBackgroundColor(accentColor);
-        shell.addView(accent, new LinearLayout.LayoutParams(dp(4), ViewGroup.LayoutParams.MATCH_PARENT));
+        shell.addView(accent, new LinearLayout.LayoutParams(dp(this, 4), ViewGroup.LayoutParams.MATCH_PARENT));
 
         LinearLayout body = new LinearLayout(this);
         body.setOrientation(LinearLayout.VERTICAL);
-        body.setPadding(dp(14), dp(13), dp(13), dp(13));
+        body.setPadding(dp(this, 14), dp(this, 13), dp(this, 13), dp(this, 13));
         shell.addView(body, new LinearLayout.LayoutParams(0, -2, 1f));
 
         LinearLayout header = new LinearLayout(this);
@@ -314,10 +316,10 @@ public class ScheduleActivity extends AppCompatActivity {
                 ? 0xFF9B4E3D : UiColors.MUTED);
         status.setTextSize(10);
         status.setTypeface(null, android.graphics.Typeface.BOLD);
-        status.setPadding(dp(9), dp(6), dp(9), dp(6));
+        status.setPadding(dp(this, 9), dp(this, 6), dp(this, 9), dp(this, 6));
         int statusBg = occurrence.getStatus() == OccurrenceStatus.COMPLETED ? UiColors.SUCCESS_TINT
                 : occurrence.getStatus() == OccurrenceStatus.MISSED ? 0xFFFFEEE9 : UiColors.SURFACE_ALT;
-        status.setBackground(rounded(statusBg, dp(16)));
+        status.setBackground(rounded(statusBg, dp(this, 16)));
         header.addView(status);
 
         TextView workoutName = new TextView(this);
@@ -327,7 +329,7 @@ public class ScheduleActivity extends AppCompatActivity {
         workoutName.setTextSize(17);
         workoutName.setTypeface(null, android.graphics.Typeface.BOLD);
         LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(-1, -2);
-        nameParams.topMargin = dp(8);
+        nameParams.topMargin = dp(this, 8);
         body.addView(workoutName, nameParams);
 
         String repeat = schedule.getRecurrence() == null ? getString(R.string.schedule_one_time)
@@ -339,7 +341,7 @@ public class ScheduleActivity extends AppCompatActivity {
         repeatView.setTextSize(11);
         repeatView.setLetterSpacing(0.04f);
         LinearLayout.LayoutParams repeatParams = new LinearLayout.LayoutParams(-1, -2);
-        repeatParams.topMargin = dp(3);
+        repeatParams.topMargin = dp(this, 3);
         body.addView(repeatView, repeatParams);
 
         if (occurrence.getStatus() == OccurrenceStatus.MISSED
@@ -351,10 +353,10 @@ public class ScheduleActivity extends AppCompatActivity {
             complete.setTextSize(12);
             complete.setTypeface(null, android.graphics.Typeface.BOLD);
             complete.setGravity(Gravity.CENTER_VERTICAL);
-            complete.setPadding(dp(11), 0, dp(11), 0);
-            complete.setBackground(rounded(UiColors.SUCCESS_TINT, dp(10)));
-            LinearLayout.LayoutParams completeParams = new LinearLayout.LayoutParams(-2, dp(36));
-            completeParams.topMargin = dp(11);
+            complete.setPadding(dp(this, 11), 0, dp(this, 11), 0);
+            complete.setBackground(rounded(UiColors.SUCCESS_TINT, dp(this, 10)));
+            LinearLayout.LayoutParams completeParams = new LinearLayout.LayoutParams(-2, dp(this, 36));
+            completeParams.topMargin = dp(this, 11);
             body.addView(complete, completeParams);
             complete.setOnClickListener(v -> markCompleted(occurrence));
         }
@@ -365,8 +367,8 @@ public class ScheduleActivity extends AppCompatActivity {
         more.setTextSize(21);
         more.setGravity(Gravity.CENTER);
         more.setContentDescription(getString(R.string.schedule_options));
-        more.setBackground(rounded(UiColors.SURFACE_ALT, dp(20)));
-        LinearLayout.LayoutParams moreParams = new LinearLayout.LayoutParams(dp(32), dp(32));
+        more.setBackground(rounded(UiColors.SURFACE_ALT, dp(this, 20)));
+        LinearLayout.LayoutParams moreParams = new LinearLayout.LayoutParams(dp(this, 32), dp(this, 32));
         moreParams.gravity = Gravity.END;
         body.addView(more, moreParams);
         more.setOnClickListener(v -> showOccurrenceMenu(more, occurrence));
@@ -425,8 +427,8 @@ public class ScheduleActivity extends AppCompatActivity {
                 : current.getFrequency() == Recurrence.Frequency.WEEKLY ? 2 : 3;
         repeat.setSelection(selection);
         LinearLayout form = new LinearLayout(this);
-        form.setPadding(dp(22), dp(8), dp(22), dp(4));
-        form.addView(repeat, new LinearLayout.LayoutParams(-1, dp(50)));
+        form.setPadding(dp(this, 22), dp(this, 8), dp(this, 22), dp(this, 4));
+        form.addView(repeat, new LinearLayout.LayoutParams(-1, dp(this, 50)));
         new AlertDialog.Builder(this).setTitle(R.string.schedule_repeat_title)
                 .setMessage(R.string.schedule_repeat_message)
                 .setView(form).setNegativeButton(R.string.common_cancel, null)
@@ -581,7 +583,7 @@ public class ScheduleActivity extends AppCompatActivity {
 
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
-        form.setPadding(dp(22), dp(8), dp(22), dp(4));
+        form.setPadding(dp(this, 22), dp(this, 8), dp(this, 22), dp(this, 4));
         addFormLabel(form, R.string.schedule_form_workout);
         Spinner workoutSpinner = new Spinner(this);
         workoutSpinner.setPopupBackgroundResource(R.color.performance_surface);
@@ -589,7 +591,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 R.layout.spinner_item_selected, workoutOptions);
         workoutAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
         workoutSpinner.setAdapter(workoutAdapter);
-        form.addView(workoutSpinner, new LinearLayout.LayoutParams(-1, dp(48)));
+        form.addView(workoutSpinner, new LinearLayout.LayoutParams(-1, dp(this, 48)));
 
         addFormLabel(form, R.string.schedule_form_date_time);
         Calendar chosen = (Calendar) selectedDay.clone();
@@ -602,9 +604,9 @@ public class ScheduleActivity extends AppCompatActivity {
         dateTimeButton.setTextColor(UiColors.GRAPHITE);
         dateTimeButton.setTextSize(14);
         dateTimeButton.setGravity(Gravity.CENTER_VERTICAL);
-        dateTimeButton.setPadding(dp(12), 0, dp(12), 0);
-        dateTimeButton.setBackground(rounded(UiColors.CANVAS, dp(12)));
-        form.addView(dateTimeButton, new LinearLayout.LayoutParams(-1, dp(48)));
+        dateTimeButton.setPadding(dp(this, 12), 0, dp(this, 12), 0);
+        dateTimeButton.setBackground(rounded(UiColors.CANVAS, dp(this, 12)));
+        form.addView(dateTimeButton, new LinearLayout.LayoutParams(-1, dp(this, 48)));
         dateTimeButton.setOnClickListener(v -> pickDateTime(chosen, dateTimeButton));
 
         addFormLabel(form, R.string.schedule_form_repeat);
@@ -614,14 +616,14 @@ public class ScheduleActivity extends AppCompatActivity {
                 R.layout.spinner_item_selected, getResources().getStringArray(R.array.schedule_repeat_options));
         repeatAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
         repeatSpinner.setAdapter(repeatAdapter);
-        form.addView(repeatSpinner, new LinearLayout.LayoutParams(-1, dp(48)));
+        form.addView(repeatSpinner, new LinearLayout.LayoutParams(-1, dp(this, 48)));
 
         CheckBox calendarCheck = new CheckBox(this);
         calendarCheck.setText(R.string.schedule_add_to_calendar);
         calendarCheck.setTextColor(UiColors.MUTED);
         calendarCheck.setTextSize(13);
         LinearLayout.LayoutParams checkParams = new LinearLayout.LayoutParams(-1, -2);
-        checkParams.topMargin = dp(8);
+        checkParams.topMargin = dp(this, 8);
         form.addView(calendarCheck, checkParams);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -694,8 +696,8 @@ public class ScheduleActivity extends AppCompatActivity {
         label.setLetterSpacing(0.08f);
         label.setTypeface(null, android.graphics.Typeface.BOLD);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
-        params.topMargin = dp(14);
-        params.bottomMargin = dp(4);
+        params.topMargin = dp(this, 14);
+        params.bottomMargin = dp(this, 4);
         form.addView(label, params);
     }
 
@@ -761,17 +763,6 @@ public class ScheduleActivity extends AppCompatActivity {
         if (status == OccurrenceStatus.COMPLETED) return getString(R.string.schedule_status_completed);
         if (status == OccurrenceStatus.MISSED) return getString(R.string.schedule_status_missed);
         return getString(R.string.schedule_status_planned);
-    }
-
-    private GradientDrawable rounded(int color, int radius) {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(color);
-        drawable.setCornerRadius(radius);
-        return drawable;
-    }
-
-    private int dp(int value) {
-        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void showMessage(String message) {

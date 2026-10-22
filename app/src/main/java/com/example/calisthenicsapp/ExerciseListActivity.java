@@ -1,7 +1,10 @@
 package com.example.calisthenicsapp;
 
+import static com.example.calisthenicsapp.Views.dp;
+import static com.example.calisthenicsapp.Views.pill;
+import static com.example.calisthenicsapp.Views.rounded;
+
 import android.content.Intent;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -159,13 +162,13 @@ public class ExerciseListActivity extends AppCompatActivity {
         MaterialCardView card = new MaterialCardView(this);
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        cardParams.bottomMargin = dp(12);
+        cardParams.bottomMargin = dp(this, 12);
         card.setLayoutParams(cardParams);
-        card.setRadius(dp(22));
+        card.setRadius(dp(this, 22));
         card.setCardBackgroundColor(UiColors.SURFACE);
         card.setStrokeColor(UiColors.BORDER);
-        card.setStrokeWidth(dp(1));
-        card.setCardElevation(dp(1));
+        card.setStrokeWidth(dp(this, 1));
+        card.setCardElevation(dp(this, 1));
         card.setClickable(true);
         card.setFocusable(true);
 
@@ -173,11 +176,11 @@ public class ExerciseListActivity extends AppCompatActivity {
         shell.setOrientation(LinearLayout.HORIZONTAL);
         View accent = new View(this);
         accent.setBackgroundColor(difficultyAccent(exercise.getDifficulty()));
-        shell.addView(accent, new LinearLayout.LayoutParams(dp(4), ViewGroup.LayoutParams.MATCH_PARENT));
+        shell.addView(accent, new LinearLayout.LayoutParams(dp(this, 4), ViewGroup.LayoutParams.MATCH_PARENT));
 
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(14), dp(14), dp(15), dp(14));
+        content.setPadding(dp(this, 14), dp(this, 14), dp(this, 15), dp(this, 14));
         shell.addView(content, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         LinearLayout topRow = new LinearLayout(this);
@@ -188,8 +191,8 @@ public class ExerciseListActivity extends AppCompatActivity {
         badge.setTextSize(12);
         badge.setTypeface(null, android.graphics.Typeface.BOLD);
         badge.setGravity(Gravity.CENTER);
-        badge.setBackground(rounded(muscleTint(exercise.getMuscleGroup()), dp(13)));
-        topRow.addView(badge, new LinearLayout.LayoutParams(dp(38), dp(38)));
+        badge.setBackground(rounded(muscleTint(exercise.getMuscleGroup()), dp(this, 13)));
+        topRow.addView(badge, new LinearLayout.LayoutParams(dp(this, 38), dp(this, 38)));
 
         TextView group = new TextView(this);
         group.setText(exercise.getMuscleGroup().toUpperCase(java.util.Locale.ROOT));
@@ -198,7 +201,7 @@ public class ExerciseListActivity extends AppCompatActivity {
         group.setLetterSpacing(0.08f);
         group.setTypeface(null, android.graphics.Typeface.BOLD);
         LinearLayout.LayoutParams groupParams = new LinearLayout.LayoutParams(0, -2, 1f);
-        groupParams.leftMargin = dp(10);
+        groupParams.leftMargin = dp(this, 10);
         topRow.addView(group, groupParams);
 
         TextView arrow = new TextView(this);
@@ -206,8 +209,8 @@ public class ExerciseListActivity extends AppCompatActivity {
         arrow.setTextColor(UiColors.ORANGE_DARK);
         arrow.setTextSize(25);
         arrow.setGravity(Gravity.CENTER);
-        arrow.setBackground(rounded(UiColors.ORANGE_TINT, dp(30)));
-        topRow.addView(arrow, new LinearLayout.LayoutParams(dp(32), dp(32)));
+        arrow.setBackground(rounded(UiColors.ORANGE_TINT, dp(this, 30)));
+        topRow.addView(arrow, new LinearLayout.LayoutParams(dp(this, 32), dp(this, 32)));
         content.addView(topRow);
 
         TextView name = new TextView(this);
@@ -216,7 +219,7 @@ public class ExerciseListActivity extends AppCompatActivity {
         name.setTextSize(18);
         name.setTypeface(null, android.graphics.Typeface.BOLD);
         LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(-1, -2);
-        nameParams.topMargin = dp(10);
+        nameParams.topMargin = dp(this, 10);
         content.addView(name, nameParams);
 
         Integer amount = exercise.isTimed() ? exercise.getDefaultSeconds() : exercise.getDefaultReps();
@@ -228,14 +231,14 @@ public class ExerciseListActivity extends AppCompatActivity {
         LinearLayout footer = new LinearLayout(this);
         footer.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout.LayoutParams footerParams = new LinearLayout.LayoutParams(-1, -2);
-        footerParams.topMargin = dp(12);
+        footerParams.topMargin = dp(this, 12);
         content.addView(footer, footerParams);
 
-        TextView level = pill(exercise.getDifficulty().getLabel(), UiColors.SURFACE_ALT, UiColors.MUTED);
+        TextView level = pill(this, exercise.getDifficulty().getLabel(), UiColors.SURFACE_ALT, UiColors.MUTED);
         footer.addView(level);
-        TextView targetPill = pill(target, UiColors.ORANGE_TINT, UiColors.ORANGE_DARK);
-        LinearLayout.LayoutParams targetParams = new LinearLayout.LayoutParams(-2, dp(30));
-        targetParams.leftMargin = dp(7);
+        TextView targetPill = pill(this, target, UiColors.ORANGE_TINT, UiColors.ORANGE_DARK);
+        LinearLayout.LayoutParams targetParams = new LinearLayout.LayoutParams(-2, dp(this, 30));
+        targetParams.leftMargin = dp(this, 7);
         footer.addView(targetPill, targetParams);
         TextView action = new TextView(this);
         action.setText(R.string.exercise_list_form);
@@ -252,26 +255,6 @@ public class ExerciseListActivity extends AppCompatActivity {
             startActivity(detail);
         });
         return card;
-    }
-
-    private TextView pill(String text, int backgroundColor, int textColor) {
-        TextView view = new TextView(this);
-        view.setText(text);
-        view.setTextColor(textColor);
-        view.setTextSize(11);
-        view.setTypeface(null, android.graphics.Typeface.BOLD);
-        view.setGravity(Gravity.CENTER);
-        view.setPadding(dp(10), 0, dp(10), 0);
-        view.setBackground(rounded(backgroundColor, dp(20)));
-        view.setLayoutParams(new LinearLayout.LayoutParams(-2, dp(30)));
-        return view;
-    }
-
-    private GradientDrawable rounded(int color, int radius) {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(color);
-        drawable.setCornerRadius(radius);
-        return drawable;
     }
 
     private int muscleAccent(String group) {
@@ -302,10 +285,6 @@ public class ExerciseListActivity extends AppCompatActivity {
         if (words.length > 1) return ("" + words[0].charAt(0) + words[1].charAt(0)).toUpperCase(java.util.Locale.ROOT);
         return group.length() < 2 ? group.toUpperCase(java.util.Locale.ROOT)
                 : group.substring(0, 2).toUpperCase(java.util.Locale.ROOT);
-    }
-
-    private int dp(int value) {
-        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     @Override

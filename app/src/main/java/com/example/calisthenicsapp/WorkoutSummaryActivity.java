@@ -1,5 +1,7 @@
 package com.example.calisthenicsapp;
 
+import static com.example.calisthenicsapp.Views.dp;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -63,15 +65,15 @@ public class WorkoutSummaryActivity extends AppCompatActivity {
         for (WorkoutSession.SessionExercise exercise : session.getExercises()) {
             MaterialCardView card = new MaterialCardView(this);
             LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-1, -2);
-            cp.bottomMargin = dp(10);
+            cp.bottomMargin = dp(this, 10);
             card.setLayoutParams(cp);
-            card.setRadius(dp(17));
+            card.setRadius(dp(this, 17));
             card.setCardBackgroundColor(UiColors.SURFACE);
             card.setStrokeColor(UiColors.BORDER);
-            card.setStrokeWidth(dp(1));
+            card.setStrokeWidth(dp(this, 1));
             LinearLayout row = new LinearLayout(this);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setPadding(dp(15), dp(14), dp(15), dp(14));
+            row.setPadding(dp(this, 15), dp(this, 14), dp(this, 15), dp(this, 14));
             TextView title = new TextView(this);
             title.setText(exercise.getName());
             title.setTextColor(UiColors.GRAPHITE);
@@ -114,7 +116,6 @@ public class WorkoutSummaryActivity extends AppCompatActivity {
     private String formatTime(int seconds) {
         return String.format(Locale.getDefault(), "%d:%02d", seconds / 60, seconds % 60);
     }
-    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 
     @Override protected void onSaveInstanceState(Bundle outState) {
         if (session != null) outState.putSerializable(STATE_SESSION, session);

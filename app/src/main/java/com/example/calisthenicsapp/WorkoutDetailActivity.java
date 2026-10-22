@@ -1,7 +1,10 @@
 package com.example.calisthenicsapp;
 
+import static com.example.calisthenicsapp.Views.dp;
+import static com.example.calisthenicsapp.Views.pill;
+import static com.example.calisthenicsapp.Views.rounded;
+
 import android.content.Intent;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -81,7 +84,8 @@ public class WorkoutDetailActivity extends AppCompatActivity {
                 String level = workout.getLevel() == null ? getString(R.string.workout_any_level)
                         : workout.getLevel().getLabel();
                 meta.setText(getString(R.string.workout_detail_meta, category, level,
-                        formatDuration(workout.getEstimatedSeconds())));
+                        Durations.estimate(WorkoutDetailActivity.this, workout.getEstimatedSeconds(),
+                                R.string.workout_time_varies)));
                 description.setText(workout.getDescription() == null ? "" : workout.getDescription());
                 loadEntries(workoutName);
             }
@@ -138,13 +142,13 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             ExerciseOrderEntry entry = entries.get(i);
             MaterialCardView card = new MaterialCardView(this);
             LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-1, -2);
-            cp.bottomMargin = dp(12);
+            cp.bottomMargin = dp(this, 12);
             card.setLayoutParams(cp);
-            card.setRadius(dp(21));
+            card.setRadius(dp(this, 21));
             card.setCardBackgroundColor(UiColors.SURFACE);
             card.setStrokeColor(UiColors.BORDER);
-            card.setStrokeWidth(dp(1));
-            card.setCardElevation(dp(1));
+            card.setStrokeWidth(dp(this, 1));
+            card.setCardElevation(dp(this, 1));
             card.setClickable(true);
             card.setFocusable(true);
 
@@ -152,11 +156,11 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             shell.setOrientation(LinearLayout.HORIZONTAL);
             View accent = new View(this);
             accent.setBackgroundColor(UiColors.ORANGE_DARK);
-            shell.addView(accent, new LinearLayout.LayoutParams(dp(4), ViewGroup.LayoutParams.MATCH_PARENT));
+            shell.addView(accent, new LinearLayout.LayoutParams(dp(this, 4), ViewGroup.LayoutParams.MATCH_PARENT));
 
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.VERTICAL);
-            row.setPadding(dp(14), dp(14), dp(14), dp(13));
+            row.setPadding(dp(this, 14), dp(this, 14), dp(this, 14), dp(this, 13));
             shell.addView(row, new LinearLayout.LayoutParams(0, -2, 1f));
 
             LinearLayout heading = new LinearLayout(this);
@@ -169,8 +173,8 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             number.setTextSize(12);
             number.setTypeface(null, android.graphics.Typeface.BOLD);
             number.setGravity(Gravity.CENTER);
-            number.setBackground(rounded(UiColors.ORANGE_TINT, dp(30)));
-            heading.addView(number, new LinearLayout.LayoutParams(dp(36), dp(36)));
+            number.setBackground(rounded(UiColors.ORANGE_TINT, dp(this, 30)));
+            heading.addView(number, new LinearLayout.LayoutParams(dp(this, 36), dp(this, 36)));
 
             TextView title = new TextView(this);
             title.setText(entry.getExerciseName());
@@ -179,7 +183,7 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             title.setTypeface(null, android.graphics.Typeface.BOLD);
             title.setMaxLines(2);
             LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(0, -2, 1f);
-            titleParams.leftMargin = dp(10);
+            titleParams.leftMargin = dp(this, 10);
             heading.addView(title, titleParams);
 
             TextView arrow = new TextView(this);
@@ -187,28 +191,28 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             arrow.setTextColor(UiColors.ORANGE_DARK);
             arrow.setTextSize(24);
             arrow.setGravity(Gravity.CENTER);
-            arrow.setBackground(rounded(UiColors.ORANGE_TINT, dp(30)));
-            heading.addView(arrow, new LinearLayout.LayoutParams(dp(30), dp(30)));
+            arrow.setBackground(rounded(UiColors.ORANGE_TINT, dp(this, 30)));
+            heading.addView(arrow, new LinearLayout.LayoutParams(dp(this, 30), dp(this, 30)));
 
             LinearLayout stats = new LinearLayout(this);
             stats.setGravity(Gravity.CENTER_VERTICAL);
             stats.setOrientation(LinearLayout.HORIZONTAL);
             LinearLayout.LayoutParams statsParams = new LinearLayout.LayoutParams(-1, -2);
-            statsParams.topMargin = dp(12);
+            statsParams.topMargin = dp(this, 12);
             row.addView(stats, statsParams);
             if (entry.getSets() != null) {
-                stats.addView(pill(getResources().getQuantityString(R.plurals.target_sets,
+                stats.addView(pill(this, getResources().getQuantityString(R.plurals.target_sets,
                         entry.getSets(), entry.getSets()), UiColors.SURFACE_ALT, UiColors.MUTED));
             }
-            TextView target = pill(details.get(i), UiColors.ORANGE_TINT, UiColors.ORANGE_DARK);
-            LinearLayout.LayoutParams targetParams = new LinearLayout.LayoutParams(-2, dp(30));
-            targetParams.leftMargin = dp(7);
+            TextView target = pill(this, details.get(i), UiColors.ORANGE_TINT, UiColors.ORANGE_DARK);
+            LinearLayout.LayoutParams targetParams = new LinearLayout.LayoutParams(-2, dp(this, 30));
+            targetParams.leftMargin = dp(this, 7);
             stats.addView(target, targetParams);
             if (entry.getRestSeconds() != null) {
-                TextView rest = pill(getString(R.string.workout_detail_rest, entry.getRestSeconds()),
+                TextView rest = pill(this, getString(R.string.workout_detail_rest, entry.getRestSeconds()),
                         UiColors.SURFACE_ALT, UiColors.MUTED);
-                LinearLayout.LayoutParams restParams = new LinearLayout.LayoutParams(-2, dp(30));
-                restParams.leftMargin = dp(7);
+                LinearLayout.LayoutParams restParams = new LinearLayout.LayoutParams(-2, dp(this, 30));
+                restParams.leftMargin = dp(this, 7);
                 stats.addView(rest, restParams);
             }
 
@@ -217,11 +221,11 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             action.setTextColor(UiColors.ORANGE_DARK);
             action.setTextSize(12);
             action.setTypeface(null, android.graphics.Typeface.BOLD);
-            LinearLayout.LayoutParams actionParams = new LinearLayout.LayoutParams(-1, dp(36));
-            actionParams.topMargin = dp(10);
-            action.setPadding(dp(10), 0, dp(10), 0);
+            LinearLayout.LayoutParams actionParams = new LinearLayout.LayoutParams(-1, dp(this, 36));
+            actionParams.topMargin = dp(this, 10);
+            action.setPadding(dp(this, 10), 0, dp(this, 10), 0);
             action.setGravity(Gravity.CENTER_VERTICAL);
-            action.setBackground(rounded(UiColors.ORANGE_TINT, dp(10)));
+            action.setBackground(rounded(UiColors.ORANGE_TINT, dp(this, 10)));
             row.addView(action, actionParams);
 
             card.addView(shell);
@@ -236,32 +240,7 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         }
     }
 
-    private TextView pill(String label, int backgroundColor, int textColor) {
-        TextView view = new TextView(this);
-        view.setText(label);
-        view.setTextColor(textColor);
-        view.setTextSize(11);
-        view.setTypeface(null, android.graphics.Typeface.BOLD);
-        view.setGravity(Gravity.CENTER);
-        view.setPadding(dp(10), 0, dp(10), 0);
-        view.setBackground(rounded(backgroundColor, dp(20)));
-        view.setLayoutParams(new LinearLayout.LayoutParams(-2, dp(30)));
-        return view;
-    }
-
-    private GradientDrawable rounded(int color, int radius) {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(color);
-        drawable.setCornerRadius(radius);
-        return drawable;
-    }
-
-    private String formatDuration(Integer seconds) {
-        if (seconds == null || seconds <= 0) return getString(R.string.workout_time_varies);
-        return getString(R.string.duration_minutes, Math.max(1, seconds / 60));
-    }
     private void showError(String message) {
         Snackbar.make(findViewById(R.id.workoutDetailRoot), message, Snackbar.LENGTH_LONG).show();
     }
-    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 }

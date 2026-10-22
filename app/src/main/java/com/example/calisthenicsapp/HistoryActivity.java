@@ -1,7 +1,9 @@
 package com.example.calisthenicsapp;
 
+import static com.example.calisthenicsapp.Views.dp;
+import static com.example.calisthenicsapp.Views.rounded;
+
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -87,7 +89,7 @@ public class HistoryActivity extends AppCompatActivity {
             options[i].setText(labels[i]);
             options[i].setTextColor(selected ? UiColors.INK : UiColors.MUTED);
             options[i].setTypeface(null, selected ? Typeface.BOLD : Typeface.NORMAL);
-            options[i].setBackground(selected ? rounded(UiColors.ORANGE, dp(24)) : null);
+            options[i].setBackground(selected ? rounded(UiColors.ORANGE, dp(this, 24)) : null);
         }
     }
 
@@ -117,7 +119,7 @@ public class HistoryActivity extends AppCompatActivity {
 
     private void showStats(WorkoutStats stats) {
         workoutsTotal.setText(String.valueOf(stats.getWorkouts()));
-        timeTotal.setText(formatDuration(stats.getTotalSeconds()));
+        timeTotal.setText(Durations.spent(this, stats.getTotalSeconds()));
         caloriesTotal.setText(getString(R.string.energy_kcal, stats.getTotalKcal()));
         completionLine.setText(getString(R.string.history_completion,
                 stats.getCompletedWorkouts(), stats.getPartialWorkouts()));
@@ -137,19 +139,19 @@ public class HistoryActivity extends AppCompatActivity {
     private View createLogCard(WorkoutLog log) {
         MaterialCardView card = new MaterialCardView(this);
         LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-1, -2);
-        cp.bottomMargin = dp(11);
+        cp.bottomMargin = dp(this, 11);
         card.setLayoutParams(cp);
-        card.setRadius(dp(20));
+        card.setRadius(dp(this, 20));
         card.setCardBackgroundColor(UiColors.SURFACE);
         card.setCardElevation(0);
         card.setStrokeColor(UiColors.BORDER);
-        card.setStrokeWidth(dp(1));
+        card.setStrokeWidth(dp(this, 1));
         card.setClickable(true);
         card.setFocusable(true);
 
         LinearLayout body = new LinearLayout(this);
         body.setOrientation(LinearLayout.VERTICAL);
-        body.setPadding(dp(15), dp(14), dp(15), dp(14));
+        body.setPadding(dp(this, 15), dp(this, 14), dp(this, 15), dp(this, 14));
         card.addView(body);
 
         LinearLayout heading = new LinearLayout(this);
@@ -169,8 +171,8 @@ public class HistoryActivity extends AppCompatActivity {
         status.setTextColor(complete ? UiColors.SUCCESS : UiColors.WARNING);
         status.setTextSize(9);
         status.setTypeface(null, Typeface.BOLD);
-        status.setPadding(dp(9), dp(6), dp(9), dp(6));
-        status.setBackground(rounded(complete ? UiColors.SUCCESS_TINT : UiColors.WARNING_TINT, dp(18)));
+        status.setPadding(dp(this, 9), dp(this, 6), dp(this, 9), dp(this, 6));
+        status.setBackground(rounded(complete ? UiColors.SUCCESS_TINT : UiColors.WARNING_TINT, dp(this, 18)));
         heading.addView(status);
 
         TextView date = new TextView(this);
@@ -179,15 +181,15 @@ public class HistoryActivity extends AppCompatActivity {
         date.setTextColor(UiColors.MUTED);
         date.setTextSize(12);
         LinearLayout.LayoutParams dateParams = new LinearLayout.LayoutParams(-1, -2);
-        dateParams.topMargin = dp(7);
+        dateParams.topMargin = dp(this, 7);
         body.addView(date, dateParams);
 
         LinearLayout metrics = new LinearLayout(this);
         metrics.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout.LayoutParams metricParams = new LinearLayout.LayoutParams(-1, -2);
-        metricParams.topMargin = dp(12);
+        metricParams.topMargin = dp(this, 12);
         body.addView(metrics, metricParams);
-        addMetric(metrics, formatDuration(log.getDurationSeconds()));
+        addMetric(metrics, Durations.spent(this, log.getDurationSeconds()));
         addSeparator(metrics);
         addMetric(metrics, getString(R.string.energy_kcal, log.getKcal()));
         addSeparator(metrics);
@@ -200,7 +202,7 @@ public class HistoryActivity extends AppCompatActivity {
         hint.setTextSize(11);
         hint.setTypeface(null, Typeface.BOLD);
         LinearLayout.LayoutParams hintParams = new LinearLayout.LayoutParams(-1, -2);
-        hintParams.topMargin = dp(11);
+        hintParams.topMargin = dp(this, 11);
         body.addView(hint, hintParams);
 
         card.setContentDescription(getString(R.string.history_card_description,
@@ -228,19 +230,19 @@ public class HistoryActivity extends AppCompatActivity {
         dot.setText("·");
         dot.setTextColor(0xFF9AA69B);
         dot.setTextSize(14);
-        dot.setPadding(dp(8), 0, dp(8), 0);
+        dot.setPadding(dp(this, 8), 0, dp(this, 8), 0);
         row.addView(dot);
     }
 
     private void showLogDetails(WorkoutLog log) {
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(20), dp(6), dp(20), dp(8));
+        content.setPadding(dp(this, 20), dp(this, 6), dp(this, 20), dp(this, 8));
         TextView summary = new TextView(this);
         summary.setText(getString(R.string.history_log_summary,
                 DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
                         .format(new Date(log.getStartedAt() * 1000L)),
-                formatDuration(log.getDurationSeconds()), log.getKcal(), log.getStatus()));
+                Durations.spent(this, log.getDurationSeconds()), log.getKcal(), log.getStatus()));
         summary.setTextColor(UiColors.MUTED);
         summary.setTextSize(13);
         content.addView(summary);
@@ -250,7 +252,7 @@ public class HistoryActivity extends AppCompatActivity {
         exercisesHeader.setTextSize(11);
         exercisesHeader.setTypeface(null, Typeface.BOLD);
         LinearLayout.LayoutParams headerParams = new LinearLayout.LayoutParams(-1, -2);
-        headerParams.topMargin = dp(18);
+        headerParams.topMargin = dp(this, 18);
         content.addView(exercisesHeader, headerParams);
         for (LoggedExercise exercise : log.getExercises()) {
             TextView line = new TextView(this);
@@ -258,9 +260,9 @@ public class HistoryActivity extends AppCompatActivity {
                     exercise.getExerciseName(), exerciseDescription(exercise)));
             line.setTextColor(UiColors.GRAPHITE);
             line.setTextSize(14);
-            line.setLineSpacing(dp(3), 1f);
+            line.setLineSpacing(dp(this, 3), 1f);
             LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(-1, -2);
-            lineParams.topMargin = dp(12);
+            lineParams.topMargin = dp(this, 12);
             content.addView(line, lineParams);
             line.setTypeface(null, Typeface.NORMAL);
         }
@@ -313,22 +315,6 @@ public class HistoryActivity extends AppCompatActivity {
         renderLogs();
     }
 
-    private String formatDuration(long seconds) {
-        long minutes = Math.max(0, seconds) / 60;
-        long hours = minutes / 60;
-        long remainingMinutes = minutes % 60;
-        if (hours == 0) return getString(R.string.duration_minutes, minutes);
-        return remainingMinutes == 0 ? getString(R.string.duration_hours, hours)
-                : getString(R.string.duration_hours_minutes, hours, remainingMinutes);
-    }
-
-    private GradientDrawable rounded(int color, int radius) {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(color);
-        drawable.setCornerRadius(radius);
-        return drawable;
-    }
-    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
     private void showMessage(String message) {
         Snackbar.make(findViewById(R.id.historyRoot), message, Snackbar.LENGTH_LONG).show();
     }

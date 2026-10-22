@@ -1,8 +1,11 @@
 package com.example.calisthenicsapp;
 
+import static com.example.calisthenicsapp.Views.dp;
+import static com.example.calisthenicsapp.Views.rounded;
+import static com.example.calisthenicsapp.Views.text;
+
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -54,36 +57,36 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         root = scroll;
         LinearLayout page = new LinearLayout(this);
         page.setOrientation(LinearLayout.VERTICAL);
-        page.setPadding(dp(22), dp(20), dp(22), dp(28));
+        page.setPadding(dp(this, 22), dp(this, 20), dp(this, 22), dp(this, 28));
         scroll.addView(page);
 
-        TextView back = text(getString(R.string.custom_workouts_back), 15, UiColors.ORANGE_DARK, false);
-        back.setPadding(dp(2), dp(4), dp(4), dp(4));
+        TextView back = text(this, getString(R.string.custom_workouts_back), 15, UiColors.ORANGE_DARK, false);
+        back.setPadding(dp(this, 2), dp(this, 4), dp(this, 4), dp(this, 4));
         back.setOnClickListener(v -> finish());
         page.addView(back);
         page.addView(space(16));
-        page.addView(text(getString(R.string.custom_workouts_eyebrow), 12, UiColors.ORANGE_DARK, true));
-        TextView title = text(getString(R.string.custom_workouts_title), 30, UiColors.GRAPHITE, true);
-        LinearLayout.LayoutParams titleParams = matchWrap(); titleParams.topMargin = dp(6);
+        page.addView(text(this, getString(R.string.custom_workouts_eyebrow), 12, UiColors.ORANGE_DARK, true));
+        TextView title = text(this, getString(R.string.custom_workouts_title), 30, UiColors.GRAPHITE, true);
+        LinearLayout.LayoutParams titleParams = matchWrap(); titleParams.topMargin = dp(this, 6);
         page.addView(title, titleParams);
-        TextView subtitle = text(getString(R.string.custom_workouts_subtitle), 15, UiColors.MUTED, false);
-        LinearLayout.LayoutParams subParams = matchWrap(); subParams.topMargin = dp(4);
+        TextView subtitle = text(this, getString(R.string.custom_workouts_subtitle), 15, UiColors.MUTED, false);
+        LinearLayout.LayoutParams subParams = matchWrap(); subParams.topMargin = dp(this, 4);
         page.addView(subtitle, subParams);
 
         Button create = button(getString(R.string.custom_workouts_create), true);
-        LinearLayout.LayoutParams actionParams = matchWrap(); actionParams.topMargin = dp(20);
+        LinearLayout.LayoutParams actionParams = matchWrap(); actionParams.topMargin = dp(this, 20);
         page.addView(create, actionParams);
         create.setOnClickListener(v -> openEditor(null));
         Button copy = button(getString(R.string.custom_workouts_copy), false);
-        LinearLayout.LayoutParams copyParams = matchWrap(); copyParams.topMargin = dp(8);
+        LinearLayout.LayoutParams copyParams = matchWrap(); copyParams.topMargin = dp(this, 8);
         page.addView(copy, copyParams);
         copy.setOnClickListener(v -> choosePremade());
 
-        status = text(getString(R.string.custom_workouts_loading), 13, UiColors.MUTED, true);
-        LinearLayout.LayoutParams statusParams = matchWrap(); statusParams.topMargin = dp(22);
+        status = text(this, getString(R.string.custom_workouts_loading), 13, UiColors.MUTED, true);
+        LinearLayout.LayoutParams statusParams = matchWrap(); statusParams.topMargin = dp(this, 22);
         page.addView(status, statusParams);
         list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams listParams = matchWrap(); listParams.topMargin = dp(10);
+        LinearLayout.LayoutParams listParams = matchWrap(); listParams.topMargin = dp(this, 10);
         page.addView(list, listParams);
         setContentView(scroll);
     }
@@ -98,9 +101,10 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
                         workouts.size(), workouts.size()));
                 for (CustomWorkout workout : workouts) list.addView(workoutCard(workout));
                 if (workouts.isEmpty()) {
-                    TextView empty = text(getString(R.string.custom_workouts_empty),
+                    Context context = CustomWorkoutsActivity.this;
+                    TextView empty = text(context, getString(R.string.custom_workouts_empty),
                             14, UiColors.MUTED, false);
-                    empty.setPadding(dp(4), dp(8), dp(4), dp(12)); list.addView(empty);
+                    empty.setPadding(dp(context, 4), dp(context, 8), dp(context, 4), dp(context, 12)); list.addView(empty);
                 }
             }
             @Override public void onError(String message) { status.setText(R.string.custom_workouts_failed); show(message); }
@@ -109,27 +113,28 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
 
     private View workoutCard(CustomWorkout workout) {
         MaterialCardView card = new MaterialCardView(this);
-        card.setRadius(dp(20)); card.setCardBackgroundColor(UiColors.SURFACE);
-        card.setStrokeColor(UiColors.BORDER); card.setStrokeWidth(dp(1)); card.setCardElevation(dp(1));
-        LinearLayout.LayoutParams cardParams = matchWrap(); cardParams.bottomMargin = dp(12);
+        card.setRadius(dp(this, 20)); card.setCardBackgroundColor(UiColors.SURFACE);
+        card.setStrokeColor(UiColors.BORDER); card.setStrokeWidth(dp(this, 1)); card.setCardElevation(dp(this, 1));
+        LinearLayout.LayoutParams cardParams = matchWrap(); cardParams.bottomMargin = dp(this, 12);
         card.setLayoutParams(cardParams);
         LinearLayout content = new LinearLayout(this); content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(16), dp(15), dp(16), dp(14)); card.addView(content);
-        TextView title = text(workout.getName(), 18, UiColors.GRAPHITE, true); content.addView(title);
+        content.setPadding(dp(this, 16), dp(this, 15), dp(this, 16), dp(this, 14)); card.addView(content);
+        TextView title = text(this, workout.getName(), 18, UiColors.GRAPHITE, true); content.addView(title);
         String description = workout.getDescription();
-        TextView details = text((description == null || description.trim().isEmpty()
-                ? getString(R.string.custom_workouts_no_description) : description) + "\n" + duration(workout.getEstimatedSeconds()),
+        TextView details = text(this, (description == null || description.trim().isEmpty()
+                ? getString(R.string.custom_workouts_no_description) : description) + "\n"
+                + Durations.estimate(this, workout.getEstimatedSeconds(), R.string.custom_workouts_no_length),
                 13, UiColors.MUTED, false);
-        LinearLayout.LayoutParams detailParams = matchWrap(); detailParams.topMargin = dp(7);
+        LinearLayout.LayoutParams detailParams = matchWrap(); detailParams.topMargin = dp(this, 7);
         content.addView(details, detailParams);
         LinearLayout actions = new LinearLayout(this); actions.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams actionsParams = matchWrap(); actionsParams.topMargin = dp(12);
+        LinearLayout.LayoutParams actionsParams = matchWrap(); actionsParams.topMargin = dp(this, 12);
         content.addView(actions, actionsParams);
         Button start = smallButton(getString(R.string.custom_workouts_start), true); actions.addView(start, weightButton());
         Button edit = smallButton(getString(R.string.custom_workouts_edit), false); LinearLayout.LayoutParams editParams = weightButton();
-        editParams.leftMargin = dp(7); actions.addView(edit, editParams);
-        Button more = smallButton("•••", false); LinearLayout.LayoutParams moreParams = new LinearLayout.LayoutParams(dp(54), dp(40));
-        moreParams.leftMargin = dp(7); actions.addView(more, moreParams);
+        editParams.leftMargin = dp(this, 7); actions.addView(edit, editParams);
+        Button more = smallButton("•••", false); LinearLayout.LayoutParams moreParams = new LinearLayout.LayoutParams(dp(this, 54), dp(this, 40));
+        moreParams.leftMargin = dp(this, 7); actions.addView(more, moreParams);
         start.setOnClickListener(v -> startWorkout(workout));
         edit.setOnClickListener(v -> openEditor(workout));
         card.setOnClickListener(v -> openDetails(workout));
@@ -171,7 +176,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
     private void rename(CustomWorkout workout) {
         android.widget.EditText input = new android.widget.EditText(this);
         input.setSingleLine(true); input.setText(workout.getName());
-        input.setPadding(dp(14), dp(10), dp(14), dp(10));
+        input.setPadding(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10));
         new AlertDialog.Builder(this).setTitle(R.string.custom_workouts_rename_title).setView(input)
                 .setNegativeButton(R.string.common_cancel, null).setPositiveButton(R.string.common_save, (d, w) ->
                         customService.rename(workout.getId(), input.getText().toString(), new ServiceCallback<Void>() {
@@ -213,29 +218,17 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
     }
 
     private void show(String message) { Snackbar.make(root, message, Snackbar.LENGTH_LONG).show(); }
-    private TextView text(String value, int size, int color, boolean bold) {
-        TextView t = new TextView(this); t.setText(value); t.setTextSize(size); t.setTextColor(color);
-        if (bold) t.setTypeface(null, Typeface.BOLD); return t;
-    }
     private Button button(String label, boolean primary) {
         Button b = new Button(this); b.setText(label); b.setAllCaps(false); b.setTextSize(14);
         b.setTextColor(primary ? UiColors.INK : UiColors.ORANGE_DARK);
-        b.setBackground(rounded(primary ? UiColors.ORANGE_DARK : UiColors.SURFACE, dp(14)));
+        b.setBackground(rounded(primary ? UiColors.ORANGE_DARK : UiColors.SURFACE, dp(this, 14)));
         return b;
     }
     private Button smallButton(String label, boolean primary) {
-        Button b = button(label, primary); b.setTextSize(12); b.setMinHeight(dp(40)); b.setMinimumHeight(dp(40));
-        b.setPadding(dp(4), 0, dp(4), 0); return b;
+        Button b = button(label, primary); b.setTextSize(12); b.setMinHeight(dp(this, 40)); b.setMinimumHeight(dp(this, 40));
+        b.setPadding(dp(this, 4), 0, dp(this, 4), 0); return b;
     }
-    private GradientDrawable rounded(int color, int radius) {
-        GradientDrawable d = new GradientDrawable(); d.setColor(color); d.setCornerRadius(radius); return d;
-    }
-    private View space(int height) { View v = new View(this); v.setLayoutParams(new LinearLayout.LayoutParams(1, dp(height))); return v; }
+    private View space(int height) { View v = new View(this); v.setLayoutParams(new LinearLayout.LayoutParams(1, dp(this, height))); return v; }
     private LinearLayout.LayoutParams matchWrap() { return new LinearLayout.LayoutParams(-1, -2); }
-    private LinearLayout.LayoutParams weightButton() { return new LinearLayout.LayoutParams(0, dp(40), 1f); }
-    private int dp(int n) { return (int) (n * getResources().getDisplayMetrics().density + .5f); }
-    private String duration(Integer seconds) {
-        if (seconds == null || seconds <= 0) return getString(R.string.custom_workouts_no_length);
-        int mins = Math.max(1, (seconds + 59) / 60); return getString(R.string.duration_minutes, mins);
-    }
+    private LinearLayout.LayoutParams weightButton() { return new LinearLayout.LayoutParams(0, dp(this, 40), 1f); }
 }

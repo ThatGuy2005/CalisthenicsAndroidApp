@@ -1,5 +1,7 @@
 package com.example.calisthenicsapp;
 
+import static com.example.calisthenicsapp.Views.dp;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
@@ -94,7 +96,7 @@ public class DataPrivacyActivity extends AppCompatActivity {
         password.setTextColor(getColor(R.color.performance_graphite));
         password.setHintTextColor(getColor(R.color.performance_muted));
         password.setBackgroundResource(R.drawable.input_background);
-        password.setPadding(dp(14), dp(10), dp(14), dp(10));
+        password.setPadding(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10));
         new AlertDialog.Builder(this)
                 .setTitle(R.string.data_privacy_password_title)
                 .setMessage(R.string.data_privacy_password_message)
@@ -126,5 +128,4 @@ public class DataPrivacyActivity extends AppCompatActivity {
         csvButton.setText(exporting ? R.string.data_privacy_preparing : R.string.data_privacy_save_csv);
     }
     private void show(String message) { Snackbar.make(findViewById(R.id.dataPrivacyRoot), message, Snackbar.LENGTH_LONG).show(); }
-    private int dp(int value) { return (int) (value * getResources().getDisplayMetrics().density + .5f); }
 }

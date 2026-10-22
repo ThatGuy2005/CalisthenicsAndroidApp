@@ -1,7 +1,9 @@
 package com.example.calisthenicsapp;
 
+import static com.example.calisthenicsapp.Views.dp;
+import static com.example.calisthenicsapp.Views.text;
+
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.widget.LinearLayout;
@@ -78,7 +80,8 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
         if (workout == null) { show(getString(R.string.custom_detail_gone)); finish(); return; }
         name.setText(workout.getName());
         meta.setText(getResources().getQuantityString(R.plurals.custom_detail_meta, entries.size(),
-                entries.size(), duration(workout.getEstimatedSeconds())));
+                entries.size(), Durations.estimate(this, workout.getEstimatedSeconds(),
+                        R.string.custom_workouts_no_length)));
         description.setText(workout.getDescription() == null || workout.getDescription().trim().isEmpty()
                 ? getString(R.string.custom_detail_no_description) : workout.getDescription());
         count.setText(getString(R.string.workout_detail_exercise_count, entries.size()));
@@ -100,24 +103,24 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
                 : getResources().getQuantityString(R.plurals.target_reps, target, target);
 
         MaterialCardView card = new MaterialCardView(this);
-        card.setRadius(dp(16)); card.setCardBackgroundColor(UiColors.SURFACE);
-        card.setStrokeColor(UiColors.BORDER); card.setStrokeWidth(dp(1)); card.setCardElevation(0);
+        card.setRadius(dp(this, 16)); card.setCardBackgroundColor(UiColors.SURFACE);
+        card.setStrokeColor(UiColors.BORDER); card.setStrokeWidth(dp(this, 1)); card.setCardElevation(0);
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(-1, -2);
-        cardParams.bottomMargin = dp(9); card.setLayoutParams(cardParams);
+        cardParams.bottomMargin = dp(this, 9); card.setLayoutParams(cardParams);
         LinearLayout row = new LinearLayout(this); row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(dp(14), dp(13), dp(14), dp(13)); card.addView(row);
-        TextView number = text(String.format(java.util.Locale.ROOT, "%02d", index + 1), 13,
+        row.setPadding(dp(this, 14), dp(this, 13), dp(this, 14), dp(this, 13)); card.addView(row);
+        TextView number = text(this, String.format(java.util.Locale.ROOT, "%02d", index + 1), 13,
                 UiColors.ORANGE_DARK, true);
-        number.setGravity(Gravity.CENTER); row.addView(number, new LinearLayout.LayoutParams(dp(34), dp(34)));
+        number.setGravity(Gravity.CENTER); row.addView(number, new LinearLayout.LayoutParams(dp(this, 34), dp(this, 34)));
         LinearLayout labels = new LinearLayout(this); labels.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -2, 1f);
-        lp.leftMargin = dp(10); row.addView(labels, lp);
-        labels.addView(text(entry.getExerciseName(), 15, UiColors.GRAPHITE, true));
-        TextView detail = text(getString(R.string.target_sets_target_rest,
+        lp.leftMargin = dp(this, 10); row.addView(labels, lp);
+        labels.addView(text(this, entry.getExerciseName(), 15, UiColors.GRAPHITE, true));
+        TextView detail = text(this, getString(R.string.target_sets_target_rest,
                 getResources().getQuantityString(R.plurals.target_sets, sets, sets), targetText,
                 getString(R.string.target_rest, rest)), 12, UiColors.MUTED, false);
         LinearLayout.LayoutParams detailParams = new LinearLayout.LayoutParams(-1, -2);
-        detailParams.topMargin = dp(4); labels.addView(detail, detailParams);
+        detailParams.topMargin = dp(this, 4); labels.addView(detail, detailParams);
         card.setClickable(true); card.setFocusable(true);
         card.setOnClickListener(v -> {
             Intent intent = new Intent(this, ExerciseDetailActivity.class);
@@ -141,14 +144,5 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
         });
     }
 
-    private TextView text(String value, int size, int color, boolean bold) {
-        TextView view = new TextView(this); view.setText(value); view.setTextSize(size); view.setTextColor(color);
-        if (bold) view.setTypeface(null, Typeface.BOLD); return view;
-    }
-    private String duration(Integer seconds) {
-        if (seconds == null || seconds <= 0) return getString(R.string.custom_workouts_no_length);
-        return getString(R.string.duration_minutes, Math.max(1, (seconds + 59) / 60));
-    }
     private void show(String message) { Snackbar.make(findViewById(R.id.customWorkoutDetailRoot), message, Snackbar.LENGTH_LONG).show(); }
-    private int dp(int value) { return (int) (value * getResources().getDisplayMetrics().density + .5f); }
 }

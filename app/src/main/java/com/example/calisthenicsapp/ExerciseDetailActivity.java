@@ -1,5 +1,7 @@
 package com.example.calisthenicsapp;
 
+import static com.example.calisthenicsapp.Views.dp;
+
 import android.graphics.drawable.AnimatedImageDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.ImageDecoder;
@@ -152,7 +154,7 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         row.setGravity(android.view.Gravity.TOP);
         LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        rowParams.bottomMargin = dp(12);
+        rowParams.bottomMargin = dp(this, 12);
         instructionsContainer.addView(row, rowParams);
 
         TextView numberView = new TextView(this);
@@ -162,23 +164,19 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         numberView.setTextSize(13);
         numberView.setTypeface(null, android.graphics.Typeface.BOLD);
         numberView.setGravity(android.view.Gravity.CENTER);
-        LinearLayout.LayoutParams numberParams = new LinearLayout.LayoutParams(dp(30), dp(30));
-        numberParams.topMargin = dp(1);
+        LinearLayout.LayoutParams numberParams = new LinearLayout.LayoutParams(dp(this, 30), dp(this, 30));
+        numberParams.topMargin = dp(this, 1);
         row.addView(numberView, numberParams);
 
         TextView instructionView = new TextView(this);
         instructionView.setText(text);
         instructionView.setTextColor(UiColors.GRAPHITE);
         instructionView.setTextSize(15);
-        instructionView.setLineSpacing(dp(3), 1f);
+        instructionView.setLineSpacing(dp(this, 3), 1f);
         LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-        textParams.leftMargin = dp(12);
+        textParams.leftMargin = dp(this, 12);
         row.addView(instructionView, textParams);
-    }
-
-    private int dp(int value) {
-        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void showAnimation(String fileName) {

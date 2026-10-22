@@ -1,5 +1,9 @@
 package com.example.calisthenicsapp;
 
+import static com.example.calisthenicsapp.Views.dp;
+import static com.example.calisthenicsapp.Views.pill;
+import static com.example.calisthenicsapp.Views.rounded;
+
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -91,12 +95,12 @@ public class WorkoutListActivity extends AppCompatActivity {
 
     private MaterialCardView createCard(Workout workout) {
         MaterialCardView card = new MaterialCardView(this);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, dp(218));
-        params.bottomMargin = dp(12);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, dp(this, 218));
+        params.bottomMargin = dp(this, 12);
         card.setLayoutParams(params);
-        card.setRadius(dp(22)); card.setCardBackgroundColor(UiColors.SURFACE);
-        card.setStrokeColor(UiColors.BORDER); card.setStrokeWidth(dp(1));
-        card.setCardElevation(dp(1));
+        card.setRadius(dp(this, 22)); card.setCardBackgroundColor(UiColors.SURFACE);
+        card.setStrokeColor(UiColors.BORDER); card.setStrokeWidth(dp(this, 1));
+        card.setCardElevation(dp(this, 1));
         card.setClickable(true); card.setFocusable(true);
         card.setClipToOutline(true);
 
@@ -115,7 +119,7 @@ public class WorkoutListActivity extends AppCompatActivity {
 
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(16), dp(15), dp(16), dp(15));
+        content.setPadding(dp(this, 16), dp(this, 15), dp(this, 16), dp(this, 15));
         backdrop.addView(content, new FrameLayout.LayoutParams(-1, -1));
 
         String category = workout.getCategory() == null ? getString(R.string.workout_no_category)
@@ -131,9 +135,9 @@ public class WorkoutListActivity extends AppCompatActivity {
         eyebrow.setLetterSpacing(0.08f);
         eyebrow.setTypeface(null, android.graphics.Typeface.BOLD);
         eyebrow.setGravity(Gravity.CENTER_VERTICAL);
-        eyebrow.setPadding(dp(12), 0, dp(12), 0);
-        eyebrow.setBackground(rounded(0xCC101217, dp(18)));
-        topRow.addView(eyebrow, new LinearLayout.LayoutParams(-2, dp(32)));
+        eyebrow.setPadding(dp(this, 12), 0, dp(this, 12), 0);
+        eyebrow.setBackground(rounded(0xCC101217, dp(this, 18)));
+        topRow.addView(eyebrow, new LinearLayout.LayoutParams(-2, dp(this, 32)));
         content.addView(topRow);
 
         View spacer = new View(this);
@@ -145,18 +149,19 @@ public class WorkoutListActivity extends AppCompatActivity {
         title.setTextSize(20);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
         LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(-1, -2);
-        titleParams.topMargin = dp(8);
+        titleParams.topMargin = dp(this, 8);
         content.addView(title, titleParams);
 
         LinearLayout footer = new LinearLayout(this);
         footer.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout.LayoutParams footerParams = new LinearLayout.LayoutParams(-1, -2);
-        footerParams.topMargin = dp(10);
+        footerParams.topMargin = dp(this, 10);
         content.addView(footer, footerParams);
-        footer.addView(pill(level, UiColors.ORANGE_TINT, UiColors.ORANGE_DARK));
-        TextView duration = pill(formatDuration(workout.getEstimatedSeconds()), UiColors.SURFACE_ALT, UiColors.MUTED);
-        LinearLayout.LayoutParams durationParams = new LinearLayout.LayoutParams(-2, dp(30));
-        durationParams.leftMargin = dp(7);
+        footer.addView(pill(this, level, UiColors.ORANGE_TINT, UiColors.ORANGE_DARK));
+        String length = Durations.estimate(this, workout.getEstimatedSeconds(), R.string.workout_time_varies);
+        TextView duration = pill(this, length, UiColors.SURFACE_ALT, UiColors.MUTED);
+        LinearLayout.LayoutParams durationParams = new LinearLayout.LayoutParams(-2, dp(this, 30));
+        durationParams.leftMargin = dp(this, 7);
         footer.addView(duration, durationParams);
         TextView action = new TextView(this);
         action.setText(R.string.workout_list_view_plan);
@@ -164,10 +169,10 @@ public class WorkoutListActivity extends AppCompatActivity {
         action.setTextSize(12);
         action.setTypeface(null, android.graphics.Typeface.BOLD);
         action.setGravity(Gravity.CENTER);
-        action.setPadding(dp(13), 0, dp(13), 0);
-        action.setBackground(rounded(UiColors.ORANGE_DARK, dp(18)));
-        LinearLayout.LayoutParams actionParams = new LinearLayout.LayoutParams(-2, dp(34));
-        actionParams.leftMargin = dp(8);
+        action.setPadding(dp(this, 13), 0, dp(this, 13), 0);
+        action.setBackground(rounded(UiColors.ORANGE_DARK, dp(this, 18)));
+        LinearLayout.LayoutParams actionParams = new LinearLayout.LayoutParams(-2, dp(this, 34));
+        actionParams.leftMargin = dp(this, 8);
         footer.addView(action, actionParams);
         action.setContentDescription("View " + workout.getName() + " plan");
 
@@ -180,26 +185,6 @@ public class WorkoutListActivity extends AppCompatActivity {
         return card;
     }
 
-    private TextView pill(String text, int backgroundColor, int textColor) {
-        TextView view = new TextView(this);
-        view.setText(text);
-        view.setTextColor(textColor);
-        view.setTextSize(11);
-        view.setTypeface(null, android.graphics.Typeface.BOLD);
-        view.setGravity(Gravity.CENTER);
-        view.setPadding(dp(10), 0, dp(10), 0);
-        view.setBackground(rounded(backgroundColor, dp(20)));
-        view.setLayoutParams(new LinearLayout.LayoutParams(-2, dp(30)));
-        return view;
-    }
-
-    private GradientDrawable rounded(int color, int radius) {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(color);
-        drawable.setCornerRadius(radius);
-        return drawable;
-    }
-
     private int workoutImage(Workout workout) {
         String name = workout.getName();
         if ("Advanced Calisthenics".equals(name)) return R.drawable.workout_01;
@@ -210,11 +195,4 @@ public class WorkoutListActivity extends AppCompatActivity {
         if ("Upper Body Strength".equals(name)) return R.drawable.workout_06;
         return R.drawable.workout_02;
     }
-
-    private String formatDuration(Integer seconds) {
-        if (seconds == null || seconds <= 0) return getString(R.string.workout_time_varies);
-        int minutes = Math.max(1, seconds / 60);
-        return getString(R.string.duration_minutes, minutes);
-    }
-    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 }

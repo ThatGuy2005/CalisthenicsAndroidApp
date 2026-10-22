@@ -1,7 +1,9 @@
 package com.example.calisthenicsapp;
 
-import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
+import static com.example.calisthenicsapp.Views.dp;
+import static com.example.calisthenicsapp.Views.rounded;
+import static com.example.calisthenicsapp.Views.text;
+
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
@@ -82,17 +84,17 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(true);
         scroll.setBackgroundResource(R.drawable.page_background); root = scroll;
         LinearLayout page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL);
-        page.setPadding(dp(22), dp(20), dp(22), dp(30)); scroll.addView(page);
-        TextView back = text(getString(R.string.custom_editor_back), 15, UiColors.ORANGE_DARK, true);
-        back.setPadding(dp(2), dp(4), dp(4), dp(4)); back.setOnClickListener(v -> finish()); page.addView(back);
+        page.setPadding(dp(this, 22), dp(this, 20), dp(this, 22), dp(this, 30)); scroll.addView(page);
+        TextView back = text(this, getString(R.string.custom_editor_back), 15, UiColors.ORANGE_DARK, true);
+        back.setPadding(dp(this, 2), dp(this, 4), dp(this, 4), dp(this, 4)); back.setOnClickListener(v -> finish()); page.addView(back);
         page.addView(gap(15));
-        page.addView(text(getString(workoutId == null ? R.string.custom_editor_eyebrow_new : R.string.custom_editor_eyebrow_edit), 12,
+        page.addView(text(this, getString(workoutId == null ? R.string.custom_editor_eyebrow_new : R.string.custom_editor_eyebrow_edit), 12,
                 UiColors.ORANGE_DARK, true));
-        TextView title = text(getString(workoutId == null ? R.string.custom_editor_create : R.string.custom_editor_title_edit), 29, UiColors.GRAPHITE, true);
-        LinearLayout.LayoutParams titleParams = matchWrap(); titleParams.topMargin = dp(5); page.addView(title, titleParams);
-        TextView intro = text(getString(R.string.custom_editor_intro),
+        TextView title = text(this, getString(workoutId == null ? R.string.custom_editor_create : R.string.custom_editor_title_edit), 29, UiColors.GRAPHITE, true);
+        LinearLayout.LayoutParams titleParams = matchWrap(); titleParams.topMargin = dp(this, 5); page.addView(title, titleParams);
+        TextView intro = text(this, getString(R.string.custom_editor_intro),
                 14, UiColors.MUTED, false);
-        LinearLayout.LayoutParams introParams = matchWrap(); introParams.topMargin = dp(4); page.addView(intro, introParams);
+        LinearLayout.LayoutParams introParams = matchWrap(); introParams.topMargin = dp(this, 4); page.addView(intro, introParams);
 
         page.addView(sectionLabel(getString(R.string.custom_editor_details_label), 22));
         name = field(getString(R.string.custom_editor_hint_name), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
@@ -100,22 +102,22 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         description = field(getString(R.string.custom_editor_hint_description), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
                 | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         description.setMinLines(2); description.setMaxLines(4);
-        LinearLayout.LayoutParams descParams = matchWrap(); descParams.topMargin = dp(10); page.addView(description, descParams);
+        LinearLayout.LayoutParams descParams = matchWrap(); descParams.topMargin = dp(this, 10); page.addView(description, descParams);
 
         page.addView(sectionLabel(getString(R.string.custom_editor_exercises_label), 22));
-        count = text(getString(R.string.custom_editor_count_empty), 13, UiColors.MUTED, true);
+        count = text(this, getString(R.string.custom_editor_count_empty), 13, UiColors.MUTED, true);
         page.addView(count);
         Button choose = button(getString(R.string.custom_editor_add_exercises), false);
-        LinearLayout.LayoutParams chooseParams = matchWrap(); chooseParams.topMargin = dp(10); page.addView(choose, chooseParams);
+        LinearLayout.LayoutParams chooseParams = matchWrap(); chooseParams.topMargin = dp(this, 10); page.addView(choose, chooseParams);
         choose.setOnClickListener(v -> chooseExercises());
         selectedList = new LinearLayout(this); selectedList.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams selectedParams = matchWrap(); selectedParams.topMargin = dp(12);
+        LinearLayout.LayoutParams selectedParams = matchWrap(); selectedParams.topMargin = dp(this, 12);
         page.addView(selectedList, selectedParams);
 
-        save = text(getString(saveLabel()), 15, UiColors.INK, true);
-        save.setGravity(Gravity.CENTER); save.setBackground(rounded(UiColors.ORANGE_DARK, dp(16)));
-        save.setPadding(dp(16), dp(14), dp(16), dp(14));
-        LinearLayout.LayoutParams saveParams = matchWrap(); saveParams.topMargin = dp(22); page.addView(save, saveParams);
+        save = text(this, getString(saveLabel()), 15, UiColors.INK, true);
+        save.setGravity(Gravity.CENTER); save.setBackground(rounded(UiColors.ORANGE_DARK, dp(this, 16)));
+        save.setPadding(dp(this, 16), dp(this, 14), dp(this, 16), dp(this, 14));
+        LinearLayout.LayoutParams saveParams = matchWrap(); saveParams.topMargin = dp(this, 22); page.addView(save, saveParams);
         save.setOnClickListener(v -> saveWorkout());
         setContentView(scroll);
     }
@@ -162,34 +164,34 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
                         selected.size(), selected.size()));
         for (int i = 0; i < selected.size(); i++) {
             final int index = i; Exercise exercise = selected.get(i);
-            MaterialCardView card = new MaterialCardView(this); card.setRadius(dp(16));
+            MaterialCardView card = new MaterialCardView(this); card.setRadius(dp(this, 16));
             card.setCardBackgroundColor(UiColors.SURFACE); card.setStrokeColor(UiColors.BORDER);
-            card.setStrokeWidth(dp(1)); card.setCardElevation(0);
-            LinearLayout.LayoutParams cp = matchWrap(); cp.bottomMargin = dp(8); card.setLayoutParams(cp);
+            card.setStrokeWidth(dp(this, 1)); card.setCardElevation(0);
+            LinearLayout.LayoutParams cp = matchWrap(); cp.bottomMargin = dp(this, 8); card.setLayoutParams(cp);
             LinearLayout row = new LinearLayout(this); row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setPadding(dp(12), dp(10), dp(8), dp(10)); card.addView(row);
-            TextView number = text(String.format(java.util.Locale.ROOT, "%02d", i + 1), 13,
+            row.setPadding(dp(this, 12), dp(this, 10), dp(this, 8), dp(this, 10)); card.addView(row);
+            TextView number = text(this, String.format(java.util.Locale.ROOT, "%02d", i + 1), 13,
                     UiColors.ORANGE_DARK, true); number.setGravity(Gravity.CENTER);
-            row.addView(number, new LinearLayout.LayoutParams(dp(34), dp(34)));
+            row.addView(number, new LinearLayout.LayoutParams(dp(this, 34), dp(this, 34)));
             LinearLayout labels = new LinearLayout(this); labels.setOrientation(LinearLayout.VERTICAL);
             LinearLayout.LayoutParams labelsParams = new LinearLayout.LayoutParams(0, -2, 1f);
-            labelsParams.leftMargin = dp(9); row.addView(labels, labelsParams);
-            labels.addView(text(exercise.getName(), 14, UiColors.GRAPHITE, true));
-            TextView meta = text(settingsOf(exercise), 11, UiColors.MUTED, false);
-            LinearLayout.LayoutParams mp = matchWrap(); mp.topMargin = dp(2); labels.addView(meta, mp);
+            labelsParams.leftMargin = dp(this, 9); row.addView(labels, labelsParams);
+            labels.addView(text(this, exercise.getName(), 14, UiColors.GRAPHITE, true));
+            TextView meta = text(this, settingsOf(exercise), 11, UiColors.MUTED, false);
+            LinearLayout.LayoutParams mp = matchWrap(); mp.topMargin = dp(this, 2); labels.addView(meta, mp);
             meta.setOnClickListener(v -> editSettings(exercise));
             meta.setContentDescription(getString(R.string.custom_editor_settings_description, exercise.getName()));
             TextView edit = mini("⚙", true); LinearLayout.LayoutParams editParams = miniParams();
-            editParams.leftMargin = dp(5); row.addView(edit, editParams);
+            editParams.leftMargin = dp(this, 5); row.addView(edit, editParams);
             edit.setContentDescription(getString(R.string.custom_editor_edit_description, exercise.getName()));
             TextView up = mini("↑", index > 0); LinearLayout.LayoutParams upParams = miniParams();
-            upParams.leftMargin = dp(5); row.addView(up, upParams);
+            upParams.leftMargin = dp(this, 5); row.addView(up, upParams);
             up.setContentDescription(getString(R.string.custom_editor_up_description, exercise.getName()));
             TextView down = mini("↓", index < selected.size() - 1); LinearLayout.LayoutParams downParams = miniParams();
-            downParams.leftMargin = dp(5); row.addView(down, downParams);
+            downParams.leftMargin = dp(this, 5); row.addView(down, downParams);
             down.setContentDescription(getString(R.string.custom_editor_down_description, exercise.getName()));
             TextView remove = mini("×", true); LinearLayout.LayoutParams removeParams = miniParams();
-            removeParams.leftMargin = dp(5); row.addView(remove, removeParams);
+            removeParams.leftMargin = dp(this, 5); row.addView(remove, removeParams);
             remove.setContentDescription(getString(R.string.custom_editor_remove_description, exercise.getName()));
             up.setOnClickListener(v -> move(index, -1)); down.setOnClickListener(v -> move(index, 1));
             edit.setOnClickListener(v -> editSettings(exercise));
@@ -220,7 +222,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         CustomExerciseOrderEntry current = currentSettings(exercise);
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
-        form.setPadding(dp(22), dp(8), dp(22), dp(4));
+        form.setPadding(dp(this, 22), dp(this, 8), dp(this, 22), dp(this, 4));
         EditText setsField = numberField(String.valueOf(current.getSets()));
         Integer amount = exercise.isTimed() ? current.getSeconds() : current.getReps();
         EditText targetField = numberField(amount == null ? "" : String.valueOf(amount));
@@ -259,11 +261,11 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
     }
 
     private void addSettingsField(LinearLayout form, String label, EditText input) {
-        TextView labelView = text(label, 11, UiColors.MUTED, true);
+        TextView labelView = text(this, label, 11, UiColors.MUTED, true);
         labelView.setLetterSpacing(.06f);
         LinearLayout.LayoutParams labelParams = matchWrap();
-        labelParams.topMargin = dp(6);
-        labelParams.bottomMargin = dp(4);
+        labelParams.topMargin = dp(this, 6);
+        labelParams.bottomMargin = dp(this, 4);
         form.addView(labelView, labelParams);
         form.addView(input, dialogFieldParams());
     }
@@ -274,7 +276,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         return field;
     }
     private LinearLayout.LayoutParams dialogFieldParams() {
-        LinearLayout.LayoutParams params = matchWrap(); params.bottomMargin = dp(8); return params;
+        LinearLayout.LayoutParams params = matchWrap(); params.bottomMargin = dp(this, 8); return params;
     }
     private Integer positiveInt(EditText field) {
         Integer value = nonNegativeInt(field);
@@ -346,17 +348,14 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
     private EditText field(String hint, int inputType) {
         EditText e = new EditText(this); e.setSingleLine(inputType != (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES));
         e.setHint(hint); e.setTextSize(14); e.setTextColor(UiColors.GRAPHITE); e.setHintTextColor(UiColors.MUTED);
-        e.setInputType(inputType); e.setPadding(dp(14), dp(10), dp(14), dp(10)); e.setBackground(rounded(UiColors.SURFACE, dp(14)));
+        e.setInputType(inputType); e.setPadding(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10)); e.setBackground(rounded(UiColors.SURFACE, dp(this, 14)));
         return e;
     }
-    private TextView sectionLabel(String value, int margin) { TextView t = text(value, 12, UiColors.MUTED, true); t.setLetterSpacing(.08f); LinearLayout.LayoutParams p = matchWrap(); p.topMargin = dp(margin); p.bottomMargin = dp(9); t.setLayoutParams(p); return t; }
-    private Button button(String label, boolean primary) { Button b = new Button(this); b.setText(label); b.setAllCaps(false); b.setTextSize(14); b.setTextColor(primary ? UiColors.INK : UiColors.ORANGE_DARK); b.setBackground(rounded(primary ? UiColors.ORANGE_DARK : UiColors.SURFACE, dp(14))); return b; }
-    private TextView mini(String label, boolean enabled) { TextView t = text(label, 16, enabled ? UiColors.ORANGE_DARK : UiColors.MUTED, true); t.setGravity(Gravity.CENTER); t.setBackground(rounded(UiColors.SURFACE_ALT, dp(9))); t.setEnabled(enabled); return t; }
-    private LinearLayout.LayoutParams miniParams() { return new LinearLayout.LayoutParams(dp(32), dp(36)); }
-    private TextView text(String value, int size, int color, boolean bold) { TextView t = new TextView(this); t.setText(value); t.setTextSize(size); t.setTextColor(color); if (bold) t.setTypeface(null, Typeface.BOLD); return t; }
-    private View gap(int height) { View v = new View(this); v.setLayoutParams(new LinearLayout.LayoutParams(1, dp(height))); return v; }
+    private TextView sectionLabel(String value, int margin) { TextView t = text(this, value, 12, UiColors.MUTED, true); t.setLetterSpacing(.08f); LinearLayout.LayoutParams p = matchWrap(); p.topMargin = dp(this, margin); p.bottomMargin = dp(this, 9); t.setLayoutParams(p); return t; }
+    private Button button(String label, boolean primary) { Button b = new Button(this); b.setText(label); b.setAllCaps(false); b.setTextSize(14); b.setTextColor(primary ? UiColors.INK : UiColors.ORANGE_DARK); b.setBackground(rounded(primary ? UiColors.ORANGE_DARK : UiColors.SURFACE, dp(this, 14))); return b; }
+    private TextView mini(String label, boolean enabled) { TextView t = text(this, label, 16, enabled ? UiColors.ORANGE_DARK : UiColors.MUTED, true); t.setGravity(Gravity.CENTER); t.setBackground(rounded(UiColors.SURFACE_ALT, dp(this, 9))); t.setEnabled(enabled); return t; }
+    private LinearLayout.LayoutParams miniParams() { return new LinearLayout.LayoutParams(dp(this, 32), dp(this, 36)); }
+    private View gap(int height) { View v = new View(this); v.setLayoutParams(new LinearLayout.LayoutParams(1, dp(this, height))); return v; }
     private LinearLayout.LayoutParams matchWrap() { return new LinearLayout.LayoutParams(-1, -2); }
-    private GradientDrawable rounded(int color, int radius) { GradientDrawable d = new GradientDrawable(); d.setColor(color); d.setCornerRadius(radius); return d; }
     private void show(String message) { Snackbar.make(root, message, Snackbar.LENGTH_LONG).show(); }
-    private int dp(int value) { return (int) (value * getResources().getDisplayMetrics().density + .5f); }
 }
