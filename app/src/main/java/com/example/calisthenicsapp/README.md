@@ -127,6 +127,6 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 - **NFR-13:** The app shall handle missing permissions or no internet access without crashing. Sign-up, sign-in, password reset, changing the username, email or password, deleting the account and email sending require a connection; everything else works offline and syncs when a connection is available.
 
 ### 4.4 Compatibility and Maintainability
-- **NFR-14:** The app shall run on Android devices from a defined minimum API level (to be decided by the team).
+- **NFR-14:** The app shall run on Android devices from API level 24 (Android 7.0) upwards (minSdk 24).
 - **NFR-15:** The code shall be organized in separate layers (user interface, business logic, database access) with a dedicated database manager class, so that the front end and back end can be developed independently.
 - **NFR-16:** The code shall be documented and follow consistent naming conventions.
