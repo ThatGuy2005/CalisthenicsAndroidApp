@@ -15,6 +15,9 @@ import com.example.calisthenicsapp.Service.AuthService;
 import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
+    /** Set when the user was signed out because their account's profile is gone. */
+    public static final String EXTRA_ACCOUNT_GONE = "account_gone";
+
     private AuthService authService;
     private boolean openingHome;
 
@@ -24,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         authService = new AuthService(this);
+        if (savedInstanceState == null && getIntent().getBooleanExtra(EXTRA_ACCOUNT_GONE, false)) {
+            Toast.makeText(this, R.string.login_account_gone, Toast.LENGTH_LONG).show();
+        }
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

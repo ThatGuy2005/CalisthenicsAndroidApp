@@ -64,11 +64,19 @@ import java.util.function.Supplier;
  *
  * After each batch is in SQLite, DataChanges tells the screens what changed.
  *
+ * A missing profile: without users/{uid} nothing else can be mirrored, so the app would keep
+ * running on an old copy and never show the user's changes. When the server says the profile is
+ * gone (see isProfileGone), the account counts as deleted: the user is signed out, which clears
+ * the local data, and the onAccountGone callback runs.
+ *
  * Threading: listener state (syncedUid, registrations) is changed only on the main thread.
  * SQLite work runs on dbExecutor, and each queued task first checks that its uid is still the
  * synced one, so events queued before a sign-out or user switch never touch the new session.
  */
 public class SyncManager {
+
+    /** Sign-up saves the profile right after creating the account; until then it is missing. */
+    static final long NEW_ACCOUNT_MILLIS = 10 * 60 * 1000L;
 
     private final Context appContext;
     private final Supplier<SQLiteDatabase> database;
@@ -81,6 +89,9 @@ public class SyncManager {
     private boolean childListenersAttached;
     /** The profile as last mirrored; main thread only. Skips snapshots that only changed metadata. */
     private Map<String, Object> lastProfileData;
+    /** The server has shown the profile this session; main thread only. */
+    private boolean profileConfirmed;
+    private Runnable onAccountGone;
 
     /**
      * Schedules whose custom workout has not been mirrored yet (the two collections' snapshots
@@ -112,12 +123,20 @@ public class SyncManager {
         this.firestore = firestore;
     }
 
+    /**
+     * Runs on the main thread after the signed-in user was signed out because their profile is
+     * gone, e.g. to show the sign-in screen. Set it before start().
+     */
+    public void setOnAccountGone(Runnable onAccountGone) {
+        this.onAccountGone = onAccountGone;
+    }
+
     /** Call once (e.g. from Application.onCreate()); reacts to every sign-in/out after that. */
     public void start() {
         sessionManager.addAuthStateListener(new SessionManager.SignedInListener() {
             @Override
             public void onSignedIn(FirebaseUser user) {
-                startSyncing(user.getUid());
+                startSyncing(user);
             }
 
             @Override
@@ -127,13 +146,17 @@ public class SyncManager {
         });
     }
 
-    private void startSyncing(String uid) {
+    private void startSyncing(FirebaseUser user) {
+        String uid = user.getUid();
         if (uid.equals(syncedUid)) return;   // already syncing this user (e.g. a token refresh)
         stopListeners();
         syncedUid = uid;
         childListenersAttached = false;
         lastProfileData = null;
+        profileConfirmed = false;
         dbExecutor.execute(pendingSchedules::clear);
+        Long createdMillis = user.getMetadata() == null ? null
+                : user.getMetadata().getCreationTimestamp();
 
         FirebaseFirestore firestore = this.firestore.get();
         SQLiteDatabase sqlite = database.get();
@@ -141,7 +164,16 @@ public class SyncManager {
 
         profileRegistration = firestore.collection("users").document(uid)
                 .addSnapshotListener(MetadataChanges.INCLUDE, (snapshot, error) -> {
-                    if (error != null || snapshot == null || !snapshot.exists()) return;
+                    if (error != null || snapshot == null) return;
+                    boolean fromCache = snapshot.getMetadata().isFromCache();
+                    if (!snapshot.exists()) {
+                        if (isProfileGone(fromCache, profileConfirmed, createdMillis,
+                                System.currentTimeMillis())) {
+                            signOutGoneAccount(uid);
+                        }
+                        return;
+                    }
+                    if (!fromCache) profileConfirmed = true;
                     Map<String, Object> data = snapshot.getData();
                     if (data != null && data.equals(lastProfileData)) return;   // e.g. pending -> sent
                     lastProfileData = data;
@@ -383,6 +415,26 @@ public class SyncManager {
         if (changed && existing.getCalendarEventId() != null) {
             calendar.update(schedule, existing.getCalendarEventId());
         }
+    }
+
+    /**
+     * Whether a missing profile means the account is gone. Only the server can say so; the cache
+     * may simply not have it yet. Once the server has shown the profile this session, a later
+     * miss is left alone: it is this device's own Delete account (AccountService deletes the
+     * profile just before the Firebase account) or another device's, which deletes the account
+     * too. A new account (or one of unknown age) is left alone while sign-up saves its profile.
+     */
+    static boolean isProfileGone(boolean fromCache, boolean confirmedBefore, Long createdMillis,
+                                 long nowMillis) {
+        if (fromCache || confirmedBefore || createdMillis == null) return false;
+        return nowMillis - createdMillis > NEW_ACCOUNT_MILLIS;
+    }
+
+    /** Signing out stops syncing and clears the local data (onSignedOut, stopSyncing). */
+    private void signOutGoneAccount(String uid) {
+        if (!uid.equals(syncedUid)) return;
+        sessionManager.signOut();
+        if (onAccountGone != null) onAccountGone.run();
     }
 
     private void stopSyncing() {

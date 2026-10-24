@@ -35,6 +35,10 @@ public class SessionManager {
         return user == null ? null : user.getUid();
     }
 
+    public void signOut() {
+        firebaseAuth.signOut();
+    }
+
     public void addAuthStateListener(SignedInListener listener) {
         firebaseAuth.addAuthStateListener(auth -> {
             FirebaseUser user = auth.getCurrentUser();

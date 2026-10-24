@@ -52,6 +52,8 @@ to `firestore.rules`, and add a check when the app starts writing something new.
 - **Cloud Firestore** stores each user's data under `users/{uid}` and is the source of truth.
 - **SQLite** is a local copy. `Sync/SyncManager` mirrors Firestore into it as long as someone is
   signed in. It is started once in `CalisthenicsApplication`; the screens never deal with it.
+  If the server says the signed-in user's `users/{uid}` profile is gone, the account counts as
+  deleted: the user is signed out and the login screen opens with a message.
 - **Premade exercises and workouts** live only in SQLite. They are loaded from
   `app/src/main/assets/seed.sql` on the first start.
 
