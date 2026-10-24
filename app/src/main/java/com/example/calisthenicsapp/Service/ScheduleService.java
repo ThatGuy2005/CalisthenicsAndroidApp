@@ -376,6 +376,8 @@ public class ScheduleService extends UserDataService {
         else data.put("customWorkoutId", customWorkoutId);
         data.put("scheduledAt", scheduledAt);
         if (recurrence != null) data.put("recurrenceRule", recurrence.toRule());
+        // The server's email shows the date and time in the user's own time zone.
+        data.put("timeZone", TimeZone.getDefault().getID());
         watchWrite(doc.set(data), "Creating schedule " + doc.getId());
 
         WorkoutSummary summary = WorkoutSummary.of(db(), doc.getId(), workoutName,

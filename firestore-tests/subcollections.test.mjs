@@ -70,6 +70,10 @@ await check('schedule for a missing custom workout rejected', assertFails(setDoc
 await check('schedule with both workouts rejected', assertFails(setDoc(at('schedules', 's6'), { workoutName: 'Legs', customWorkoutId: 'w1', scheduledAt: NOW })));
 await check('schedule without a workout rejected', assertFails(setDoc(at('schedules', 's6'), { scheduledAt: NOW })));
 await check('schedule at time 0 rejected', assertFails(setDoc(at('schedules', 's6'), { workoutName: 'Legs', scheduledAt: 0 })));
+await check('schedule with a time zone', assertSucceeds(setDoc(at('schedules', 's7'), { workoutName: 'Legs', scheduledAt: NOW, timeZone: 'Europe/Bucharest' })));
+await check('empty time zone rejected', assertFails(setDoc(at('schedules', 's6'), { workoutName: 'Legs', scheduledAt: NOW, timeZone: '' })));
+await check('65-character time zone rejected', assertFails(setDoc(at('schedules', 's6'), { workoutName: 'Legs', scheduledAt: NOW, timeZone: 'x'.repeat(65) })));
+await check('time zone as a number rejected', assertFails(setDoc(at('schedules', 's6'), { workoutName: 'Legs', scheduledAt: NOW, timeZone: 2 })));
 for (const rule of ['FREQ=WEEKLY', 'FREQ=MONTHLY;INTERVAL=3', 'FREQ=DAILY;INTERVAL=99']) {
   await check(`setRecurrence ${rule}`, assertSucceeds(updateDoc(at('schedules', 's1'), { recurrenceRule: rule })));
 }

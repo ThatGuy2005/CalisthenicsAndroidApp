@@ -77,18 +77,21 @@ service cloud.firestore {
     }
 
     // users/{uid}/schedules/{id}, see ScheduleService: exactly one of workoutName (premade)
-    // and customWorkoutId; recurrenceRule as Scheduling/Recurrence writes it.
+    // and customWorkoutId; recurrenceRule as Scheduling/Recurrence writes it; timeZone is the
+    // phone's time zone id (e.g. Europe/Bucharest), for the server's email.
     function validSchedule(data) {
       return data.keys().hasAll(['scheduledAt'])
           && data.keys().hasOnly(['workoutName', 'customWorkoutId', 'scheduledAt', 'recurrenceRule',
-                                  'completed'])
+                                  'completed', 'timeZone'])
           && (('workoutName' in data) != ('customWorkoutId' in data))
           && nullOrStringUpTo(data.get('workoutName', null), 100)
           && nullOrStringUpTo(data.get('customWorkoutId', null), 100)
           && data.scheduledAt is int && data.scheduledAt > 0
           && (!('recurrenceRule' in data)
               || data.recurrenceRule.matches('^FREQ=(DAILY|WEEKLY|MONTHLY)(;INTERVAL=[1-9][0-9]?)?$'))
-          && (!('completed' in data) || data.completed is list);
+          && (!('completed' in data) || data.completed is list)
+          && (!('timeZone' in data)
+              || (data.timeZone is string && data.timeZone.size() >= 1 && data.timeZone.size() <= 64));
     }
 
     // usernames/{name}: one document per username in use, with the owner's uid. The id is the
