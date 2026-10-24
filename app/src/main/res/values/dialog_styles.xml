@@ -26,4 +26,15 @@
     <style name="CalisthenicsApp.PickerButton" parent="android:Widget.Material.Button.Borderless.Colored">
         <item name="android:textColor">@color/performance_orange</item>
     </style>
+
+    <!-- Popup menus: the purple-black background and light item text of the dialogs. -->
+    <style name="ThemeOverlay.CalisthenicsApp.Menu" parent="">
+        <item name="android:popupMenuStyle">@style/CalisthenicsApp.PopupMenu</item>
+        <item name="android:textColorPrimary">@color/performance_graphite</item>
+        <item name="android:colorControlHighlight">@color/performance_orange_tint</item>
+    </style>
+
+    <style name="CalisthenicsApp.PopupMenu" parent="android:Widget.Material.PopupMenu">
+        <item name="android:popupBackground">@drawable/menu_background</item>
+    </style>
 </resources>

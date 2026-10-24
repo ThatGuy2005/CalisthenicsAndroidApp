@@ -371,7 +371,8 @@ public class ScheduleActivity extends AppCompatActivity {
 
     private void showOccurrenceMenu(View anchor, ScheduleOccurrence occurrence) {
         String[] options = getResources().getStringArray(R.array.schedule_occurrence_actions);
-        android.widget.PopupMenu menu = new android.widget.PopupMenu(this, anchor);
+        android.widget.PopupMenu menu = new android.widget.PopupMenu(
+                new android.view.ContextThemeWrapper(this, R.style.ThemeOverlay_CalisthenicsApp_Menu), anchor);
         for (int i = 0; i < options.length; i++) menu.getMenu().add(0, i, i, options[i]);
         menu.setOnMenuItemClickListener(item -> {
             int selected = item.getItemId();
