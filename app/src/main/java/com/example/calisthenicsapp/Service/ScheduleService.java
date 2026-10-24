@@ -58,6 +58,12 @@ public class ScheduleService extends UserDataService {
     /** getOccurrences covers at most this long a period. */
     private static final long MAX_RANGE_SECONDS = 366 * 86_400L;
 
+    /**
+     * Schedules this service has just added, by id, until SyncManager has copied them into
+     * SQLite, so buildEmail works for them right away. Only touched inside onDb.
+     */
+    private final Map<String, WorkoutSummary> justAdded = new HashMap<>();
+
     public ScheduleService(Context context) {
         super(context);
     }
@@ -224,6 +230,7 @@ public class ScheduleService extends UserDataService {
             return;
         }
         watchWrite(schedules(uid).document(scheduleId).delete(), "Deleting schedule " + scheduleId);
+        onDb(() -> justAdded.remove(scheduleId));
         succeed(callback, null);
     }
 
@@ -371,9 +378,10 @@ public class ScheduleService extends UserDataService {
         if (recurrence != null) data.put("recurrenceRule", recurrence.toRule());
         watchWrite(doc.set(data), "Creating schedule " + doc.getId());
 
+        WorkoutSummary summary = WorkoutSummary.of(db(), doc.getId(), workoutName,
+                customWorkoutId, scheduledAt, recurrence);
+        if (summary != null) justAdded.put(doc.getId(), summary);
         if (addToCalendar && hasCalendarPermission()) {
-            WorkoutSummary summary = WorkoutSummary.of(db(), doc.getId(), workoutName,
-                    customWorkoutId, scheduledAt, recurrence);
             if (summary != null && calendar().put(summary, null) != null) {
                 DataChanges.notifyChanged(DataChanges.Kind.SCHEDULES);   // the link is local, not synced
             }
@@ -381,11 +389,16 @@ public class ScheduleService extends UserDataService {
         succeed(callback, doc.getId());
     }
 
-    /** Must run inside onDb. Null if the schedule or its workout no longer exists. */
+    /**
+     * Must run inside onDb. Null if the schedule or its workout no longer exists. A schedule
+     * added a moment ago may not be in SQLite yet; then the summary add() kept is used.
+     */
     private WorkoutSummary summaryOf(String scheduleId) {
-        ScheduledWorkout schedule = scheduleId == null
-                ? null : new ScheduledWorkoutRepository(db()).getOne(scheduleId);
-        return schedule == null ? null : WorkoutSummary.of(db(), schedule);
+        if (scheduleId == null) return null;
+        ScheduledWorkout schedule = new ScheduledWorkoutRepository(db()).getOne(scheduleId);
+        if (schedule == null) return justAdded.get(scheduleId);
+        justAdded.remove(scheduleId);
+        return WorkoutSummary.of(db(), schedule);
     }
 
     /** Must run inside onDb. */
