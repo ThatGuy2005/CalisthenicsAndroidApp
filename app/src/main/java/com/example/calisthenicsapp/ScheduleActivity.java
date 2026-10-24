@@ -63,6 +63,7 @@ public class ScheduleActivity extends AppCompatActivity {
     private boolean previewMode;
     private boolean workoutChoicesLoaded;
     private boolean loadingWorkoutChoices;
+    private boolean reloadWorkoutChoices;
     private String pendingCalendarScheduleId;
     private WorkoutOption pendingChoice;
     private long pendingScheduledAt;
@@ -521,19 +522,31 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private void loadWorkoutChoices() {
-        if (previewMode || loadingWorkoutChoices) return;
+        if (previewMode) return;
+        if (loadingWorkoutChoices) {
+            // The load under way may have read the old data, so load again once it is done.
+            reloadWorkoutChoices = true;
+            return;
+        }
         loadingWorkoutChoices = true;
-        workoutOptions.clear();
+        List<WorkoutOption> premade = new ArrayList<>();
+        List<WorkoutOption> custom = new ArrayList<>();
         AtomicInteger pending = new AtomicInteger(2);
         Runnable finished = () -> {
-            if (pending.decrementAndGet() == 0) {
-                loadingWorkoutChoices = false;
-                workoutChoicesLoaded = true;
+            if (pending.decrementAndGet() > 0) return;
+            workoutOptions.clear();
+            workoutOptions.addAll(premade);
+            workoutOptions.addAll(custom);
+            loadingWorkoutChoices = false;
+            workoutChoicesLoaded = true;
+            if (reloadWorkoutChoices) {
+                reloadWorkoutChoices = false;
+                loadWorkoutChoices();
             }
         };
         workoutService.getAllWorkouts(new ServiceCallback<List<Workout>>() {
             @Override public void onSuccess(List<Workout> result) {
-                for (Workout workout : result) workoutOptions.add(new WorkoutOption(workout.getName(), null, false));
+                for (Workout workout : result) premade.add(new WorkoutOption(workout.getName(), null, false));
                 finished.run();
             }
             @Override public void onError(String message) { finished.run(); }
@@ -541,7 +554,7 @@ public class ScheduleActivity extends AppCompatActivity {
         customWorkoutService.getMyCustomWorkouts(new ServiceCallback<List<CustomWorkout>>() {
             @Override public void onSuccess(List<CustomWorkout> result) {
                 for (CustomWorkout workout : result) {
-                    workoutOptions.add(new WorkoutOption(workout.getName(), workout.getId(), true));
+                    custom.add(new WorkoutOption(workout.getName(), workout.getId(), true));
                 }
                 finished.run();
             }
