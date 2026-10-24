@@ -645,6 +645,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 renderWeek();
                 loadWeek();
                 showMessage(getString(R.string.schedule_added));
+                emailInvite(id);
             }
             @Override public void onError(String message) { showMessage(message); }
         };

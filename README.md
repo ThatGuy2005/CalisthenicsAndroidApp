@@ -312,6 +312,8 @@ askCalendar.launch(ScheduleService.CALENDAR_PERMISSIONS);
   their own address.
 - With `attachIcs`, it also attaches a calendar invitation file (`.ics`).
 - If no email app is installed, the call fails with a message instead.
+- The Schedule screen opens it, with the `.ics`, right after a workout is scheduled, and from the
+  "Email invite" item of a scheduled workout's menu.
 
 ## Changing the database
 
