@@ -48,18 +48,20 @@ to `firestore.rules`, and add a check when the app starts writing something new.
 
 ### The server email (Cloud Function)
 
-[`functions/`](functions) holds one Cloud Function, `emailNewSchedule`. When a schedule is created
+[`functions/`](functions) holds two Cloud Functions. `emailNewSchedule`: when a schedule is created
 under `users/{uid}/schedules`, it emails the workout (name, date and time in the schedule's
 `timeZone`, exercises, `.ics` file) to the user's sign-in address, from
 `csongitamas2005@gmail.com` through Gmail. It records the outcome in `mail/schedule-{uid}-{id}`
 (`SENDING`, `SENT` or `ERROR`), which also keeps a retried event from sending twice.
+`deleteEmailRecords`: when an account is deleted (its `users/{uid}` document goes), it deletes
+that user's `mail` records, which the app itself cannot reach.
 `functions/email.js` is the server's copy of `WorkoutSummary` and `IcsWriter`: change both together.
 
 ```
 cd functions
 npm install
 npm test                 # the email text and the .ics, and premade.json against seed.sql
-npm run test:emulator    # the trigger in the Auth, Firestore and Functions emulators; sends nothing
+npm run test:emulator    # both triggers in the Auth, Firestore and Functions emulators; sends nothing
 ```
 
 **Deploying it.** This is needed once, and again after every change in `functions/`:

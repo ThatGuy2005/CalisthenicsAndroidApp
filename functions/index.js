@@ -2,14 +2,14 @@
 // the sender's app password from Secret Manager (GMAIL_APP_PASSWORD).
 // mail/schedule-{uid}-{scheduleId} records that a schedule's email was handled, so a retried
 // event sends nothing more. Clients cannot read or write `mail`: firestore.rules denies
-// everything it does not list.
+// everything it does not list, so deleteEmailRecords removes a user's records with the account.
 import { readFileSync } from 'node:fs';
 import { initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { FieldValue, getFirestore } from 'firebase-admin/firestore';
+import { FieldPath, FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { logger } from 'firebase-functions';
 import { defineSecret, defineString } from 'firebase-functions/params';
-import { onDocumentCreated } from 'firebase-functions/v2/firestore';
+import { onDocumentCreated, onDocumentDeleted } from 'firebase-functions/v2/firestore';
 import nodemailer from 'nodemailer';
 import { buildEmail, isPlainAddress, sessionExercises } from './email.js';
 
@@ -98,5 +98,34 @@ export const emailNewSchedule = onDocumentCreated(
       logger.error('Sending the schedule email failed', { uid, scheduleId, error: e.message });
       await record.update({ state: 'ERROR', error: String(e.message).slice(0, 500) });
     }
+  },
+);
+
+/** The user's mail records: their ids start with schedule-{uid}- (uids have no dashes). */
+async function deleteRecordsOf(db, uid) {
+  const prefix = `schedule-${uid}-`;
+  let deleted = 0;
+  for (;;) {
+    const page = await db.collection('mail')
+      .where(FieldPath.documentId(), '>=', prefix)
+      .where(FieldPath.documentId(), '<', `${prefix}`)
+      .limit(400).get();
+    if (page.empty) return deleted;
+    const batch = db.batch();
+    page.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+    deleted += page.size;
+  }
+}
+
+/**
+ * Deleting an account removes users/{uid} (AccountService.deleteAccount); the user's mail
+ * records go with it, so nothing about them is left in Firestore (NFR-5).
+ */
+export const deleteEmailRecords = onDocumentDeleted(
+  { document: 'users/{uid}', region: 'europe-west1' },
+  async (event) => {
+    const deleted = await deleteRecordsOf(getFirestore(), event.params.uid);
+    if (deleted > 0) logger.info('Deleted mail records of a deleted account', { deleted });
   },
 );

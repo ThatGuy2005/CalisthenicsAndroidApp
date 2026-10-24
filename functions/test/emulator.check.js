@@ -1,5 +1,5 @@
-// End-to-end check of emailNewSchedule in the Auth, Firestore and Functions emulators: a new
-// schedule must be emailed once. In the emulator nothing is really sent (see index.js), so
+// End-to-end check of emailNewSchedule and deleteEmailRecords in the Auth, Firestore and
+// Functions emulators: a new schedule must be emailed once, and an account's records go with it. In the emulator nothing is really sent (see index.js), so
 // this checks the mail record. Run with `npm run test:emulator`.
 import assert from 'node:assert/strict';
 import { initializeApp } from 'firebase-admin/app';
@@ -43,4 +43,11 @@ await sleep(3000);
 assert.deepEqual((await db.collection('mail').get()).docs.map((d) => d.id).sort(),
   [`schedule-${uid}-s1`, `schedule-${uid}-s2`]);
 console.log('PASS changing a schedule or an unknown workout sends nothing');
+
+// Another user's record must survive alice's account deletion.
+await db.doc('mail/schedule-bob123-s9').set({ state: 'SENT' });
+await db.doc(`users/${uid}`).delete();
+for (let i = 0; i < 60 && (await db.collection('mail').get()).size > 1; i++) await sleep(500);
+assert.deepEqual((await db.collection('mail').get()).docs.map((d) => d.id), ['schedule-bob123-s9']);
+console.log('PASS deleting the account deletes its mail records only');
 process.exit(0);
