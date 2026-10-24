@@ -46,6 +46,50 @@ npm test
 Each check prints PASS or FAIL, and `npm test` fails if any check does. Run it after every change
 to `firestore.rules`, and add a check when the app starts writing something new.
 
+### The server email (Cloud Function)
+
+[`functions/`](functions) holds one Cloud Function, `emailNewSchedule`. When a schedule is created
+under `users/{uid}/schedules`, it emails the workout (name, date and time in the schedule's
+`timeZone`, exercises, `.ics` file) to the user's sign-in address, from
+`csongitamas2005@gmail.com` through Gmail. It records the outcome in `mail/schedule-{uid}-{id}`
+(`SENDING`, `SENT` or `ERROR`), which also keeps a retried event from sending twice.
+`functions/email.js` is the server's copy of `WorkoutSummary` and `IcsWriter`: change both together.
+
+```
+cd functions
+npm install
+npm test                 # the email text and the .ics, and premade.json against seed.sql
+npm run test:emulator    # the trigger in the Auth, Firestore and Functions emulators; sends nothing
+```
+
+**Deploying it.** This is needed once, and again after every change in `functions/`:
+
+1. **Blaze plan:** Firebase console → the project → Usage and billing → Modify plan → Blaze.
+   Setting a budget alert (for example 1 USD) there is a good idea; this function stays within
+   the free allowance.
+2. **Gmail app password** for `csongitamas2005@gmail.com`: Google Account → Security →
+   2-Step Verification (must be on) → App passwords → create one named `CalisthenicsApp`.
+   Google shows 16 letters; copy them without the spaces.
+3. **Store it in Secret Manager**, from the repository root:
+   ```
+   npx firebase-tools@14.27.0 login
+   npx firebase-tools@14.27.0 functions:secrets:set GMAIL_APP_PASSWORD
+   ```
+   Paste the app password when asked. It never goes into the repository.
+4. **Deploy** the rules and the function, from the repository root:
+   ```
+   cd functions && npm install && cd ..
+   npx firebase-tools@14.27.0 deploy --only firestore:rules,functions
+   ```
+   The first deploy turns on the Cloud APIs it needs. If it then fails with an Eventarc or
+   permission error, wait a few minutes and run the same command again.
+5. **Check it:** schedule a workout in the app. The email arrives within a minute or so. In the
+   console, Firestore → `mail` shows the record, and Functions → `emailNewSchedule` → Logs
+   shows any error. Gmail allows about 500 emails a day from one account.
+
+The sender address is in [`functions/.env`](functions/.env) (`SENDER_EMAIL`); the app password
+must belong to that account.
+
 ## How the back end works
 
 - **Firebase Authentication** owns the accounts.
@@ -329,6 +373,9 @@ askCalendar.launch(ScheduleService.CALENDAR_PERMISSIONS);
 Every upgrade also refreshes the premade content from `seed.sql` without touching the user's own
 data, so a change to the seed alone only needs step 2. `SQLManagerTest` checks that an upgraded
 database matches a fresh install.
+
+After changing `seed.sql`, also run `npm run premade` in `functions/`, so the server's emails list
+the same exercises; `npm test` there fails until you do.
 
 ## Known gaps
 

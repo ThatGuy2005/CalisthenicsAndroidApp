@@ -1,4 +1,4 @@
-// Runs test/emulator.check.js against the Firestore and Functions emulators (`npm run test:emulator`).
+// Runs test/emulator.check.js against the Auth, Firestore and Functions emulators (`npm run test:emulator`).
 import { spawnSync } from 'node:child_process';
 
 const PORT = 8080;   // must match ../firebase.json
@@ -15,7 +15,7 @@ function stopLeftoverEmulator() {
 
 stopLeftoverEmulator();
 const result = spawnSync(
-  'firebase emulators:exec --only functions,firestore --project demo-calisthenics "node test/emulator.check.js"',
+  'firebase emulators:exec --only auth,functions,firestore --project demo-calisthenics "node test/emulator.check.js"',
   { stdio: 'inherit', shell: true });
 stopLeftoverEmulator();
 process.exit(result.status ?? 1);

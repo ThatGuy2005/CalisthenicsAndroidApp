@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   buildEmail, describeRule, escapeText, estimateSeconds, exerciseList, fold, formatStart,
-  safeTimeZone, sessionExercises, utc,
+  isPlainAddress, safeTimeZone, sessionExercises, utc,
 } from '../email.js';
 
 const START = 1792080000;   // 2026-10-15 16:00:00 UTC
@@ -123,4 +123,13 @@ test('.ics text is escaped and long lines are folded', () => {
   for (const part of folded.split('\r\n')) assert.ok(Buffer.byteLength(part, 'utf8') <= 75);
   assert.equal(folded.replaceAll('\r\n ', ''), line);
   assert.equal(fold('SUMMARY:Workout'), 'SUMMARY:Workout');
+});
+
+test('only one plain address is accepted as the recipient', () => {
+  assert.ok(isPlainAddress('csongitamas2005@gmail.com'));
+  assert.ok(isPlainAddress('first.last+tag@mail.example.ro'));
+  for (const bad of [undefined, '', 'nobody', 'a@b', 'a@x.com, b@y.com', 'a@x.com;b@y.com',
+    'Alice <a@x.com>', '"a>"@x.com', 'a@x.com (comment)', `${'a'.repeat(250)}@x.com`]) {
+    assert.equal(isPlainAddress(bad), false, String(bad));
+  }
 });

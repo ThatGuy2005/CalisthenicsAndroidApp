@@ -35,6 +35,15 @@ export function sessionExercises(entries, library) {
     });
 }
 
+/**
+ * One ordinary address like name@example.com: no display name, list, comment or quotes, so
+ * the mail library cannot read it as anything else.
+ */
+export function isPlainAddress(address) {
+  return typeof address === 'string' && address.length <= 254
+    && /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(address);
+}
+
 /** WorkoutExercises.estimateSeconds: every set, the rests between them and between exercises. */
 export function estimateSeconds(exercises) {
   let total = 0;
