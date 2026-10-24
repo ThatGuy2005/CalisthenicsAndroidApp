@@ -22,6 +22,7 @@ import com.example.calisthenicsapp.CoreComponents.Exercise;
 import com.example.calisthenicsapp.Service.CustomWorkoutService;
 import com.example.calisthenicsapp.Service.ExerciseService;
 import com.example.calisthenicsapp.Service.ServiceCallback;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -143,7 +144,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
             checked[i] = contains(e.getName());
         }
         List<String> before = new ArrayList<>(); for (Exercise e : selected) before.add(e.getName());
-        new androidx.appcompat.app.AlertDialog.Builder(this).setTitle(R.string.custom_editor_select_title)
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(R.string.custom_editor_select_title)
                 .setMultiChoiceItems(labels, checked, (dialog, which, isChecked) -> {
                     Exercise exercise = library.get(which);
                     if (isChecked && !contains(exercise.getName())) selected.add(exercise);
@@ -233,7 +234,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
                 : R.string.custom_editor_reps_label), targetField);
         addSettingsField(form, getString(R.string.custom_editor_rest_label), restField);
         addSettingsField(form, getString(R.string.custom_editor_rest_after_label), restAfterField);
-        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+        androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(exercise.getName())
                 .setView(form)
                 .setNegativeButton(R.string.common_cancel, null)

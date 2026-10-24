@@ -268,7 +268,7 @@ public class HistoryActivity extends AppCompatActivity {
         }
         android.widget.ScrollView scroll = new android.widget.ScrollView(this);
         scroll.addView(content);
-        new MaterialAlertDialogBuilder(this).setTitle(log.getWorkoutName()).setView(scroll)
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(log.getWorkoutName()).setView(scroll)
                 .setPositiveButton(R.string.common_done, null).show();
     }
 
@@ -284,7 +284,7 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void confirmDelete(WorkoutLog log) {
-        new MaterialAlertDialogBuilder(this).setTitle(R.string.history_delete_title)
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(R.string.history_delete_title)
                 .setMessage(getString(R.string.history_delete_message, log.getWorkoutName()))
                 .setNegativeButton(R.string.history_delete_keep, null)
                 .setPositiveButton(R.string.common_delete, (dialog, which) -> logService.delete(log.getId(), new ServiceCallback<Void>() {

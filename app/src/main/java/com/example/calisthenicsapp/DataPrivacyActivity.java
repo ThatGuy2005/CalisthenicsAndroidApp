@@ -10,12 +10,12 @@ import android.widget.EditText;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.calisthenicsapp.Service.AccountService;
 import com.example.calisthenicsapp.Service.AuthService;
 import com.example.calisthenicsapp.Service.ServiceCallback;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
@@ -81,7 +81,7 @@ public class DataPrivacyActivity extends AppCompatActivity {
     }
 
     private void confirmDelete() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(R.string.data_privacy_confirm_title)
                 .setMessage(R.string.data_privacy_confirm_message)
                 .setNegativeButton(R.string.data_privacy_confirm_keep, null)
@@ -97,7 +97,7 @@ public class DataPrivacyActivity extends AppCompatActivity {
         password.setHintTextColor(getColor(R.color.performance_muted));
         password.setBackgroundResource(R.drawable.input_background);
         password.setPadding(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10));
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(R.string.data_privacy_password_title)
                 .setMessage(R.string.data_privacy_password_message)
                 .setView(password)

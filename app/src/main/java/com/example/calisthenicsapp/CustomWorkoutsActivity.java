@@ -14,7 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
@@ -24,6 +23,7 @@ import com.example.calisthenicsapp.Service.ServiceCallback;
 import com.example.calisthenicsapp.Service.WorkoutService;
 import com.example.calisthenicsapp.Service.WorkoutSessionService;
 import com.example.calisthenicsapp.Session.WorkoutSession;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -144,7 +144,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
 
     private void showActions(CustomWorkout workout) {
         String[] actions = getResources().getStringArray(R.array.custom_workouts_actions);
-        new AlertDialog.Builder(this).setTitle(workout.getName()).setItems(actions, (dialog, which) -> {
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(workout.getName()).setItems(actions, (dialog, which) -> {
             if (which == 0) openDetails(workout);
             else if (which == 1) openEditor(workout);
             else if (which == 2) rename(workout);
@@ -164,7 +164,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
     private void showPremadeDialog() {
         String[] names = new String[premade.size()];
         for (int i = 0; i < premade.size(); i++) names[i] = premade.get(i).getName();
-        new AlertDialog.Builder(this).setTitle(R.string.custom_workouts_copy_title).setItems(names, (d, which) -> {
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(R.string.custom_workouts_copy_title).setItems(names, (d, which) -> {
             Workout selected = premade.get(which);
             customService.duplicatePremade(selected.getName(), null, new ServiceCallback<String>() {
                 @Override public void onSuccess(String id) { load(); show(getString(R.string.custom_workouts_copied)); }
@@ -177,7 +177,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         android.widget.EditText input = new android.widget.EditText(this);
         input.setSingleLine(true); input.setText(workout.getName());
         input.setPadding(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10));
-        new AlertDialog.Builder(this).setTitle(R.string.custom_workouts_rename_title).setView(input)
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(R.string.custom_workouts_rename_title).setView(input)
                 .setNegativeButton(R.string.common_cancel, null).setPositiveButton(R.string.common_save, (d, w) ->
                         customService.rename(workout.getId(), input.getText().toString(), new ServiceCallback<Void>() {
                             @Override public void onSuccess(Void result) { load(); }
@@ -186,7 +186,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
     }
 
     private void confirmDelete(CustomWorkout workout) {
-        new AlertDialog.Builder(this).setTitle(R.string.custom_workouts_delete_title)
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(R.string.custom_workouts_delete_title)
                 .setMessage(getString(R.string.custom_workouts_delete_message, workout.getName()))
                 .setNegativeButton(R.string.common_cancel, null).setPositiveButton(R.string.common_delete, (d, w) ->
                         customService.delete(workout.getId(), new ServiceCallback<Void>() {

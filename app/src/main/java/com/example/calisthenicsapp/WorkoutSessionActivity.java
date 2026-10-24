@@ -227,7 +227,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
     }
 
     private void confirmSkipExercise() {
-        new MaterialAlertDialogBuilder(this)
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(R.string.session_skip_title)
                 .setMessage(R.string.session_skip_message)
                 .setNegativeButton(R.string.session_keep_going, null)
@@ -237,7 +237,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
     }
 
     private void confirmCancel() {
-        new MaterialAlertDialogBuilder(this)
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(R.string.session_end_title)
                 .setMessage(session.getCompletedSets() == 0
                         ? R.string.session_end_message_nothing
