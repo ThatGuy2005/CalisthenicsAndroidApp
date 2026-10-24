@@ -360,8 +360,9 @@ askCalendar.launch(ScheduleService.CALENDAR_PERMISSIONS);
 - If no email app is installed, the call fails with a message instead.
 - It works right after `schedulePremade`/`scheduleCustom` too, with the id they return, before
   the new schedule has been synced.
-- The Schedule screen opens it, with the `.ics`, right after a workout is scheduled, and from the
-  "Email invite" item of a scheduled workout's menu.
+- The Schedule screen opens it, with the `.ics`, from the "Email invite" item of a scheduled
+  workout's menu, to send it again. The first email after scheduling comes from the server
+  (see "The server email" above).
 
 ## Changing the database
 
