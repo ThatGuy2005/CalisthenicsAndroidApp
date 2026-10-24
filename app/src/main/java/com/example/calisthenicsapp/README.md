@@ -3,8 +3,9 @@
 **Platform:** Android (Android Studio, Java)
 **Accounts:** Firebase Authentication (email + password)
 **Data:** Cloud Firestore (per-user data, source of truth) + local SQLite (premade content and offline cache)
+**Server:** Cloud Functions for Firebase (emails newly scheduled workouts through Gmail)
 **Project type:** University project (team of two: front end / back end & database)
-**Version:** 1.2
+**Version:** 1.3
 
 ---
 
@@ -79,7 +80,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 ### 2.6 Scheduling
 - **FR-6.1:** The user shall be able to schedule a workout for a chosen date and time. Schedules shall support recurrence rules (e.g., weekly) and maintain an internal status flag (pending/completed/missed).
 - **FR-6.2:** The system shall add the scheduled workout as an event in the device's calendar app, saving the resulting calendar event ID in the local database to support downstream updates.
-- **FR-6.3:** The user shall be able to send the scheduled workout to their email address, including the workout name, date, time and list of exercises (optionally as a calendar invitation file, .ics).
+- **FR-6.3:** When a workout is scheduled, the system shall email it from the server to the user's sign-in address, with the workout name, the date and time in the user's time zone, the list of exercises and a calendar invitation file (.ics). Changing a schedule shall not send another email. The user shall also be able to send a scheduled workout to their email address again from the app, through their own email app.
 - **FR-6.4:** The user shall be able to view, edit and cancel scheduled workouts.
 - **FR-6.5:** The system shall ask for the required calendar permission and handle a denied permission gracefully.
 
@@ -94,7 +95,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
   - **Workout:** name, description, type (premade or custom), owner (for custom workouts), category, difficulty_enum, estimated_duration.
   - **ExerciseOrder:** links exercises to a workout with order, sets, repetitions/duration, rest between sets, rest before the next exercise, discriminator_type (from the exercise's rep_or_timed flag).
   - **Workout log:** id, user, workout, date and time, duration, calories, status (completed/partial), snapshot_data.
-  - **Schedule:** id, user, workout, planned date and time, recurrence_rule, calendar_event_id, status.
+  - **Schedule:** id, user, workout, planned date and time, time zone, recurrence_rule, calendar_event_id, status.
 
   Per-user records are identified by their Firestore document id.
 - **DR-3:** Dates and times shall be stored as Unix epoch timestamps in seconds. Users shall record their creation and last update time.
@@ -102,6 +103,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 - **DR-5:** The database shall use triggers to automatically update the "updated" timestamp when a record is modified.
 - **DR-6:** All database queries shall use parameterized statements to prevent SQL injection.
 - **DR-7:** Premade exercises and workouts shall be loaded into the database when the app is first installed. DB versioning shall be managed via SQLiteOpenHelper. Future app versions shall update seed data via schema migrations without overwriting custom user modifications.
+- **DR-8:** For each schedule the server emails (FR-6.3), a mail/schedule-{uid}-{schedule id} document in Firestore shall record only the outcome (sending, sent or failed, with times), so that the email is sent at most once. It shall not hold the address or the text of the email. Clients shall not be able to read or write these documents, and the server shall delete them when the account is deleted. The server shall keep its own copy of the premade workouts, generated from the app's seed data.
 
 ---
 
@@ -124,7 +126,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 - **NFR-10:** Animations shall play smoothly, without noticeable stutter.
 - **NFR-11:** Database and network operations shall run off the main (UI) thread so that the interface stays responsive.
 - **NFR-12:** Workout data shall not be lost if the app is closed or crashes during use (logs shall be saved as soon as a workout is finished).
-- **NFR-13:** The app shall handle missing permissions or no internet access without crashing. Sign-up, sign-in, password reset, changing the username, email or password, deleting the account and email sending require a connection; everything else works offline and syncs when a connection is available.
+- **NFR-13:** The app shall handle missing permissions or no internet access without crashing. Sign-up, sign-in, password reset, changing the username, email or password, and deleting the account require a connection; everything else works offline and syncs when a connection is available. The email of a new schedule (FR-6.3) is sent by the server once the schedule has synced.
 
 ### 4.4 Compatibility and Maintainability
 - **NFR-14:** The app shall run on Android devices from API level 24 (Android 7.0) upwards (minSdk 24).

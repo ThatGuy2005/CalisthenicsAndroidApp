@@ -108,7 +108,7 @@ async function deleteRecordsOf(db, uid) {
   for (;;) {
     const page = await db.collection('mail')
       .where(FieldPath.documentId(), '>=', prefix)
-      .where(FieldPath.documentId(), '<', `${prefix}`)
+      .where(FieldPath.documentId(), '<', `${prefix}\uf8ff`)
       .limit(400).get();
     if (page.empty) return deleted;
     const batch = db.batch();
