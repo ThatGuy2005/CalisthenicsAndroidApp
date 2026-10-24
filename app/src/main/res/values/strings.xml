@@ -298,6 +298,7 @@
     <string name="custom_editor_add_exercises">"＋   Add exercises"</string>
     <string name="custom_editor_loading_library">Loading exercise library…</string>
     <string name="custom_editor_select_title">Select exercises</string>
+    <string name="custom_editor_check_mark" translatable="false">✓</string>
     <!-- For screen readers; %1$s is the exercise's name. -->
     <string name="custom_editor_settings_description">Edit sets, target and rest for %1$s</string>
     <string name="custom_editor_edit_description">Edit settings for %1$s</string>

@@ -1,9 +1,11 @@
 package com.example.calisthenicsapp;
 
 import static com.example.calisthenicsapp.Views.dp;
+import static com.example.calisthenicsapp.Views.pill;
 import static com.example.calisthenicsapp.Views.rounded;
 import static com.example.calisthenicsapp.Views.text;
 
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
@@ -138,23 +140,51 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
 
     private void chooseExercises() {
         if (loading) { show(getString(R.string.custom_editor_loading_library)); return; }
-        String[] labels = new String[library.size()]; boolean[] checked = new boolean[library.size()];
-        for (int i = 0; i < library.size(); i++) {
-            Exercise e = library.get(i); labels[i] = e.getName() + "  ·  " + e.getMuscleGroup();
-            checked[i] = contains(e.getName());
-        }
+        LinearLayout list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
+        list.setPadding(dp(this, 20), dp(this, 4), dp(this, 20), dp(this, 4));
+        for (Exercise exercise : library) list.addView(exerciseChoice(exercise));
+        ScrollView scroll = new ScrollView(this); scroll.addView(list);
         List<String> before = new ArrayList<>(); for (Exercise e : selected) before.add(e.getName());
         new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(R.string.custom_editor_select_title)
-                .setMultiChoiceItems(labels, checked, (dialog, which, isChecked) -> {
-                    Exercise exercise = library.get(which);
-                    if (isChecked && !contains(exercise.getName())) selected.add(exercise);
-                    else if (!isChecked) remove(exercise.getName());
-                }).setNegativeButton(R.string.common_cancel, (dialog, which) -> {
+                .setView(scroll).setNegativeButton(R.string.common_cancel, (dialog, which) -> {
                     selected.clear();
                     for (String exerciseName : before) for (Exercise exercise : library)
                         if (exercise.getName().equals(exerciseName)) { selected.add(exercise); break; }
                     renderSelected();
                 }).setPositiveButton(R.string.common_done, (dialog, which) -> renderSelected()).show();
+    }
+
+    /** One card in the Select exercises dialog; tapping it adds or removes the exercise. */
+    private View exerciseChoice(Exercise exercise) {
+        MaterialCardView card = new MaterialCardView(this); card.setRadius(dp(this, 16));
+        card.setStrokeWidth(dp(this, 1)); card.setCardElevation(0);
+        card.setCheckable(true); card.setCheckedIcon(null);   // checked state for accessibility; the tick is drawn below
+        LinearLayout.LayoutParams cp = matchWrap(); cp.bottomMargin = dp(this, 8); card.setLayoutParams(cp);
+        LinearLayout row = new LinearLayout(this); row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(this, 14), dp(this, 12), dp(this, 12), dp(this, 12)); card.addView(row);
+        LinearLayout labels = new LinearLayout(this); labels.setOrientation(LinearLayout.VERTICAL);
+        row.addView(labels, new LinearLayout.LayoutParams(0, -2, 1));
+        labels.addView(text(this, exercise.getName(), 15, UiColors.GRAPHITE, true));
+        TextView muscle = pill(this, exercise.getMuscleGroup(), UiColors.ORANGE_TINT, UiColors.ORANGE);
+        LinearLayout.LayoutParams mp = new LinearLayout.LayoutParams(-2, dp(this, 26)); mp.topMargin = dp(this, 6);
+        labels.addView(muscle, mp);
+        TextView tick = text(this, getString(R.string.custom_editor_check_mark), 14, UiColors.INK, true);
+        tick.setGravity(Gravity.CENTER); row.addView(tick, new LinearLayout.LayoutParams(dp(this, 28), dp(this, 28)));
+        Runnable paint = () -> {
+            boolean on = contains(exercise.getName());
+            card.setChecked(on);
+            card.setCardBackgroundColor(on ? UiColors.ORANGE_TINT : UiColors.SURFACE);
+            card.setStrokeColor(on ? UiColors.ORANGE : UiColors.BORDER);
+            GradientDrawable circle = rounded(on ? UiColors.ORANGE : UiColors.SURFACE, dp(this, 14));
+            if (!on) circle.setStroke(dp(this, 2), UiColors.BORDER);
+            tick.setBackground(circle); tick.setText(on ? getString(R.string.custom_editor_check_mark) : "");
+        };
+        paint.run();
+        card.setOnClickListener(v -> {
+            if (contains(exercise.getName())) remove(exercise.getName()); else selected.add(exercise);
+            paint.run();
+        });
+        return card;
     }
 
     private void renderSelected() {
