@@ -99,4 +99,8 @@ await check('extra schedule field rejected', assertFails(updateDoc(at('schedules
 await check('unknown subcollection rejected', assertFails(setDoc(at('notes', 'n1'), { text: 'hi' })));
 await check('nested document rejected', assertFails(setDoc(at('schedules', 's1', 'extra', 'x'), { a: 1 })));
 
+// ---------- mail: written only by the emailNewSchedule function, sent by Trigger Email ----------
+await check('reading mail rejected', assertFails(getDoc(doc(db, 'mail', 'm1'))));
+await check('writing mail rejected', assertFails(setDoc(doc(db, 'mail', 'm1'), { to: 'someone@example.com', message: { subject: 'hi', text: 'hi' } })));
+
 await finish();
