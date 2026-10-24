@@ -34,6 +34,7 @@ import com.example.calisthenicsapp.Service.ScheduleService;
 import com.example.calisthenicsapp.Service.ServiceCallback;
 import com.example.calisthenicsapp.Service.WorkoutService;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DateFormat;
@@ -417,7 +418,7 @@ public class ScheduleActivity extends AppCompatActivity {
         LinearLayout form = new LinearLayout(this);
         form.setPadding(dp(this, 22), dp(this, 8), dp(this, 22), dp(this, 4));
         form.addView(repeat, new LinearLayout.LayoutParams(-1, dp(this, 50)));
-        new AlertDialog.Builder(this).setTitle(R.string.schedule_repeat_title)
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(R.string.schedule_repeat_title)
                 .setMessage(R.string.schedule_repeat_message)
                 .setView(form).setNegativeButton(R.string.common_cancel, null)
                 .setPositiveButton(R.string.common_save, (dialog, which) -> {
@@ -440,7 +441,7 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private void confirmDelete(ScheduledWorkout schedule) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(R.string.schedule_delete_title)
                 .setMessage(schedule.isRecurring()
                         ? R.string.schedule_delete_message_repeating
@@ -457,10 +458,10 @@ public class ScheduleActivity extends AppCompatActivity {
     private void reschedule(ScheduleOccurrence occurrence) {
         Calendar initial = Calendar.getInstance();
         initial.setTimeInMillis(occurrence.getStartSeconds() * 1000L);
-        new DatePickerDialog(this, (picker, year, month, day) -> {
+        new DatePickerDialog(this, R.style.ThemeOverlay_CalisthenicsApp_Picker, (picker, year, month, day) -> {
             Calendar updated = (Calendar) initial.clone();
             updated.set(year, month, day);
-            new TimePickerDialog(this, (timePicker, hour, minute) -> {
+            new TimePickerDialog(this, R.style.ThemeOverlay_CalisthenicsApp_Picker, (timePicker, hour, minute) -> {
                 updated.set(Calendar.HOUR_OF_DAY, hour);
                 updated.set(Calendar.MINUTE, minute);
                 updated.set(Calendar.SECOND, 0);
@@ -622,7 +623,7 @@ public class ScheduleActivity extends AppCompatActivity {
         checkParams.topMargin = dp(this, 8);
         form.addView(calendarCheck, checkParams);
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(R.string.schedule_form_title)
                 .setView(form)
                 .setNegativeButton(R.string.common_cancel, null)
@@ -667,11 +668,11 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private void pickDateTime(Calendar chosen, TextView button) {
-        new DatePickerDialog(this, (picker, year, month, day) -> {
+        new DatePickerDialog(this, R.style.ThemeOverlay_CalisthenicsApp_Picker, (picker, year, month, day) -> {
             chosen.set(Calendar.YEAR, year);
             chosen.set(Calendar.MONTH, month);
             chosen.set(Calendar.DAY_OF_MONTH, day);
-            new TimePickerDialog(this, (timePicker, hour, minute) -> {
+            new TimePickerDialog(this, R.style.ThemeOverlay_CalisthenicsApp_Picker, (timePicker, hour, minute) -> {
                 chosen.set(Calendar.HOUR_OF_DAY, hour);
                 chosen.set(Calendar.MINUTE, minute);
                 chosen.set(Calendar.SECOND, 0);

@@ -1,0 +1,29 @@
+<resources>
+    <!-- Dialogs: purple-black background, light text, purple buttons, in light and dark mode. -->
+    <style name="ThemeOverlay.CalisthenicsApp.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/performance_feature</item>
+        <item name="colorSurfaceContainerHigh">@color/performance_feature</item>
+        <item name="colorOnSurface">@color/performance_graphite</item>
+        <item name="colorOnSurfaceVariant">@color/performance_muted</item>
+        <item name="colorPrimary">@color/performance_orange</item>
+        <item name="android:textColorPrimary">@color/performance_graphite</item>
+        <item name="android:textColorSecondary">@color/performance_muted</item>
+    </style>
+
+    <!-- The date and time pickers in the same colors. -->
+    <style name="ThemeOverlay.CalisthenicsApp.Picker" parent="android:Theme.Material.Dialog">
+        <item name="android:colorAccent">@color/performance_orange</item>
+        <item name="android:colorPrimary">@color/performance_orange_tint</item>
+        <item name="colorPrimary">@color/performance_orange</item>
+        <item name="android:buttonBarButtonStyle">@style/CalisthenicsApp.PickerButton</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/CalisthenicsApp.PickerButton</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/CalisthenicsApp.PickerButton</item>
+        <item name="android:colorBackground">@color/performance_feature</item>
+        <item name="android:textColorPrimary">@color/performance_graphite</item>
+        <item name="android:textColorSecondary">@color/performance_muted</item>
+    </style>
+
+    <style name="CalisthenicsApp.PickerButton" parent="android:Widget.Material.Button.Borderless.Colored">
+        <item name="android:textColor">@color/performance_orange</item>
+    </style>
+</resources>
