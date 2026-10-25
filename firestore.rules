@@ -77,8 +77,9 @@ service cloud.firestore {
     }
 
     // users/{uid}/schedules/{id}, see ScheduleService: exactly one of workoutName (premade)
-    // and customWorkoutId; recurrenceRule as scheduling/Recurrence writes it; timeZone is the
-    // phone's time zone id (e.g. Europe/Bucharest), for the server's email.
+    // and customWorkoutId; recurrenceRule as scheduling/Recurrence writes it. timeZone (a time
+    // zone id such as Europe/Bucharest) was written only on 24-25 October 2026, for the server's
+    // email; the app no longer writes it, but those schedules must stay changeable.
     function validSchedule(data) {
       return data.keys().hasAll(['scheduledAt'])
           && data.keys().hasOnly(['workoutName', 'customWorkoutId', 'scheduledAt', 'recurrenceRule',

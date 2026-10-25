@@ -94,7 +94,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
   - **Workout:** name, description, type (premade or custom), owner (for custom workouts), category, difficulty_enum, estimated_duration.
   - **ExerciseOrder:** links exercises to a workout with order, sets, repetitions/duration, rest between sets, rest before the next exercise, discriminator_type (from the exercise's rep_or_timed flag).
   - **Workout log:** id, user, workout, date and time, duration, calories, status (completed/partial), snapshot_data.
-  - **Schedule:** id, user, workout, planned date and time, time zone, recurrence_rule, calendar_event_id, status.
+  - **Schedule:** id, user, workout, planned date and time, recurrence_rule, calendar_event_id, status.
 
   Per-user records are identified by their Firestore document id.
 - **DR-3:** Dates and times shall be stored as Unix epoch timestamps in seconds. Users shall record their creation and last update time.
