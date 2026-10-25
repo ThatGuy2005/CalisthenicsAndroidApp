@@ -17,7 +17,7 @@ public class RemoteWorkoutLog {
     public final String status;                    // null for logs saved before statuses existed
     public final List<LoggedExercise> exercises;   // empty for logs saved before snapshots existed
 
-    private RemoteWorkoutLog(String id, String workoutName, long startedAt,
+    RemoteWorkoutLog(String id, String workoutName, long startedAt,
                               int durationSeconds, double kcal, String status,
                               List<LoggedExercise> exercises) {
         this.id = id;

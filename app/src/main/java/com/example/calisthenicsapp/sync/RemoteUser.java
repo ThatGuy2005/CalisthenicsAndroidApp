@@ -14,7 +14,7 @@ public class RemoteUser {
     public final long createdAt;
     public final long updatedAt;
 
-    private RemoteUser(String uid, String username, String email, Double height, Double weight,
+    RemoteUser(String uid, String username, String email, Double height, Double weight,
                         String gender, Integer birthYear, long createdAt, long updatedAt) {
         this.uid = uid;
         this.username = username;

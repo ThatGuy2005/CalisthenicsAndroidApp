@@ -13,7 +13,7 @@ public class RemoteCustomWorkout {
     public final String description;        // null if none, also in workouts saved before it existed
     public final List<RemoteExerciseEntry> exercises;
 
-    private RemoteCustomWorkout(String id, String name, String description,
+    RemoteCustomWorkout(String id, String name, String description,
                                 List<RemoteExerciseEntry> exercises) {
         this.id = id;
         this.name = name;

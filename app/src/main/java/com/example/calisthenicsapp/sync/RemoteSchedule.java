@@ -14,7 +14,7 @@ public class RemoteSchedule {
     public final String recurrenceRule;   // null = once
     public final List<Long> completed;    // completed occurrence start times
 
-    private RemoteSchedule(String id, String workoutName, String customWorkoutId, long scheduledAt,
+    RemoteSchedule(String id, String workoutName, String customWorkoutId, long scheduledAt,
                            String recurrenceRule, List<Long> completed) {
         this.id = id;
         this.workoutName = workoutName;
