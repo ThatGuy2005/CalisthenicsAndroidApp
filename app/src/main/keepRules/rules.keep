@@ -1,12 +1,15 @@
-# Add project specific R8 rules here.
-# AGP will combine all keep rule files in src/main/keepRules to pass to R8
-#
-# For more details, see
+# Keep rules for R8 in release builds. AGP combines all keep rule files in src/main/keepRules;
+# the libraries (Firebase, Material, dotlottie, awebp) bring their own.
 #   https://d.android.com/r/tools/r8/keep-rules
+#
+# Firestore needs none: the services write maps and the Remote* classes read DocumentSnapshot
+# fields by name, so no class is mapped by reflection.
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# WorkoutSession goes from the session screen to the summary screen, and into saved state, as a
+# Serializable. Java serialization finds readObject and serialVersionUID by name, so they must
+# keep theirs; the fields too, so the saved state reads back.
+-keepclassmembers class com.example.calisthenicsapp.session.WorkoutSession** implements java.io.Serializable {
+    static final long serialVersionUID;
+    private void readObject(java.io.ObjectInputStream);
+    !static !transient <fields>;
+}

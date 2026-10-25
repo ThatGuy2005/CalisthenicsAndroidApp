@@ -1,0 +1,390 @@
+{
+  "exercises": {
+    "Jumping Jacks": {
+      "timed": true,
+      "defaultSeconds": 30,
+      "defaultReps": null,
+      "perSide": false
+    },
+    "High Knees": {
+      "timed": true,
+      "defaultSeconds": 30,
+      "defaultReps": null,
+      "perSide": false
+    },
+    "Bodyweight Squat": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 15,
+      "perSide": false
+    },
+    "Glute Bridge": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 15,
+      "perSide": false
+    },
+    "Wall Sit": {
+      "timed": true,
+      "defaultSeconds": 30,
+      "defaultReps": null,
+      "perSide": false
+    },
+    "Knee Push-Up": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 10,
+      "perSide": false
+    },
+    "Plank": {
+      "timed": true,
+      "defaultSeconds": 30,
+      "defaultReps": null,
+      "perSide": false
+    },
+    "Crunches": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 15,
+      "perSide": false
+    },
+    "Superman Hold": {
+      "timed": true,
+      "defaultSeconds": 20,
+      "defaultReps": null,
+      "perSide": false
+    },
+    "Push-Up": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 12,
+      "perSide": false
+    },
+    "Lunges": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 12,
+      "perSide": true
+    },
+    "Diamond Push-Up": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 8,
+      "perSide": false
+    },
+    "Pike Push-Up": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 8,
+      "perSide": false
+    },
+    "Bench Dips": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 12,
+      "perSide": false
+    },
+    "Leg Raises": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 12,
+      "perSide": false
+    },
+    "Bicycle Crunches": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 20,
+      "perSide": false
+    },
+    "Mountain Climbers": {
+      "timed": true,
+      "defaultSeconds": 30,
+      "defaultReps": null,
+      "perSide": false
+    },
+    "Burpees": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 10,
+      "perSide": false
+    },
+    "Pull-Up": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 8,
+      "perSide": false
+    },
+    "Dips": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 10,
+      "perSide": false
+    },
+    "Pistol Squat": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 5,
+      "perSide": true
+    },
+    "L-Sit Hold": {
+      "timed": true,
+      "defaultSeconds": 15,
+      "defaultReps": null,
+      "perSide": false
+    },
+    "Archer Push-Up": {
+      "timed": false,
+      "defaultSeconds": null,
+      "defaultReps": 6,
+      "perSide": true
+    }
+  },
+  "workouts": {
+    "Beginner Full Body": [
+      {
+        "exerciseName": "Jumping Jacks",
+        "position": 1,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 30,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Bodyweight Squat",
+        "position": 2,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 45,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Knee Push-Up",
+        "position": 3,
+        "sets": 3,
+        "reps": 8,
+        "seconds": null,
+        "restSeconds": 45,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Glute Bridge",
+        "position": 4,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 45,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Plank",
+        "position": 5,
+        "sets": 3,
+        "reps": null,
+        "seconds": 20,
+        "restSeconds": 45,
+        "restAfterSeconds": 60
+      }
+    ],
+    "Core Basics": [
+      {
+        "exerciseName": "Crunches",
+        "position": 1,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 30,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Plank",
+        "position": 2,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 30,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Superman Hold",
+        "position": 3,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 30,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Glute Bridge",
+        "position": 4,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 30,
+        "restAfterSeconds": 60
+      }
+    ],
+    "Upper Body Strength": [
+      {
+        "exerciseName": "Push-Up",
+        "position": 1,
+        "sets": 4,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 60,
+        "restAfterSeconds": 90
+      },
+      {
+        "exerciseName": "Diamond Push-Up",
+        "position": 2,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 60,
+        "restAfterSeconds": 90
+      },
+      {
+        "exerciseName": "Pike Push-Up",
+        "position": 3,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 60,
+        "restAfterSeconds": 90
+      },
+      {
+        "exerciseName": "Bench Dips",
+        "position": 4,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 60,
+        "restAfterSeconds": 90
+      }
+    ],
+    "Lower Body Burn": [
+      {
+        "exerciseName": "Bodyweight Squat",
+        "position": 1,
+        "sets": 4,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 45,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Lunges",
+        "position": 2,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 45,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Wall Sit",
+        "position": 3,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 45,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Glute Bridge",
+        "position": 4,
+        "sets": 3,
+        "reps": 20,
+        "seconds": null,
+        "restSeconds": 30,
+        "restAfterSeconds": 60
+      }
+    ],
+    "Cardio Blast": [
+      {
+        "exerciseName": "Jumping Jacks",
+        "position": 1,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 20,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "High Knees",
+        "position": 2,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 20,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Mountain Climbers",
+        "position": 3,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 20,
+        "restAfterSeconds": 60
+      },
+      {
+        "exerciseName": "Burpees",
+        "position": 4,
+        "sets": 3,
+        "reps": 8,
+        "seconds": null,
+        "restSeconds": 40,
+        "restAfterSeconds": 60
+      }
+    ],
+    "Advanced Calisthenics": [
+      {
+        "exerciseName": "Pull-Up",
+        "position": 1,
+        "sets": 4,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 90,
+        "restAfterSeconds": 120
+      },
+      {
+        "exerciseName": "Dips",
+        "position": 2,
+        "sets": 4,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 90,
+        "restAfterSeconds": 120
+      },
+      {
+        "exerciseName": "Archer Push-Up",
+        "position": 3,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 90,
+        "restAfterSeconds": 120
+      },
+      {
+        "exerciseName": "Pistol Squat",
+        "position": 4,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 90,
+        "restAfterSeconds": 120
+      },
+      {
+        "exerciseName": "L-Sit Hold",
+        "position": 5,
+        "sets": 3,
+        "reps": null,
+        "seconds": null,
+        "restSeconds": 60,
+        "restAfterSeconds": 120
+      }
+    ]
+  }
+}

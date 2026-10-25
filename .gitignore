@@ -13,3 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Release signing: the upload key and its passwords never go into git.
+keystore.properties
+*.jks
+*.keystore

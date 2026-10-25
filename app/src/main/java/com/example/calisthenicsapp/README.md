@@ -4,7 +4,7 @@
 **Accounts:** Firebase Authentication (email + password)
 **Data:** Cloud Firestore (per-user data, source of truth) + local SQLite (premade content and offline cache)
 **Project type:** University project (team of two: front end / back end & database)
-**Version:** 1.2
+**Version:** 1.4
 
 ---
 
@@ -79,7 +79,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 ### 2.6 Scheduling
 - **FR-6.1:** The user shall be able to schedule a workout for a chosen date and time. Schedules shall support recurrence rules (e.g., weekly) and maintain an internal status flag (pending/completed/missed).
 - **FR-6.2:** The system shall add the scheduled workout as an event in the device's calendar app, saving the resulting calendar event ID in the local database to support downstream updates.
-- **FR-6.3:** The user shall be able to send the scheduled workout to their email address, including the workout name, date, time and list of exercises (optionally as a calendar invitation file, .ics).
+- **FR-6.3:** When scheduling a workout, the user shall be able to choose to get it by email (chosen by default). If so, once it is saved the app shall open the user's email app with an email to their own address, holding the workout name, date, time, list of exercises and a calendar invitation file (.ics); the user sends it. The user shall also be able to send a scheduled workout to their email address again later.
 - **FR-6.4:** The user shall be able to view, edit and cancel scheduled workouts.
 - **FR-6.5:** The system shall ask for the required calendar permission and handle a denied permission gracefully.
 
@@ -127,6 +127,6 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 - **NFR-13:** The app shall handle missing permissions or no internet access without crashing. Sign-up, sign-in, password reset, changing the username, email or password, deleting the account and email sending require a connection; everything else works offline and syncs when a connection is available.
 
 ### 4.4 Compatibility and Maintainability
-- **NFR-14:** The app shall run on Android devices from a defined minimum API level (to be decided by the team).
+- **NFR-14:** The app shall run on Android devices from API level 24 (Android 7.0) upwards (minSdk 24).
 - **NFR-15:** The code shall be organized in separate layers (user interface, business logic, database access) with a dedicated database manager class, so that the front end and back end can be developed independently.
 - **NFR-16:** The code shall be documented and follow consistent naming conventions.

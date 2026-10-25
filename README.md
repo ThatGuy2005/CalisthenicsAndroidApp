@@ -46,23 +46,77 @@ npm test
 Each check prints PASS or FAIL, and `npm test` fails if any check does. Run it after every change
 to `firestore.rules`, and add a check when the app starts writing something new.
 
+### The server email (Cloud Function, not deployed)
+
+**Not in use.** Cloud Functions need the Blaze plan, and the project stays on the free Spark plan.
+So FR-6.3 works on the phone instead: after scheduling, the Schedule screen opens the user's email
+app with the email filled in, and the user sends it. The code below is kept for later. Before
+deploying it, stop `ScheduleActivity.createSchedule` from opening the email, or users get two.
+
+[`functions/`](functions) holds two Cloud Functions. `emailNewSchedule`: when a schedule is created
+under `users/{uid}/schedules`, it emails the workout (name, date and time in the schedule's
+`timeZone`, exercises, `.ics` file) to the user's sign-in address, from
+`csongitamas2005@gmail.com` through Gmail. It records the outcome in `mail/schedule-{uid}-{id}`
+(`SENDING`, `SENT` or `ERROR`), which also keeps a retried event from sending twice.
+`deleteEmailRecords`: when an account is deleted (its `users/{uid}` document goes), it deletes
+that user's `mail` records, which the app itself cannot reach.
+`functions/email.js` is the server's copy of `WorkoutSummary` and `IcsWriter`: change both together.
+
+```
+cd functions
+npm install
+npm test                 # the email text and the .ics, and premade.json against seed.sql
+npm run test:emulator    # both triggers in the Auth, Firestore and Functions emulators; sends nothing
+```
+
+**Deploying it.** This is needed once, and again after every change in `functions/`:
+
+1. **Blaze plan:** Firebase console → the project → Usage and billing → Modify plan → Blaze.
+   Setting a budget alert (for example 1 USD) there is a good idea; this function stays within
+   the free allowance.
+2. **Gmail app password** for `csongitamas2005@gmail.com`: Google Account → Security →
+   2-Step Verification (must be on) → App passwords → create one named `CalisthenicsApp`.
+   Google shows 16 letters; copy them without the spaces.
+3. **Store it in Secret Manager**, from the repository root:
+   ```
+   npx firebase-tools@14.27.0 login
+   npx firebase-tools@14.27.0 functions:secrets:set GMAIL_APP_PASSWORD
+   ```
+   Paste the app password when asked. It never goes into the repository.
+4. **Deploy** the rules and the function, from the repository root:
+   ```
+   cd functions && npm install && cd ..
+   npx firebase-tools@14.27.0 deploy --only firestore:rules,functions
+   ```
+   The first deploy turns on the Cloud APIs it needs. If it then fails with an Eventarc or
+   permission error, wait a few minutes and run the same command again.
+5. **Check it:** schedule a workout in the app. The email arrives within a minute or so. In the
+   console, Firestore → `mail` shows the record, and Functions → `emailNewSchedule` → Logs
+   shows any error. Gmail allows about 500 emails a day from one account.
+
+The sender address is in [`functions/.env`](functions/.env) (`SENDER_EMAIL`); the app password
+must belong to that account.
+
 ## How the back end works
 
 - **Firebase Authentication** owns the accounts.
 - **Cloud Firestore** stores each user's data under `users/{uid}` and is the source of truth.
-- **SQLite** is a local copy. `Sync/SyncManager` mirrors Firestore into it as long as someone is
+- **SQLite** is a local copy. `sync/SyncManager` mirrors Firestore into it as long as someone is
   signed in. It is started once in `CalisthenicsApplication`; the screens never deal with it.
+  If the server says the signed-in user's `users/{uid}` profile is gone, the account counts as
+  deleted: the user is signed out and the login screen opens with a message.
 - **Premade exercises and workouts** live only in SQLite. They are loaded from
   `app/src/main/assets/seed.sql` on the first start.
 
 | Package | Contents |
 |---|---|
-| `Service` | **The API for the screens.** One class per area; see below. |
-| `CoreComponents` | The data classes the services return (`Exercise`, `Workout`, `WorkoutLog`, `ScheduledWorkout`, ...). |
-| `Session` | `WorkoutSession`, a workout in progress. |
-| `Scheduling` | Repeat rules, schedule occurrences and their status, the device calendar, the email and its `.ics` file. Used by `ScheduleService`. |
-| `Export` | The JSON and CSV data export. Used by `AccountService`. |
-| `Repos`, `Database`, `Sync`, `Verificate` | Storage, sync and validation. Use them through the services. |
+| `service` | **The API for the screens.** One class per area; see below. |
+| `model` | The data classes the services return (`Exercise`, `Workout`, `WorkoutLog`, `ScheduledWorkout`, ...). |
+| `session` | `WorkoutSession`, a workout in progress. |
+| `scheduling` | Repeat rules, schedule occurrences and their status, the device calendar, the email and its `.ics` file. Used by `ScheduleService`. |
+| `export` | The JSON and CSV data export. Used by `DataExportService`. |
+| `repository`, `database`, `sync`, `validation` | Storage, sync and validation. Use them through the services. |
+| `ui.*` | The screens, one package per area: `auth`, `home`, `exercises`, `workouts`, `session`, `schedule`, `history`, `settings`. `ui.common` has what several screens share (`BottomNav`, `Views`, `UiColors`, `Durations`). |
 
 ### Rules for every service call
 
@@ -126,8 +180,8 @@ syncs later.
 | `signOut()` | Also clears the local copy of the user's data. |
 | `getCurrentUser()` | Null when nobody is signed in. |
 
-`SessionManager`: `isSignedIn()`, `getCurrentUid()`, and `addAuthStateListener(...)` to react
-to sign-in and sign-out. Use it to choose between the sign-in screen and the main screen.
+`SessionManager`: `getCurrentUid()`, and `addAuthStateListener(...)` to react to sign-in and
+sign-out.
 
 `ProfileService`
 
@@ -143,6 +197,11 @@ to sign-in and sign-out. Use it to choose between the sign-in screen and the mai
 | `changePassword(currentPassword, newPassword, cb)` | |
 | `changeEmail(currentPassword, newEmail, cb)` | Firebase sends a confirmation link to the new address. The profile shows the new email after the next sign-in. |
 | `deleteAccount(password, cb)` | Deletes everything permanently and signs out (FR-1.10), then removes the schedules' events from this device's calendar and clears Firestore's offline copy from the device. |
+
+`DataExportService` (reads the local copy, so it also works offline)
+
+| Method | Notes |
+|---|---|
 | `exportMyData(cb)` | All of the user's data as a JSON string (NFR-5), e.g. to share or save as a file. |
 | `exportMyDataCsv(uri, cb)` | All of the user's data as CSV files in one ZIP (NFR-5): profile, custom workouts, logs, log exercises and schedules. Writes to `uri`; see below. |
 
@@ -151,25 +210,22 @@ to sign-in and sign-out. Use it to choose between the sign-in screen and the mai
 ```java
 ActivityResultLauncher<String> saveCsv = registerForActivityResult(
         new ActivityResultContracts.CreateDocument("application/zip"),
-        uri -> { if (uri != null) account.exportMyDataCsv(uri, callback); });   // null: cancelled
+        uri -> { if (uri != null) export.exportMyDataCsv(uri, callback); });   // null: cancelled
 saveCsv.launch("calisthenics-data.zip");
 ```
 
 The limits: username 3-20 letters or digits (FR-1.1); password 8-64 characters with a letter
 and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters; birth year from 1900
 to this year.
-`Verificate/UserValidator` has the same checks, for validating a form as the user types.
+`validation/UserValidator` has the same checks, for validating a form as the user types.
 
 **Units (FR-1.7).** The services always take and return kg and cm. The kg/lb, cm/ft toggle is a
 setting of the device: save `UnitSystem.name()` (for example in `SharedPreferences`) and read it
 back with `UnitSystem.fromName(saved)`, which gives `METRIC` when nothing is saved. The screens
 already do this through `UnitPreference.get` / `set` (Settings has the toggle), and sign-up and
 the profile take a height through `HeightInput` (cm, or ft and in fields).
-`CoreComponents/Units` does the rest:
+`model/Units` does the rest:
 
-- Show a value: `formatWeight(kg, system, locale)` gives "70 kg" or "154.3 lb", and
-  `formatHeight(cm, system, locale)` gives "175 cm" or "5 ft 9 in". Both return null when the
-  value was never given.
 - Fill a form field: `weightFromKg(kg, system)` and `cmToFeetInches(cm)` (use two fields for ft and in).
 - Before calling a service: `weightToKg(typed, system)` and `feetInchesToCm(feet, inches)`.
   Convert a height back only if the user changed it, since whole inches are coarser than cm.
@@ -279,7 +335,7 @@ phone call.
 
 | Method | Notes |
 |---|---|
-| `schedulePremade(name, at, recurrence, addToCalendar, cb)` and `scheduleCustom(id, at, recurrence, addToCalendar, cb)` | Return the schedule id. `recurrence` is null for a one-off workout, or e.g. `Recurrence.weekly()` or `new Recurrence(Recurrence.Frequency.DAILY, 2)`. Shorter overloads without these arguments exist. |
+| `schedulePremade(name, at, recurrence, addToCalendar, cb)` and `scheduleCustom(id, at, recurrence, addToCalendar, cb)` | Return the schedule id. `recurrence` is null for a one-off workout, or e.g. `Recurrence.weekly()` or `new Recurrence(Recurrence.Frequency.DAILY, 2)`. |
 | `reschedule(id, at, cb)`, `setRecurrence(id, recurrence, cb)`, `delete(id, cb)` | The calendar event follows these changes automatically. |
 
 **Listing schedules:**
@@ -315,6 +371,11 @@ askCalendar.launch(ScheduleService.CALENDAR_PERMISSIONS);
   their own address.
 - With `attachIcs`, it also attaches a calendar invitation file (`.ics`).
 - If no email app is installed, the call fails with a message instead.
+- It works right after `schedulePremade`/`scheduleCustom` too, with the id they return, before
+  the new schedule has been synced.
+- The Schedule screen opens it, with the `.ics`, right after a workout is scheduled if "Email it
+  to me" is ticked in the Plan a workout dialog (it is to start with), and from the "Email invite"
+  item of a scheduled workout's menu.
 
 ## Changing the database
 
@@ -326,6 +387,44 @@ askCalendar.launch(ScheduleService.CALENDAR_PERMISSIONS);
 Every upgrade also refreshes the premade content from `seed.sql` without touching the user's own
 data, so a change to the seed alone only needs step 2. `SQLManagerTest` checks that an upgraded
 database matches a fresh install.
+
+After changing `seed.sql`, also run `npm run premade` in `functions/`, so the server's emails list
+the same exercises; `npm test` there fails until you do. (This matters only once the server email
+is deployed.)
+
+## Releasing
+
+Release builds are shrunk and obfuscated by R8 (our keep rules: `app/src/main/keepRules/rules.keep`)
+and signed with the upload key that `keystore.properties` names. That file and the key never go
+into git (`.gitignore`); without the file, the release build comes out unsigned.
+
+1. **Upload key, once.** With the `keytool` of Android Studio
+   (`C:\Program Files\Android\Android Studio\jbr\bin\keytool.exe`):
+   ```
+   keytool -genkeypair -v -keystore upload-keystore.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000
+   ```
+   Keep the `.jks` file and its passwords outside the project, with a backup.
+2. **`keystore.properties`** in the project root, next to `settings.gradle.kts`:
+   ```
+   storeFile=C:/path/to/upload-keystore.jks
+   storePassword=...
+   keyAlias=upload
+   keyPassword=...
+   ```
+   Use forward slashes; a relative path counts from the project root.
+3. **Raise `versionCode`** (and `versionName`) in `app/build.gradle.kts` before every upload.
+   Google Play refuses a version code it has seen before.
+4. **Build:** `gradlew bundleRelease` makes `app/build/outputs/bundle/release/app-release.aab`, the
+   file Google Play takes. `gradlew assembleRelease` makes an `app-release.apk` to try on a phone.
+5. **Google Play** signs what users download (Play App Signing, required for new apps); the upload
+   key only proves that an upload comes from us. Keep each release's
+   `app/build/outputs/mapping/release/mapping.txt`: it turns R8's renamed classes in crash reports
+   back into ours.
+
+Email and password sign-in needs no SHA fingerprint in Firebase, so the release key changes
+nothing there. Before the first upload, `applicationId` must move off `com.example`, which Google
+Play does not accept; that needs a new Android app in the Firebase project and its
+`google-services.json`.
 
 ## Known gaps
 

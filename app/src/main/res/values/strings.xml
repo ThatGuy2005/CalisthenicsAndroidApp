@@ -36,8 +36,6 @@
     <string name="target_rest" tools:ignore="PluralsCandidate">%1$d sec rest</string>
     <!-- Sets, target, rest: "3 sets  ·  12 reps  ·  60 sec rest". -->
     <string name="target_sets_target_rest">"%1$s  ·  %2$s  ·  %3$s"</string>
-    <!-- For a bottom bar item that has no screen; every item has one now. -->
-    <string name="nav_coming_next">This section is coming next.</string>
 
     <!-- Shared by the login and sign-up screens -->
     <string name="hint_email">Email</string>
@@ -51,6 +49,7 @@
     <string name="login_create_account">Create an account</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_error_empty">Enter your email and password.</string>
+    <string name="login_account_gone">This account no longer exists, so you were signed out.</string>
 
     <!-- Sign-up (activity_signup) -->
     <string name="signup_back">"‹  Back to login"</string>
@@ -299,6 +298,7 @@
     <string name="custom_editor_add_exercises">"＋   Add exercises"</string>
     <string name="custom_editor_loading_library">Loading exercise library…</string>
     <string name="custom_editor_select_title">Select exercises</string>
+    <string name="custom_editor_check_mark" translatable="false">✓</string>
     <!-- For screen readers; %1$s is the exercise's name. -->
     <string name="custom_editor_settings_description">Edit sets, target and rest for %1$s</string>
     <string name="custom_editor_edit_description">Edit settings for %1$s</string>
@@ -420,6 +420,7 @@
     <string name="schedule_repeat_workout">"%1$s  ·  WORKOUT"</string>
     <string name="schedule_mark_complete">"Mark as complete  ✓"</string>
     <string name="schedule_add_to_calendar">Add to my phone calendar</string>
+    <string name="schedule_email_me">Email it to me</string>
     <string name="schedule_day_subtitle">Your plan for this day</string>
     <plurals name="schedule_plan_count">
         <item quantity="one">YOUR PLAN · %d SESSION</item>
@@ -586,7 +587,7 @@
          and <a> links. -->
     <string name="privacy_policy_back">"‹  Data &amp; privacy"</string>
     <string name="privacy_policy_title">Privacy policy</string>
-    <string name="privacy_policy_body"><![CDATA[<b>Last updated: 21 October 2026</b><br><br>
+    <string name="privacy_policy_body"><![CDATA[<b>Last updated: 25 October 2026</b><br><br>
 <b>Who is responsible?</b><br>Tamas Csongor is the controller for personal data processed by Calisthenics. Contact: <a href=\"mailto:tamas.csongor@stud.umfst.ro\">tamas.csongor@stud.umfst.ro</a>.<br><br>
 <b>What information is used?</b><br>Your account username and email address; optional profile details such as height, weight, gender and birth year; and the custom workouts, scheduled workouts and workout history you create. Passwords are handled by Firebase Authentication and are not stored in the app\'s workout database. Firebase Authentication may also process IP addresses and device/browser information for sign-in security. The app keeps a local database copy so your training information can be displayed on the device.<br><br>
 <b>Why is it used?</b><br>Account and workout information is used to sign you in, sync your information between devices, show your training plans and history, and calculate estimates when relevant profile details are provided. This processing is needed to provide the features you choose to use.<br><br>
