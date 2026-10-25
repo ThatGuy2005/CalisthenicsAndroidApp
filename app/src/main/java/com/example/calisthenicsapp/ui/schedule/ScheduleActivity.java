@@ -547,7 +547,8 @@ public class ScheduleActivity extends AppCompatActivity {
                 week.select(at * 1000L);
                 renderWeek();
                 loadWeek();
-                showMessage(getString(R.string.schedule_added));   // the server emails it (functions/)
+                showMessage(getString(R.string.schedule_added));
+                emailInvite(id);   // the user's email app, filled in; the user taps Send (FR-6.3)
             }
             @Override public void onError(String message) { showMessage(message); }
         };
