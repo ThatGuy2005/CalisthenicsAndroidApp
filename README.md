@@ -391,6 +391,40 @@ After changing `seed.sql`, also run `npm run premade` in `functions/`, so the se
 the same exercises; `npm test` there fails until you do. (This matters only once the server email
 is deployed.)
 
+## Releasing
+
+Release builds are shrunk and obfuscated by R8 (our keep rules: `app/src/main/keepRules/rules.keep`)
+and signed with the upload key that `keystore.properties` names. That file and the key never go
+into git (`.gitignore`); without the file, the release build comes out unsigned.
+
+1. **Upload key, once.** With the `keytool` of Android Studio
+   (`C:\Program Files\Android\Android Studio\jbr\bin\keytool.exe`):
+   ```
+   keytool -genkeypair -v -keystore upload-keystore.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000
+   ```
+   Keep the `.jks` file and its passwords outside the project, with a backup.
+2. **`keystore.properties`** in the project root, next to `settings.gradle.kts`:
+   ```
+   storeFile=C:/path/to/upload-keystore.jks
+   storePassword=...
+   keyAlias=upload
+   keyPassword=...
+   ```
+   Use forward slashes; a relative path counts from the project root.
+3. **Raise `versionCode`** (and `versionName`) in `app/build.gradle.kts` before every upload.
+   Google Play refuses a version code it has seen before.
+4. **Build:** `gradlew bundleRelease` makes `app/build/outputs/bundle/release/app-release.aab`, the
+   file Google Play takes. `gradlew assembleRelease` makes an `app-release.apk` to try on a phone.
+5. **Google Play** signs what users download (Play App Signing, required for new apps); the upload
+   key only proves that an upload comes from us. Keep each release's
+   `app/build/outputs/mapping/release/mapping.txt`: it turns R8's renamed classes in crash reports
+   back into ours.
+
+Email and password sign-in needs no SHA fingerprint in Firebase, so the release key changes
+nothing there. Before the first upload, `applicationId` must move off `com.example`, which Google
+Play does not accept; that needs a new Android app in the Firebase project and its
+`google-services.json`.
+
 ## Known gaps
 
 - **UI-only features:** the FR-5.2 items above belong to the screens.
