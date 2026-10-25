@@ -19,8 +19,10 @@ android {
 
     buildTypes {
         release {
+            // R8: shrinks and obfuscates the code and drops unused resources. Our own keep
+            // rules are in src/main/keepRules; the libraries bring theirs.
             optimization {
-                enable = false
+                enable = true
             }
         }
     }
