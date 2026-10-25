@@ -46,7 +46,12 @@ npm test
 Each check prints PASS or FAIL, and `npm test` fails if any check does. Run it after every change
 to `firestore.rules`, and add a check when the app starts writing something new.
 
-### The server email (Cloud Function)
+### The server email (Cloud Function, not deployed)
+
+**Not in use.** Cloud Functions need the Blaze plan, and the project stays on the free Spark plan.
+So FR-6.3 works on the phone instead: after scheduling, the Schedule screen opens the user's email
+app with the email filled in, and the user sends it. The code below is kept for later. Before
+deploying it, stop `ScheduleActivity.createSchedule` from opening the email, or users get two.
 
 [`functions/`](functions) holds two Cloud Functions. `emailNewSchedule`: when a schedule is created
 under `users/{uid}/schedules`, it emails the workout (name, date and time in the schedule's
@@ -383,7 +388,8 @@ data, so a change to the seed alone only needs step 2. `SQLManagerTest` checks t
 database matches a fresh install.
 
 After changing `seed.sql`, also run `npm run premade` in `functions/`, so the server's emails list
-the same exercises; `npm test` there fails until you do.
+the same exercises; `npm test` there fails until you do. (This matters only once the server email
+is deployed.)
 
 ## Known gaps
 
