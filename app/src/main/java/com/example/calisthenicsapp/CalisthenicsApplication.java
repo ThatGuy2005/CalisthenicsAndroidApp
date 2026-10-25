@@ -3,7 +3,7 @@ package com.example.calisthenicsapp;
 import android.app.Application;
 import android.content.Intent;
 
-import com.example.calisthenicsapp.Sync.SyncManager;
+import com.example.calisthenicsapp.sync.SyncManager;
 
 public class CalisthenicsApplication extends Application {
     @Override

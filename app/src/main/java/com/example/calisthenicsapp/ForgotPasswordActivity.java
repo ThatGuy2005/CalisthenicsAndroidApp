@@ -9,8 +9,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.calisthenicsapp.Service.AuthService;
-import com.example.calisthenicsapp.Verificate.UserValidator;
+import com.example.calisthenicsapp.service.AuthService;
+import com.example.calisthenicsapp.validation.UserValidator;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
     /** The email typed on the login screen, to fill in the field; may be empty. */

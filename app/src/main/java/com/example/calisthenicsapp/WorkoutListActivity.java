@@ -18,10 +18,10 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.calisthenicsapp.CoreComponents.Workout;
-import com.example.calisthenicsapp.CoreComponents.WorkoutCategory;
-import com.example.calisthenicsapp.Service.ServiceCallback;
-import com.example.calisthenicsapp.Service.WorkoutService;
+import com.example.calisthenicsapp.model.Workout;
+import com.example.calisthenicsapp.model.WorkoutCategory;
+import com.example.calisthenicsapp.service.ServiceCallback;
+import com.example.calisthenicsapp.service.WorkoutService;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;
 

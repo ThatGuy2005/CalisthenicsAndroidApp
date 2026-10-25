@@ -22,7 +22,7 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.calisthenicsapp.Session.WorkoutSession;
+import com.example.calisthenicsapp.session.WorkoutSession;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.lottiefiles.dotlottie.core.model.Config;
 import com.lottiefiles.dotlottie.core.util.DotLottieSource;

@@ -9,12 +9,12 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.calisthenicsapp.CoreComponents.UnitSystem;
-import com.example.calisthenicsapp.CoreComponents.Units;
-import com.example.calisthenicsapp.CoreComponents.User;
-import com.example.calisthenicsapp.Service.ProfileService;
-import com.example.calisthenicsapp.Service.ServiceCallback;
-import com.example.calisthenicsapp.Verificate.UserValidator;
+import com.example.calisthenicsapp.model.UnitSystem;
+import com.example.calisthenicsapp.model.Units;
+import com.example.calisthenicsapp.model.User;
+import com.example.calisthenicsapp.service.ProfileService;
+import com.example.calisthenicsapp.service.ServiceCallback;
+import com.example.calisthenicsapp.validation.UserValidator;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;

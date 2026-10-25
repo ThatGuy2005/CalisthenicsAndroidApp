@@ -1,5 +1,5 @@
 // The email of a newly scheduled workout (FR-6.3): the server's copy of the app's
-// Scheduling/WorkoutSummary, Session/WorkoutExercises and Scheduling/IcsWriter, so the email
+// scheduling/WorkoutSummary, session/WorkoutExercises and scheduling/IcsWriter, so the email
 // says the same as the one the app builds. Keep them in step.
 
 /** Reminder before the workout in the .ics file, as WorkoutSummary.REMINDER_MINUTES. */
@@ -133,7 +133,7 @@ export function buildEmail(scheduleId, schedule, workout, nowSeconds) {
   return { subject, text, ics };
 }
 
-// ---------- .ics, as Scheduling/IcsWriter (RFC 5545) ----------
+// ---------- .ics, as scheduling/IcsWriter (RFC 5545) ----------
 
 const CRLF = '\r\n';
 const MAX_LINE_OCTETS = 75;

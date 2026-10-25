@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.calisthenicsapp.CoreComponents.UnitSystem;
+import com.example.calisthenicsapp.model.UnitSystem;
 import com.google.android.material.snackbar.Snackbar;
 
 public class SettingsActivity extends AppCompatActivity {

@@ -16,13 +16,13 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.calisthenicsapp.CoreComponents.CustomWorkout;
-import com.example.calisthenicsapp.CoreComponents.Workout;
-import com.example.calisthenicsapp.Service.CustomWorkoutService;
-import com.example.calisthenicsapp.Service.ServiceCallback;
-import com.example.calisthenicsapp.Service.WorkoutService;
-import com.example.calisthenicsapp.Service.WorkoutSessionService;
-import com.example.calisthenicsapp.Session.WorkoutSession;
+import com.example.calisthenicsapp.model.CustomWorkout;
+import com.example.calisthenicsapp.model.Workout;
+import com.example.calisthenicsapp.service.CustomWorkoutService;
+import com.example.calisthenicsapp.service.ServiceCallback;
+import com.example.calisthenicsapp.service.WorkoutService;
+import com.example.calisthenicsapp.service.WorkoutSessionService;
+import com.example.calisthenicsapp.session.WorkoutSession;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;

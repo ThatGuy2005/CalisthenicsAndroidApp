@@ -12,9 +12,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.calisthenicsapp.Service.AccountService;
-import com.example.calisthenicsapp.Service.AuthService;
-import com.example.calisthenicsapp.Service.ServiceCallback;
+import com.example.calisthenicsapp.service.AccountService;
+import com.example.calisthenicsapp.service.AuthService;
+import com.example.calisthenicsapp.service.ServiceCallback;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 

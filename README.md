@@ -96,7 +96,7 @@ must belong to that account.
 
 - **Firebase Authentication** owns the accounts.
 - **Cloud Firestore** stores each user's data under `users/{uid}` and is the source of truth.
-- **SQLite** is a local copy. `Sync/SyncManager` mirrors Firestore into it as long as someone is
+- **SQLite** is a local copy. `sync/SyncManager` mirrors Firestore into it as long as someone is
   signed in. It is started once in `CalisthenicsApplication`; the screens never deal with it.
   If the server says the signed-in user's `users/{uid}` profile is gone, the account counts as
   deleted: the user is signed out and the login screen opens with a message.
@@ -105,12 +105,12 @@ must belong to that account.
 
 | Package | Contents |
 |---|---|
-| `Service` | **The API for the screens.** One class per area; see below. |
-| `CoreComponents` | The data classes the services return (`Exercise`, `Workout`, `WorkoutLog`, `ScheduledWorkout`, ...). |
-| `Session` | `WorkoutSession`, a workout in progress. |
-| `Scheduling` | Repeat rules, schedule occurrences and their status, the device calendar, the email and its `.ics` file. Used by `ScheduleService`. |
-| `Export` | The JSON and CSV data export. Used by `AccountService`. |
-| `Repos`, `Database`, `Sync`, `Verificate` | Storage, sync and validation. Use them through the services. |
+| `service` | **The API for the screens.** One class per area; see below. |
+| `model` | The data classes the services return (`Exercise`, `Workout`, `WorkoutLog`, `ScheduledWorkout`, ...). |
+| `session` | `WorkoutSession`, a workout in progress. |
+| `scheduling` | Repeat rules, schedule occurrences and their status, the device calendar, the email and its `.ics` file. Used by `ScheduleService`. |
+| `export` | The JSON and CSV data export. Used by `AccountService`. |
+| `repository`, `database`, `sync`, `validation` | Storage, sync and validation. Use them through the services. |
 
 ### Rules for every service call
 
@@ -206,14 +206,14 @@ saveCsv.launch("calisthenics-data.zip");
 The limits: username 3-20 letters or digits (FR-1.1); password 8-64 characters with a letter
 and a digit; height 50-300 cm; weight 20-500 kg; gender up to 30 characters; birth year from 1900
 to this year.
-`Verificate/UserValidator` has the same checks, for validating a form as the user types.
+`validation/UserValidator` has the same checks, for validating a form as the user types.
 
 **Units (FR-1.7).** The services always take and return kg and cm. The kg/lb, cm/ft toggle is a
 setting of the device: save `UnitSystem.name()` (for example in `SharedPreferences`) and read it
 back with `UnitSystem.fromName(saved)`, which gives `METRIC` when nothing is saved. The screens
 already do this through `UnitPreference.get` / `set` (Settings has the toggle), and sign-up and
 the profile take a height through `HeightInput` (cm, or ft and in fields).
-`CoreComponents/Units` does the rest:
+`model/Units` does the rest:
 
 - Fill a form field: `weightFromKg(kg, system)` and `cmToFeetInches(cm)` (use two fields for ft and in).
 - Before calling a service: `weightToKg(typed, system)` and `feetInchesToCm(feet, inches)`.

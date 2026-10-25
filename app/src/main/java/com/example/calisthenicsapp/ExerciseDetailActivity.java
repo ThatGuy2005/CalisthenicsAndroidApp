@@ -20,9 +20,9 @@ import com.github.penfeizhou.animation.webp.WebPDrawable;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.calisthenicsapp.CoreComponents.Exercise;
-import com.example.calisthenicsapp.Service.ExerciseService;
-import com.example.calisthenicsapp.Service.ServiceCallback;
+import com.example.calisthenicsapp.model.Exercise;
+import com.example.calisthenicsapp.service.ExerciseService;
+import com.example.calisthenicsapp.service.ServiceCallback;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;

@@ -12,10 +12,10 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.calisthenicsapp.CoreComponents.UnitSystem;
-import com.example.calisthenicsapp.CoreComponents.Units;
-import com.example.calisthenicsapp.Service.AuthService;
-import com.example.calisthenicsapp.Verificate.UserValidator;
+import com.example.calisthenicsapp.model.UnitSystem;
+import com.example.calisthenicsapp.model.Units;
+import com.example.calisthenicsapp.service.AuthService;
+import com.example.calisthenicsapp.validation.UserValidator;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Locale;

@@ -3,7 +3,7 @@ package com.example.calisthenicsapp;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.example.calisthenicsapp.CoreComponents.UnitSystem;
+import com.example.calisthenicsapp.model.UnitSystem;
 
 /** The units this device shows height and weight in (FR-1.7). A device setting, not synced. */
 final class UnitPreference {

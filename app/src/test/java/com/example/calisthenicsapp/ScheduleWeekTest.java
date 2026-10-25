@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.example.calisthenicsapp.CoreComponents.ScheduledWorkout;
-import com.example.calisthenicsapp.Scheduling.OccurrenceStatus;
-import com.example.calisthenicsapp.Scheduling.ScheduleOccurrence;
+import com.example.calisthenicsapp.model.ScheduledWorkout;
+import com.example.calisthenicsapp.scheduling.OccurrenceStatus;
+import com.example.calisthenicsapp.scheduling.ScheduleOccurrence;
 
 import org.junit.Test;
 

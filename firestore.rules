@@ -11,7 +11,7 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    // ---------- Data checks. They repeat the app's own checks (Verificate/UserValidator), so a
+    // ---------- Data checks. They repeat the app's own checks (validation/UserValidator), so a
     // ---------- buggy or tampered client cannot store data the app would not accept.
 
     function nullOrNumberIn(value, min, max) {
@@ -77,7 +77,7 @@ service cloud.firestore {
     }
 
     // users/{uid}/schedules/{id}, see ScheduleService: exactly one of workoutName (premade)
-    // and customWorkoutId; recurrenceRule as Scheduling/Recurrence writes it; timeZone is the
+    // and customWorkoutId; recurrenceRule as scheduling/Recurrence writes it; timeZone is the
     // phone's time zone id (e.g. Europe/Bucharest), for the server's email.
     function validSchedule(data) {
       return data.keys().hasAll(['scheduledAt'])

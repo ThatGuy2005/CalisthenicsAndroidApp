@@ -1,6 +1,6 @@
 package com.example.calisthenicsapp;
 
-import com.example.calisthenicsapp.Scheduling.ScheduleOccurrence;
+import com.example.calisthenicsapp.scheduling.ScheduleOccurrence;
 
 import java.util.ArrayList;
 import java.util.Calendar;

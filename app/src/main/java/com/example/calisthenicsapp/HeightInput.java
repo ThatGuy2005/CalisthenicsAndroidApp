@@ -3,8 +3,8 @@ package com.example.calisthenicsapp;
 import android.view.View;
 import android.widget.EditText;
 
-import com.example.calisthenicsapp.CoreComponents.UnitSystem;
-import com.example.calisthenicsapp.CoreComponents.Units;
+import com.example.calisthenicsapp.model.UnitSystem;
+import com.example.calisthenicsapp.model.Units;
 
 /**
  * The optional height of sign-up and the profile (FR-1.7): one field in cm, or in imperial two

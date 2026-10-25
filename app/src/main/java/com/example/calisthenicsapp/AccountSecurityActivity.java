@@ -6,9 +6,9 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.calisthenicsapp.Service.AccountService;
-import com.example.calisthenicsapp.Service.ServiceCallback;
-import com.example.calisthenicsapp.Verificate.UserValidator;
+import com.example.calisthenicsapp.service.AccountService;
+import com.example.calisthenicsapp.service.ServiceCallback;
+import com.example.calisthenicsapp.validation.UserValidator;
 import com.google.android.material.snackbar.Snackbar;
 
 public class AccountSecurityActivity extends AppCompatActivity {
