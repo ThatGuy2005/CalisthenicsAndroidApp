@@ -109,7 +109,7 @@ must belong to that account.
 | `model` | The data classes the services return (`Exercise`, `Workout`, `WorkoutLog`, `ScheduledWorkout`, ...). |
 | `session` | `WorkoutSession`, a workout in progress. |
 | `scheduling` | Repeat rules, schedule occurrences and their status, the device calendar, the email and its `.ics` file. Used by `ScheduleService`. |
-| `export` | The JSON and CSV data export. Used by `AccountService`. |
+| `export` | The JSON and CSV data export. Used by `DataExportService`. |
 | `repository`, `database`, `sync`, `validation` | Storage, sync and validation. Use them through the services. |
 | `ui.*` | The screens, one package per area: `auth`, `home`, `exercises`, `workouts`, `session`, `schedule`, `history`, `settings`. `ui.common` has what several screens share (`BottomNav`, `Views`, `UiColors`, `Durations`). |
 
@@ -192,6 +192,11 @@ sign-out.
 | `changePassword(currentPassword, newPassword, cb)` | |
 | `changeEmail(currentPassword, newEmail, cb)` | Firebase sends a confirmation link to the new address. The profile shows the new email after the next sign-in. |
 | `deleteAccount(password, cb)` | Deletes everything permanently and signs out (FR-1.10), then removes the schedules' events from this device's calendar and clears Firestore's offline copy from the device. |
+
+`DataExportService` (reads the local copy, so it also works offline)
+
+| Method | Notes |
+|---|---|
 | `exportMyData(cb)` | All of the user's data as a JSON string (NFR-5), e.g. to share or save as a file. |
 | `exportMyDataCsv(uri, cb)` | All of the user's data as CSV files in one ZIP (NFR-5): profile, custom workouts, logs, log exercises and schedules. Writes to `uri`; see below. |
 
@@ -200,7 +205,7 @@ sign-out.
 ```java
 ActivityResultLauncher<String> saveCsv = registerForActivityResult(
         new ActivityResultContracts.CreateDocument("application/zip"),
-        uri -> { if (uri != null) account.exportMyDataCsv(uri, callback); });   // null: cancelled
+        uri -> { if (uri != null) export.exportMyDataCsv(uri, callback); });   // null: cancelled
 saveCsv.launch("calisthenics-data.zip");
 ```
 

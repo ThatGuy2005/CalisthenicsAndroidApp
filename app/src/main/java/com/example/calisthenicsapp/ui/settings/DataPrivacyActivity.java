@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.calisthenicsapp.R;
 import com.example.calisthenicsapp.service.AccountService;
 import com.example.calisthenicsapp.service.AuthService;
+import com.example.calisthenicsapp.service.DataExportService;
 import com.example.calisthenicsapp.service.ServiceCallback;
 import com.example.calisthenicsapp.ui.auth.MainActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -26,10 +27,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** Data export and account deletion actions, backed by AccountService. */
+/** Data export and account deletion actions, backed by DataExportService and AccountService. */
 public class DataPrivacyActivity extends AppCompatActivity {
     private final ExecutorService fileWriter = Executors.newSingleThreadExecutor();
     private AccountService account;
+    private DataExportService export;
     private Button jsonButton, csvButton, deleteButton;
     private ActivityResultLauncher<String> jsonPicker, csvPicker;
 
@@ -37,6 +39,7 @@ public class DataPrivacyActivity extends AppCompatActivity {
         super.onCreate(state);
         setContentView(R.layout.activity_data_privacy);
         account = new AccountService(this);
+        export = new DataExportService(this);
         jsonButton = findViewById(R.id.exportJsonButton);
         csvButton = findViewById(R.id.exportCsvButton);
         deleteButton = findViewById(R.id.deleteAccountButton);
@@ -54,7 +57,7 @@ public class DataPrivacyActivity extends AppCompatActivity {
 
     private void exportJson(Uri target) {
         setExporting(true);
-        account.exportMyData(new ServiceCallback<String>() {
+        export.exportMyData(new ServiceCallback<String>() {
             @Override public void onSuccess(String json) {
                 fileWriter.execute(() -> {
                     boolean saved = false;
@@ -76,7 +79,7 @@ public class DataPrivacyActivity extends AppCompatActivity {
 
     private void exportCsv(Uri target) {
         setExporting(true);
-        account.exportMyDataCsv(target, new ServiceCallback<Void>() {
+        export.exportMyDataCsv(target, new ServiceCallback<Void>() {
             @Override public void onSuccess(Void result) { setExporting(false); show(getString(R.string.data_privacy_csv_saved)); }
             @Override public void onError(String message) { setExporting(false); show(message); }
         });

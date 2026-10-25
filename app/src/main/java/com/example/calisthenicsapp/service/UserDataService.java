@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 /**
  * Shared plumbing for the per-user data services (custom workouts, logs, schedules, profile,
- * stats, account, workout sessions). The SQLite thread and the callbacks come from
+ * stats, account, data export, workout sessions). The SQLite thread and the callbacks come from
  * {@link DbService}.
  *
  * Reads come from SQLite, which SyncManager keeps in step with Firestore.

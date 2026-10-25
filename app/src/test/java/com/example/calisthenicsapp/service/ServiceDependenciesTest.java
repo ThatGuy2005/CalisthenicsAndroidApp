@@ -20,6 +20,8 @@ import com.example.calisthenicsapp.repository.ExerciseRepository;
 import com.example.calisthenicsapp.repository.WorkoutLogRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,6 +99,26 @@ public class ServiceDependenciesTest {
         assertNull(result.error);
         assertEquals(2, result.value.getWorkouts());
         assertEquals(900, result.value.getTotalSeconds());
+    }
+
+    @Test
+    public void dataExportHoldsOnlyTheGivenUsersData() throws InterruptedException, JSONException {
+        db.execSQL("INSERT INTO Users (Uid, Email, Username) VALUES ('u1', 'a@b.c', 'alice')");
+        db.execSQL("INSERT INTO Users (Uid, Email, Username) VALUES ('u2', 'b@b.c', 'bob')");
+        WorkoutLogRepository logs = new WorkoutLogRepository(db);
+        assertTrue(logs.insert(new WorkoutLog("a", "u1", "Legs", 1000, 600, 50.0, "Completed",
+                Collections.emptyList())));
+        assertTrue(logs.insert(new WorkoutLog("c", "u2", "Legs", 2000, 900, 70.0, "Completed",
+                Collections.emptyList())));
+        DataExportService export = new DataExportService(context, () -> db, signedInAs("u1"),
+                NO_FIRESTORE);
+
+        Result<String> result = await(export::exportMyData);
+
+        assertNull(result.error);
+        JSONObject json = new JSONObject(result.value);
+        assertEquals("alice", json.getJSONObject("profile").getString("username"));
+        assertEquals(1, json.getJSONArray("workoutLogs").length());
     }
 
     @Test
