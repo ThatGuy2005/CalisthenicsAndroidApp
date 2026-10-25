@@ -11,21 +11,16 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.calisthenicsapp.R;
-import com.example.calisthenicsapp.model.CustomWorkout;
 import com.example.calisthenicsapp.model.ScheduledWorkout;
-import com.example.calisthenicsapp.model.Workout;
 import com.example.calisthenicsapp.scheduling.OccurrenceStatus;
 import com.example.calisthenicsapp.scheduling.Recurrence;
 import com.example.calisthenicsapp.scheduling.ScheduleOccurrence;
@@ -46,40 +41,33 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScheduleActivity extends AppCompatActivity {
     public static final String EXTRA_PREVIEW_MODE = HomeActivity.EXTRA_PREVIEW_MODE;
 
     private final ScheduleWeek week = new ScheduleWeek();
-    private final List<WorkoutOption> workoutOptions = new ArrayList<>();
     private LinearLayout weekDays;
     private LinearLayout agenda;
     private TextView monthTitle;
     private TextView selectedDateTitle;
     private TextView daySubtitle;
     private ScheduleService scheduleService;
-    private WorkoutService workoutService;
-    private CustomWorkoutService customWorkoutService;
+    private WorkoutChoices workoutChoices;
     private boolean previewMode;
-    private boolean workoutChoicesLoaded;
-    private boolean loadingWorkoutChoices;
-    private boolean reloadWorkoutChoices;
     private String pendingCalendarScheduleId;
-    private WorkoutOption pendingChoice;
+    private WorkoutChoices.Option pendingChoice;
     private long pendingScheduledAt;
     private Recurrence pendingRecurrence;
 
     private final DataChanges.Listener dataListener = kind -> {
         if (kind == DataChanges.Kind.SCHEDULES) loadWeek();
-        if (kind == DataChanges.Kind.CUSTOM_WORKOUTS) loadWorkoutChoices();
+        if (kind == DataChanges.Kind.CUSTOM_WORKOUTS) workoutChoices.load();
     };
 
     private final ActivityResultLauncher<String[]> calendarPermissionLauncher =
@@ -114,8 +102,8 @@ public class ScheduleActivity extends AppCompatActivity {
             renderPreviewAgenda();
         } else {
             scheduleService = new ScheduleService(this);
-            workoutService = new WorkoutService(this);
-            customWorkoutService = new CustomWorkoutService(this);
+            workoutChoices = new WorkoutChoices(this, new WorkoutService(this),
+                    new CustomWorkoutService(this));
             renderWeek();
             DataChanges.observe(this, dataListener,
                     DataChanges.Kind.SCHEDULES, DataChanges.Kind.CUSTOM_WORKOUTS);
@@ -319,7 +307,7 @@ public class ScheduleActivity extends AppCompatActivity {
         header.addView(status);
 
         TextView workoutName = new TextView(this);
-        workoutName.setText(schedule.isCustom() ? findCustomWorkoutName(schedule.getCustomWorkoutId())
+        workoutName.setText(schedule.isCustom() ? workoutChoices.customWorkoutName(schedule.getCustomWorkoutId())
                 : schedule.getWorkoutName());
         workoutName.setTextColor(UiColors.GRAPHITE);
         workoutName.setTextSize(17);
@@ -412,17 +400,8 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private void editRecurrence(ScheduledWorkout schedule) {
-        Spinner repeat = new Spinner(this);
-        repeat.setPopupBackgroundResource(R.color.performance_surface);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                R.layout.spinner_item_selected, getResources().getStringArray(R.array.schedule_repeat_options));
-        adapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
-        repeat.setAdapter(adapter);
-        Recurrence current = schedule.getRecurrence();
-        int selection = current == null ? 0
-                : current.getFrequency() == Recurrence.Frequency.DAILY ? 1
-                : current.getFrequency() == Recurrence.Frequency.WEEKLY ? 2 : 3;
-        repeat.setSelection(selection);
+        Spinner repeat = RepeatOptions.newSpinner(this);
+        repeat.setSelection(RepeatOptions.positionOf(schedule.getRecurrence()));
         LinearLayout form = new LinearLayout(this);
         form.setPadding(dp(this, 22), dp(this, 8), dp(this, 22), dp(this, 4));
         form.addView(repeat, new LinearLayout.LayoutParams(-1, dp(this, 50)));
@@ -430,7 +409,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 .setMessage(R.string.schedule_repeat_message)
                 .setView(form).setNegativeButton(R.string.common_cancel, null)
                 .setPositiveButton(R.string.common_save, (dialog, which) -> {
-                    Recurrence updated = recurrenceAt(repeat.getSelectedItemPosition());
+                    Recurrence updated = RepeatOptions.recurrenceAt(repeat.getSelectedItemPosition());
                     scheduleService.setRecurrence(schedule.getId(), updated, new ServiceCallback<Void>() {
                         @Override public void onSuccess(Void ignored) {
                             loadWeek(); showMessage(getString(R.string.schedule_repeat_updated));
@@ -521,7 +500,7 @@ public class ScheduleActivity extends AppCompatActivity {
             if (granted) addToCalendar(id);
             else showMessage(getString(R.string.schedule_calendar_denied));
         } else if (pendingChoice != null) {
-            WorkoutOption choice = pendingChoice;
+            WorkoutChoices.Option choice = pendingChoice;
             long at = pendingScheduledAt;
             Recurrence recurrence = pendingRecurrence;
             pendingChoice = null;
@@ -530,133 +509,35 @@ public class ScheduleActivity extends AppCompatActivity {
         }
     }
 
-    private void loadWorkoutChoices() {
-        if (previewMode) return;
-        if (loadingWorkoutChoices) {
-            // The load under way may have read the old data, so load again once it is done.
-            reloadWorkoutChoices = true;
-            return;
-        }
-        loadingWorkoutChoices = true;
-        List<WorkoutOption> premade = new ArrayList<>();
-        List<WorkoutOption> custom = new ArrayList<>();
-        AtomicInteger pending = new AtomicInteger(2);
-        Runnable finished = () -> {
-            if (pending.decrementAndGet() > 0) return;
-            workoutOptions.clear();
-            workoutOptions.addAll(premade);
-            workoutOptions.addAll(custom);
-            loadingWorkoutChoices = false;
-            workoutChoicesLoaded = true;
-            if (reloadWorkoutChoices) {
-                reloadWorkoutChoices = false;
-                loadWorkoutChoices();
-            }
-        };
-        workoutService.getAllWorkouts(new ServiceCallback<List<Workout>>() {
-            @Override public void onSuccess(List<Workout> result) {
-                for (Workout workout : result) premade.add(new WorkoutOption(workout.getName(), null, false));
-                finished.run();
-            }
-            @Override public void onError(String message) { finished.run(); }
-        });
-        customWorkoutService.getMyCustomWorkouts(new ServiceCallback<List<CustomWorkout>>() {
-            @Override public void onSuccess(List<CustomWorkout> result) {
-                for (CustomWorkout workout : result) {
-                    custom.add(new WorkoutOption(workout.getName(), workout.getId(), true));
-                }
-                finished.run();
-            }
-            @Override public void onError(String message) { finished.run(); }
-        });
-    }
-
     private void showAddWorkoutDialog() {
         if (previewMode) {
             showMessage(getString(R.string.schedule_preview_sign_in));
             return;
         }
-        if (!workoutChoicesLoaded) {
-            loadWorkoutChoices();
+        if (!workoutChoices.isLoaded()) {
+            workoutChoices.load();
             showMessage(getString(R.string.schedule_workouts_loading));
             return;
         }
-        if (workoutOptions.isEmpty()) {
+        if (workoutChoices.get().isEmpty()) {
             showMessage(getString(R.string.schedule_no_workouts));
             return;
         }
 
-        LinearLayout form = new LinearLayout(this);
-        form.setOrientation(LinearLayout.VERTICAL);
-        form.setPadding(dp(this, 22), dp(this, 8), dp(this, 22), dp(this, 4));
-        addFormLabel(form, R.string.schedule_form_workout);
-        Spinner workoutSpinner = new Spinner(this);
-        workoutSpinner.setPopupBackgroundResource(R.color.performance_surface);
-        ArrayAdapter<WorkoutOption> workoutAdapter = new ArrayAdapter<>(this,
-                R.layout.spinner_item_selected, workoutOptions);
-        workoutAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
-        workoutSpinner.setAdapter(workoutAdapter);
-        form.addView(workoutSpinner, new LinearLayout.LayoutParams(-1, dp(this, 48)));
-
-        addFormLabel(form, R.string.schedule_form_date_time);
-        Calendar chosen = week.getSelectedDay();
-        chosen.set(Calendar.HOUR_OF_DAY, 18);
-        chosen.set(Calendar.MINUTE, 0);
-        chosen.set(Calendar.SECOND, 0);
-        chosen.set(Calendar.MILLISECOND, 0);
-        TextView dateTimeButton = new TextView(this);
-        dateTimeButton.setText(formatDateTime(chosen));
-        dateTimeButton.setTextColor(UiColors.GRAPHITE);
-        dateTimeButton.setTextSize(14);
-        dateTimeButton.setGravity(Gravity.CENTER_VERTICAL);
-        dateTimeButton.setPadding(dp(this, 12), 0, dp(this, 12), 0);
-        dateTimeButton.setBackground(rounded(UiColors.CANVAS, dp(this, 12)));
-        form.addView(dateTimeButton, new LinearLayout.LayoutParams(-1, dp(this, 48)));
-        dateTimeButton.setOnClickListener(v -> pickDateTime(chosen, dateTimeButton));
-
-        addFormLabel(form, R.string.schedule_form_repeat);
-        Spinner repeatSpinner = new Spinner(this);
-        repeatSpinner.setPopupBackgroundResource(R.color.performance_surface);
-        ArrayAdapter<String> repeatAdapter = new ArrayAdapter<>(this,
-                R.layout.spinner_item_selected, getResources().getStringArray(R.array.schedule_repeat_options));
-        repeatAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
-        repeatSpinner.setAdapter(repeatAdapter);
-        form.addView(repeatSpinner, new LinearLayout.LayoutParams(-1, dp(this, 48)));
-
-        CheckBox calendarCheck = new CheckBox(this);
-        calendarCheck.setText(R.string.schedule_add_to_calendar);
-        calendarCheck.setTextColor(UiColors.MUTED);
-        calendarCheck.setTextSize(13);
-        LinearLayout.LayoutParams checkParams = new LinearLayout.LayoutParams(-1, -2);
-        checkParams.topMargin = dp(this, 8);
-        form.addView(calendarCheck, checkParams);
-
-        AlertDialog dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
-                .setTitle(R.string.schedule_form_title)
-                .setView(form)
-                .setNegativeButton(R.string.common_cancel, null)
-                .setPositiveButton(R.string.schedule_form_save, null)
-                .create();
-        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                .setOnClickListener(v -> {
-                    WorkoutOption choice = (WorkoutOption) workoutSpinner.getSelectedItem();
-                    if (choice == null) { showMessage(getString(R.string.schedule_choose_workout)); return; }
-                    Recurrence recurrence = recurrenceAt(repeatSpinner.getSelectedItemPosition());
-                    boolean addToCalendar = calendarCheck.isChecked();
+        PlanWorkoutDialog.show(this, workoutChoices.get(), week.getSelectedDay(), this::showMessage,
+                (choice, at, recurrence, addToCalendar) -> {
                     if (addToCalendar && !scheduleService.hasCalendarPermission()) {
                         pendingChoice = choice;
-                        pendingScheduledAt = chosen.getTimeInMillis() / 1000L;
+                        pendingScheduledAt = at;
                         pendingRecurrence = recurrence;
                         calendarPermissionLauncher.launch(ScheduleService.CALENDAR_PERMISSIONS);
                     } else {
-                        createSchedule(choice, chosen.getTimeInMillis() / 1000L, recurrence, addToCalendar);
+                        createSchedule(choice, at, recurrence, addToCalendar);
                     }
-                    dialog.dismiss();
-                }));
-        dialog.show();
+                });
     }
 
-    private void createSchedule(WorkoutOption choice, long at, Recurrence recurrence, boolean addToCalendar) {
+    private void createSchedule(WorkoutChoices.Option choice, long at, Recurrence recurrence, boolean addToCalendar) {
         if (at <= System.currentTimeMillis() / 1000L) {
             showMessage(getString(R.string.schedule_past_time));
             return;
@@ -670,57 +551,8 @@ public class ScheduleActivity extends AppCompatActivity {
             }
             @Override public void onError(String message) { showMessage(message); }
         };
-        if (choice.custom) scheduleService.scheduleCustom(choice.id, at, recurrence, addToCalendar, callback);
+        if (choice.isCustom()) scheduleService.scheduleCustom(choice.customWorkoutId, at, recurrence, addToCalendar, callback);
         else scheduleService.schedulePremade(choice.name, at, recurrence, addToCalendar, callback);
-    }
-
-    private void pickDateTime(Calendar chosen, TextView button) {
-        new DatePickerDialog(this, R.style.ThemeOverlay_CalisthenicsApp_Picker, (picker, year, month, day) -> {
-            chosen.set(Calendar.YEAR, year);
-            chosen.set(Calendar.MONTH, month);
-            chosen.set(Calendar.DAY_OF_MONTH, day);
-            new TimePickerDialog(this, R.style.ThemeOverlay_CalisthenicsApp_Picker, (timePicker, hour, minute) -> {
-                chosen.set(Calendar.HOUR_OF_DAY, hour);
-                chosen.set(Calendar.MINUTE, minute);
-                chosen.set(Calendar.SECOND, 0);
-                chosen.set(Calendar.MILLISECOND, 0);
-                button.setText(formatDateTime(chosen));
-            }, chosen.get(Calendar.HOUR_OF_DAY), chosen.get(Calendar.MINUTE), false).show();
-        }, chosen.get(Calendar.YEAR), chosen.get(Calendar.MONTH), chosen.get(Calendar.DAY_OF_MONTH)).show();
-    }
-
-    private void addFormLabel(LinearLayout form, int text) {
-        TextView label = new TextView(this);
-        label.setText(text);
-        label.setTextColor(UiColors.MUTED);
-        label.setTextSize(10);
-        label.setLetterSpacing(0.08f);
-        label.setTypeface(null, android.graphics.Typeface.BOLD);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
-        params.topMargin = dp(this, 14);
-        params.bottomMargin = dp(this, 4);
-        form.addView(label, params);
-    }
-
-    private Recurrence recurrenceAt(int position) {
-        switch (position) {
-            case 1: return Recurrence.daily();
-            case 2: return Recurrence.weekly();
-            case 3: return Recurrence.monthly();
-            default: return null;
-        }
-    }
-
-    private String findCustomWorkoutName(String id) {
-        for (WorkoutOption option : workoutOptions) {
-            if (option.custom && option.id.equals(id)) return option.name;
-        }
-        return getString(R.string.schedule_custom_workout);
-    }
-
-    private String formatDateTime(Calendar calendar) {
-        return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault())
-                .format(calendar.getTime());
     }
 
     private String statusLabel(OccurrenceStatus status) {
@@ -731,19 +563,5 @@ public class ScheduleActivity extends AppCompatActivity {
 
     private void showMessage(String message) {
         Snackbar.make(findViewById(R.id.scheduleRoot), message, Snackbar.LENGTH_LONG).show();
-    }
-
-    private final class WorkoutOption {
-        final String name;
-        final String id;
-        final boolean custom;
-        WorkoutOption(String name, String id, boolean custom) {
-            this.name = name;
-            this.id = id;
-            this.custom = custom;
-        }
-        @Override public String toString() {
-            return custom ? getString(R.string.schedule_my_workout_option, name) : name;
-        }
     }
 }
