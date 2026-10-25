@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Intent;
 
 import com.example.calisthenicsapp.sync.SyncManager;
+import com.example.calisthenicsapp.ui.auth.MainActivity;
 
 public class CalisthenicsApplication extends Application {
     @Override

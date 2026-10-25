@@ -29,44 +29,44 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CalisthenicsApp">
         <activity
-            android:name=".HomeActivity"
+            android:name=".ui.home.HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".ExerciseListActivity"
+            android:name=".ui.exercises.ExerciseListActivity"
             android:exported="false" />
         <activity
-            android:name=".ExerciseDetailActivity"
+            android:name=".ui.exercises.ExerciseDetailActivity"
             android:exported="false" />
         <activity
-            android:name=".ScheduleActivity"
+            android:name=".ui.schedule.ScheduleActivity"
             android:exported="false" />
-        <activity android:name=".HistoryActivity" android:exported="false" />
-        <activity android:name=".WorkoutListActivity" android:exported="false" />
-        <activity android:name=".CustomWorkoutsActivity" android:exported="false" />
-        <activity android:name=".CustomWorkoutEditorActivity" android:exported="false"
+        <activity android:name=".ui.history.HistoryActivity" android:exported="false" />
+        <activity android:name=".ui.workouts.WorkoutListActivity" android:exported="false" />
+        <activity android:name=".ui.workouts.CustomWorkoutsActivity" android:exported="false" />
+        <activity android:name=".ui.workouts.CustomWorkoutEditorActivity" android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".CustomWorkoutDetailActivity" android:exported="false" />
-        <activity android:name=".WorkoutDetailActivity" android:exported="false" />
-        <activity android:name=".WorkoutSessionActivity" android:exported="false" />
-        <activity android:name=".WorkoutSummaryActivity" android:exported="false" />
-        <activity android:name=".SettingsActivity" android:exported="false" />
-        <activity android:name=".ProfileActivity" android:exported="false"
+        <activity android:name=".ui.workouts.CustomWorkoutDetailActivity" android:exported="false" />
+        <activity android:name=".ui.workouts.WorkoutDetailActivity" android:exported="false" />
+        <activity android:name=".ui.session.WorkoutSessionActivity" android:exported="false" />
+        <activity android:name=".ui.session.WorkoutSummaryActivity" android:exported="false" />
+        <activity android:name=".ui.settings.SettingsActivity" android:exported="false" />
+        <activity android:name=".ui.settings.ProfileActivity" android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".AccountSecurityActivity" android:exported="false"
+        <activity android:name=".ui.settings.AccountSecurityActivity" android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".DataPrivacyActivity" android:exported="false"
+        <activity android:name=".ui.settings.DataPrivacyActivity" android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".PrivacyPolicyActivity" android:exported="false" />
+        <activity android:name=".ui.settings.PrivacyPolicyActivity" android:exported="false" />
         <activity
-            android:name=".SignupActivity"
+            android:name=".ui.auth.SignupActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ForgotPasswordActivity"
+            android:name=".ui.auth.ForgotPasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.auth.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

@@ -111,6 +111,7 @@ must belong to that account.
 | `scheduling` | Repeat rules, schedule occurrences and their status, the device calendar, the email and its `.ics` file. Used by `ScheduleService`. |
 | `export` | The JSON and CSV data export. Used by `AccountService`. |
 | `repository`, `database`, `sync`, `validation` | Storage, sync and validation. Use them through the services. |
+| `ui.*` | The screens, one package per area: `auth`, `home`, `exercises`, `workouts`, `session`, `schedule`, `history`, `settings`. `ui.common` has what several screens share (`BottomNav`, `Views`, `UiColors`, `Durations`). |
 
 ### Rules for every service call
 
