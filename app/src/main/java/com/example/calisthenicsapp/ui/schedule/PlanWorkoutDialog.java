@@ -28,14 +28,15 @@ import java.util.function.Consumer;
 
 /**
  * The "Plan a workout" form: which workout, date and time (18:00 on the given day to start
- * with), repeat, and whether to add it to the device calendar. Saving hands the answers to
- * OnPlanned; asking for calendar permission and saving the schedule are the screen's job.
+ * with), repeat, whether to add it to the device calendar, and whether to email it to the user
+ * (ticked to start with). Saving hands the answers to OnPlanned; asking for calendar permission,
+ * saving the schedule and opening the email are the screen's job.
  */
 final class PlanWorkoutDialog {
     interface OnPlanned {
         /** at is in epoch seconds; recurrence is null for once. */
         void onPlanned(WorkoutChoices.Option choice, long at, Recurrence recurrence,
-                       boolean addToCalendar);
+                       boolean addToCalendar, boolean email);
     }
 
     private PlanWorkoutDialog() {
@@ -83,6 +84,13 @@ final class PlanWorkoutDialog {
         checkParams.topMargin = dp(context, 8);
         form.addView(calendarCheck, checkParams);
 
+        CheckBox emailCheck = new CheckBox(context);
+        emailCheck.setText(R.string.schedule_email_me);
+        emailCheck.setTextColor(UiColors.MUTED);
+        emailCheck.setTextSize(13);
+        emailCheck.setChecked(true);
+        form.addView(emailCheck, new LinearLayout.LayoutParams(-1, -2));
+
         AlertDialog dialog = new MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(R.string.schedule_form_title)
                 .setView(form)
@@ -98,7 +106,7 @@ final class PlanWorkoutDialog {
                     }
                     onPlanned.onPlanned(choice, chosen.getTimeInMillis() / 1000L,
                             RepeatOptions.recurrenceAt(repeatSpinner.getSelectedItemPosition()),
-                            calendarCheck.isChecked());
+                            calendarCheck.isChecked(), emailCheck.isChecked());
                     dialog.dismiss();
                 }));
         dialog.show();

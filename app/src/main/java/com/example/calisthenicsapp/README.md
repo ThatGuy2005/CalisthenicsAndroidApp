@@ -79,7 +79,7 @@ There is no admin role. Premade exercises and workouts ship with the app and can
 ### 2.6 Scheduling
 - **FR-6.1:** The user shall be able to schedule a workout for a chosen date and time. Schedules shall support recurrence rules (e.g., weekly) and maintain an internal status flag (pending/completed/missed).
 - **FR-6.2:** The system shall add the scheduled workout as an event in the device's calendar app, saving the resulting calendar event ID in the local database to support downstream updates.
-- **FR-6.3:** When a workout is scheduled, the app shall open the user's email app with an email to their own address, holding the workout name, date, time, list of exercises and a calendar invitation file (.ics); the user sends it. The user shall also be able to send a scheduled workout to their email address again later.
+- **FR-6.3:** When scheduling a workout, the user shall be able to choose to get it by email (chosen by default). If so, once it is saved the app shall open the user's email app with an email to their own address, holding the workout name, date, time, list of exercises and a calendar invitation file (.ics); the user sends it. The user shall also be able to send a scheduled workout to their email address again later.
 - **FR-6.4:** The user shall be able to view, edit and cancel scheduled workouts.
 - **FR-6.5:** The system shall ask for the required calendar permission and handle a denied permission gracefully.
 

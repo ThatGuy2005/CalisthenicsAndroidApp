@@ -64,6 +64,7 @@ public class ScheduleActivity extends AppCompatActivity {
     private WorkoutChoices.Option pendingChoice;
     private long pendingScheduledAt;
     private Recurrence pendingRecurrence;
+    private boolean pendingEmail;
 
     private final DataChanges.Listener dataListener = kind -> {
         if (kind == DataChanges.Kind.SCHEDULES) loadWeek();
@@ -504,7 +505,7 @@ public class ScheduleActivity extends AppCompatActivity {
             long at = pendingScheduledAt;
             Recurrence recurrence = pendingRecurrence;
             pendingChoice = null;
-            createSchedule(choice, at, recurrence, granted);
+            createSchedule(choice, at, recurrence, granted, pendingEmail);
             if (!granted) showMessage(getString(R.string.schedule_saved_without_calendar));
         }
     }
@@ -525,19 +526,21 @@ public class ScheduleActivity extends AppCompatActivity {
         }
 
         PlanWorkoutDialog.show(this, workoutChoices.get(), week.getSelectedDay(), this::showMessage,
-                (choice, at, recurrence, addToCalendar) -> {
+                (choice, at, recurrence, addToCalendar, email) -> {
                     if (addToCalendar && !scheduleService.hasCalendarPermission()) {
                         pendingChoice = choice;
                         pendingScheduledAt = at;
                         pendingRecurrence = recurrence;
+                        pendingEmail = email;
                         calendarPermissionLauncher.launch(ScheduleService.CALENDAR_PERMISSIONS);
                     } else {
-                        createSchedule(choice, at, recurrence, addToCalendar);
+                        createSchedule(choice, at, recurrence, addToCalendar, email);
                     }
                 });
     }
 
-    private void createSchedule(WorkoutChoices.Option choice, long at, Recurrence recurrence, boolean addToCalendar) {
+    private void createSchedule(WorkoutChoices.Option choice, long at, Recurrence recurrence,
+                                boolean addToCalendar, boolean email) {
         if (at <= System.currentTimeMillis() / 1000L) {
             showMessage(getString(R.string.schedule_past_time));
             return;
@@ -548,7 +551,8 @@ public class ScheduleActivity extends AppCompatActivity {
                 renderWeek();
                 loadWeek();
                 showMessage(getString(R.string.schedule_added));
-                emailInvite(id);   // the user's email app, filled in; the user taps Send (FR-6.3)
+                // The user's email app, filled in; the user taps Send (FR-6.3).
+                if (email) emailInvite(id);
             }
             @Override public void onError(String message) { showMessage(message); }
         };

@@ -420,6 +420,7 @@
     <string name="schedule_repeat_workout">"%1$s  ·  WORKOUT"</string>
     <string name="schedule_mark_complete">"Mark as complete  ✓"</string>
     <string name="schedule_add_to_calendar">Add to my phone calendar</string>
+    <string name="schedule_email_me">Email it to me</string>
     <string name="schedule_day_subtitle">Your plan for this day</string>
     <plurals name="schedule_plan_count">
         <item quantity="one">YOUR PLAN · %d SESSION</item>
