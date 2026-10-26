@@ -23,9 +23,17 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Locale;
 
+/**
+ * The sign-up screen (FR-1.1 to FR-1.3): username, email and password, and the optional height,
+ * weight, gender and birth year for the calorie estimate. Height and weight are typed in the units
+ * chosen in Settings and sent to AuthService in cm and kg.
+ */
 public class SignupActivity extends AppCompatActivity {
+    /** The "back to login" link, disabled while signing up. */
     private TextView backToLogin;
+    /** This device's unit setting. */
     private UnitSystem units;
+    /** The height field, in cm or in feet and inches. */
     private HeightInput height;
 
     /**
@@ -71,6 +79,10 @@ public class SignupActivity extends AppCompatActivity {
         createAccount.setOnClickListener(view -> validateForm(authService, createAccount));
     }
 
+    /**
+     * Checks the form field by field, putting the first problem on its field, and signs up when
+     * everything is fine. The optional fields may be empty, but not wrong.
+     */
     private void validateForm(AuthService authService, Button createAccount) {
         EditText username = findViewById(R.id.signupUsername);
         EditText email = findViewById(R.id.signupEmail);
@@ -94,6 +106,7 @@ public class SignupActivity extends AppCompatActivity {
             password.requestFocus();
         } else {
             Locale locale = Locale.getDefault();
+            // The optional fields are only checked when something was typed.
             Double heightValue = height.toCm();
             if (!height.isEmpty() && (heightValue == null || !UserValidator.isValidHeight(heightValue))) {
                 height.errorField().setError(Units.heightError(units, locale));
@@ -116,6 +129,7 @@ public class SignupActivity extends AppCompatActivity {
                 return;
             }
 
+            // The first choice is the "not given" placeholder.
             String genderValue = gender.getSelectedItemPosition() == 0
                     ? null : gender.getSelectedItem().toString();
             setSigningUp(createAccount, true);
@@ -138,6 +152,10 @@ public class SignupActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * The field as a number, with a comma accepted as the decimal point; null if it is empty or not
+     * a number.
+     */
     private Double parseOptionalNumber(EditText field) {
         String value = field.getText().toString().trim();
         if (value.isEmpty()) return null;
@@ -148,6 +166,7 @@ public class SignupActivity extends AppCompatActivity {
         }
     }
 
+    /** The field as a whole number; null if it is empty or not one. */
     private Integer parseOptionalYear(EditText field) {
         String value = field.getText().toString().trim();
         if (value.isEmpty()) return null;
@@ -158,6 +177,7 @@ public class SignupActivity extends AppCompatActivity {
         }
     }
 
+    /** Locks the buttons and Back while the account is being created. */
     private void setSigningUp(Button createAccount, boolean signingUp) {
         createAccount.setEnabled(!signingUp);
         backToLogin.setEnabled(!signingUp);

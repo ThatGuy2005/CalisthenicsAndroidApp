@@ -39,7 +39,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+/**
+ * The Home tab, the first screen after login: the next scheduled workout, this week's statistics
+ * (FR-5.7), the last workout, and shortcuts to the other tabs, Settings and sign-out. It reloads
+ * its cards whenever DataChanges reports new data.
+ */
 public class HomeActivity extends AppCompatActivity {
+    /**
+     * True to show made-up sample data without an account, for looking at the design. The tab
+     * screens pass it on to each other.
+     */
     public static final String EXTRA_PREVIEW_MODE = "com.example.calisthenicsapp.PREVIEW_MODE";
     private TextView nextWorkoutName;
     private TextView nextWorkoutDate;
@@ -54,8 +63,13 @@ public class HomeActivity extends AppCompatActivity {
     private StatsService stats;
     private WorkoutLogService workoutLogs;
     private CustomWorkoutService customWorkouts;
+    /** See {@link #EXTRA_PREVIEW_MODE}; no services then. */
     private boolean previewMode;
 
+    /**
+     * Reloads only the cards whose data changed. Custom workouts matter for the next workout card,
+     * which shows a custom workout's name.
+     */
     private final DataChanges.Listener dataListener = kind -> {
         if (kind == DataChanges.Kind.SCHEDULES || kind == DataChanges.Kind.CUSTOM_WORKOUTS) {
             loadUpcomingWorkout();
@@ -73,6 +87,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         WindowInsetsControllerCompat insetsController = new WindowInsetsControllerCompat(
                 getWindow(), getWindow().getDecorView());
+        // Light status and navigation bar icons on the dark background.
         insetsController.setAppearanceLightStatusBars(false);
         insetsController.setAppearanceLightNavigationBars(false);
 
@@ -107,6 +122,7 @@ public class HomeActivity extends AppCompatActivity {
                 finish();
                 return;
             }
+            // Signing out makes SyncManager delete this user's local data.
             new AuthService(this).signOut();
             startActivity(new Intent(this, MainActivity.class));
             finish();
@@ -149,6 +165,10 @@ public class HomeActivity extends AppCompatActivity {
         lastWorkoutStatus.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * The next scheduled workout and when it is. A custom workout's name is looked up separately,
+     * since the schedule only has its id.
+     */
     private void loadUpcomingWorkout() {
         schedules.getUpcoming(new ServiceCallback<List<ScheduledWorkout>>() {
             @Override
@@ -159,6 +179,7 @@ public class HomeActivity extends AppCompatActivity {
                     return;
                 }
 
+                // getUpcoming sorts by the next occurrence, so the first one is the soonest.
                 ScheduledWorkout next = upcoming.get(0);
                 Long nextAt = next.nextOccurrence(System.currentTimeMillis() / 1000L,
                         TimeZone.getDefault());
@@ -198,6 +219,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    /** Workouts, training time and calories of this calendar week. */
     private void loadWeeklyStats() {
         stats.getStats(StatsPeriod.WEEK, new ServiceCallback<WorkoutStats>() {
             @Override
@@ -218,6 +240,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    /** The newest workout log, with its status tag. */
     private void loadLastWorkout() {
         workoutLogs.getMyLogs(StatsPeriod.ALL_TIME, new ServiceCallback<List<WorkoutLog>>() {
             @Override
@@ -250,6 +273,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    /** A short message at the bottom. */
     private void showMessage(String message) {
         Snackbar.make(findViewById(R.id.homeRoot), message, Snackbar.LENGTH_LONG).show();
     }

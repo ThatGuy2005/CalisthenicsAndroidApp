@@ -16,11 +16,16 @@ import com.example.calisthenicsapp.service.AuthService;
 import com.example.calisthenicsapp.ui.home.HomeActivity;
 import com.google.firebase.auth.FirebaseUser;
 
+/**
+ * The login screen and the app's launcher activity (FR-1.4). It goes straight to Home when someone
+ * is already signed in, and links to sign-up and the password reset.
+ */
 public class MainActivity extends AppCompatActivity {
     /** Set when the user was signed out because their account's profile is gone. */
     public static final String EXTRA_ACCOUNT_GONE = "account_gone";
 
     private AuthService authService;
+    /** Home is already being opened, so onStart and a sign-in do not open it twice. */
     private boolean openingHome;
 
     @Override
@@ -32,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null && getIntent().getBooleanExtra(EXTRA_ACCOUNT_GONE, false)) {
             Toast.makeText(this, R.string.login_account_gone, Toast.LENGTH_LONG).show();
         }
+        // Edge-to-edge: pad the content so it does not go under the status and navigation bars.
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -84,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         if (authService.getCurrentUser() != null) openHome();
     }
 
+    /** Opens Home and closes the login screen, once. */
     private void openHome() {
         if (openingHome) return;
         openingHome = true;

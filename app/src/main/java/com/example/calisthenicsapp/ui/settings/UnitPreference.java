@@ -18,6 +18,7 @@ public final class UnitPreference {
         return UnitSystem.fromName(prefs(context).getString(KEY_UNIT_SYSTEM, null));
     }
 
+    /** Saves the choice; the screens opened after this use it. */
     public static void set(Context context, UnitSystem system) {
         prefs(context).edit().putString(KEY_UNIT_SYSTEM, system.name()).apply();
     }

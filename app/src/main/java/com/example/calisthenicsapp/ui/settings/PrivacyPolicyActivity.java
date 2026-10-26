@@ -21,6 +21,7 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
         TextView body = findViewById(R.id.privacyPolicyBody);
         body.setText(Html.fromHtml(getString(R.string.privacy_policy_body),
                 Html.FROM_HTML_MODE_COMPACT));
+        // Makes the links in the text tappable.
         body.setMovementMethod(LinkMovementMethod.getInstance());
     }
 }

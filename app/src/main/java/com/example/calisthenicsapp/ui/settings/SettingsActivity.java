@@ -9,6 +9,10 @@ import com.example.calisthenicsapp.R;
 import com.example.calisthenicsapp.model.UnitSystem;
 import com.google.android.material.snackbar.Snackbar;
 
+/**
+ * The Settings screen: links to Profile, Account security and Data &amp; privacy, and the units
+ * toggle (FR-1.7), which is saved on this device right away.
+ */
 public class SettingsActivity extends AppCompatActivity {
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item_selected, choices);
         adapter.setDropDownViewResource(R.layout.spinner_item_dropdown);
         units.setAdapter(adapter);
+        // The spinner lists UnitSystem.values() in order, so the position is the ordinal.
         units.setSelection(UnitPreference.get(this).ordinal());
         units.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(android.widget.AdapterView<?> parent,

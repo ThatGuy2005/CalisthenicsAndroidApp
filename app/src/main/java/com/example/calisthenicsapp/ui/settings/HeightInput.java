@@ -22,6 +22,7 @@ public final class HeightInput {
     private String shownFeet;
     private String shownInches;
 
+    /** Shows the cm field or the feet and inches row, whichever the unit system uses. */
     public HeightInput(EditText cm, View imperialRow, EditText feet, EditText inches, UnitSystem system) {
         this.cm = cm;
         this.feet = feet;
@@ -47,6 +48,7 @@ public final class HeightInput {
         shownCm = storedCm;
     }
 
+    /** Whether nothing was typed, so the optional height is not given. */
     public boolean isEmpty() {
         return imperial ? text(feet).isEmpty() && text(inches).isEmpty() : text(cm).isEmpty();
     }
@@ -70,12 +72,14 @@ public final class HeightInput {
         return imperial ? feet : cm;
     }
 
+    /** Enables or disables all the fields. */
     public void setEnabled(boolean enabled) {
         cm.setEnabled(enabled);
         feet.setEnabled(enabled);
         inches.setEnabled(enabled);
     }
 
+    /** The field's text, trimmed. */
     private static String text(EditText field) {
         return field.getText().toString().trim();
     }

@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 
 /** Data export and account deletion actions, backed by DataExportService and AccountService. */
 public class DataPrivacyActivity extends AppCompatActivity {
+    /** Writes the JSON export to the chosen file off the main thread. */
     private final ExecutorService fileWriter = Executors.newSingleThreadExecutor();
     private AccountService account;
     private DataExportService export;
@@ -43,6 +44,7 @@ public class DataPrivacyActivity extends AppCompatActivity {
         jsonButton = findViewById(R.id.exportJsonButton);
         csvButton = findViewById(R.id.exportCsvButton);
         deleteButton = findViewById(R.id.deleteAccountButton);
+        // The system's "save as" screens; the export runs once the user picked a file.
         jsonPicker = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/json"),
                 uri -> { if (uri != null) exportJson(uri); });
         csvPicker = registerForActivityResult(new ActivityResultContracts.CreateDocument("application/zip"),
@@ -55,6 +57,7 @@ public class DataPrivacyActivity extends AppCompatActivity {
         deleteButton.setOnClickListener(v -> confirmDelete());
     }
 
+    /** Builds the JSON export and writes it to the file the user picked (NFR-5). */
     private void exportJson(Uri target) {
         setExporting(true);
         export.exportMyData(new ServiceCallback<String>() {
@@ -77,6 +80,7 @@ public class DataPrivacyActivity extends AppCompatActivity {
         });
     }
 
+    /** Writes the CSV export as a ZIP to the file the user picked (NFR-5). */
     private void exportCsv(Uri target) {
         setExporting(true);
         export.exportMyDataCsv(target, new ServiceCallback<Void>() {
@@ -85,6 +89,7 @@ public class DataPrivacyActivity extends AppCompatActivity {
         });
     }
 
+    /** Step 1 of deleting the account (FR-1.10): are you sure? */
     private void confirmDelete() {
         new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(R.string.data_privacy_confirm_title)
@@ -94,6 +99,10 @@ public class DataPrivacyActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Step 2: the current password, then the deletion. On success the app restarts at the login
+     * screen, with nothing of the account left on the device.
+     */
     private void askDeletePassword() {
         EditText password = new EditText(this);
         password.setHint(R.string.security_hint_current_password);
@@ -127,10 +136,12 @@ public class DataPrivacyActivity extends AppCompatActivity {
                 }).show();
     }
 
+    /** Disables both export buttons while an export is being prepared. */
     private void setExporting(boolean exporting) {
         jsonButton.setEnabled(!exporting); csvButton.setEnabled(!exporting);
         jsonButton.setText(exporting ? R.string.data_privacy_preparing : R.string.data_privacy_save_json);
         csvButton.setText(exporting ? R.string.data_privacy_preparing : R.string.data_privacy_save_csv);
     }
+    /** A short message at the bottom. */
     private void show(String message) { Snackbar.make(findViewById(R.id.dataPrivacyRoot), message, Snackbar.LENGTH_LONG).show(); }
 }
