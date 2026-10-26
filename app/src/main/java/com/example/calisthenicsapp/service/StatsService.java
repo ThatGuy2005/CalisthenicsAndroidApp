@@ -19,6 +19,7 @@ import java.util.function.Supplier;
  */
 public class StatsService extends UserDataService {
 
+    /** Uses the app's database, FirebaseAuth and Firestore. */
     public StatsService(Context context) {
         super(context);
     }

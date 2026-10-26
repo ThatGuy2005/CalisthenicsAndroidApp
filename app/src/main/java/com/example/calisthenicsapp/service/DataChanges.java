@@ -29,8 +29,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class DataChanges {
 
     /** What changed. A listener can watch several. */
-    public enum Kind { PROFILE, CUSTOM_WORKOUTS, WORKOUT_LOGS, SCHEDULES }
+    public enum Kind {
+        /** The user's profile. */
+        PROFILE,
+        /** The custom workouts or their exercises. */
+        CUSTOM_WORKOUTS,
+        /** The workout history. */
+        WORKOUT_LOGS,
+        /** The planned workouts, their completed occurrences or calendar events. */
+        SCHEDULES
+    }
 
+    /** Gets told about changes; see {@link #observe}. */
     public interface Listener {
         /** Called on the main thread. */
         void onDataChanged(Kind kind);
@@ -56,6 +66,7 @@ public final class DataChanges {
         for (Kind kind : kinds) LISTENERS.get(kind).add(listener);
     }
 
+    /** Stops the listener for every kind it was added for. */
     public static void removeListener(Listener listener) {
         for (Set<Listener> listeners : LISTENERS.values()) listeners.remove(listener);
     }
@@ -86,6 +97,7 @@ public final class DataChanges {
      */
     public static void notifyChanged(Kind kind) {
         AtomicBoolean pending = PENDING.get(kind);
+        // One is already on its way to the main thread; it will see this change too.
         if (!pending.compareAndSet(false, true)) return;
         MAIN.post(() -> {
             pending.set(false);

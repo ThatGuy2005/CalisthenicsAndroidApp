@@ -29,6 +29,7 @@ public class ProfileService extends UserDataService {
     private static final String USERNAME_CHANGE_FAILED =
             "Could not change the username. Changing it needs an internet connection.";
 
+    /** Uses the app's database, FirebaseAuth and Firestore. */
     public ProfileService(Context context) {
         super(context);
     }
@@ -78,6 +79,8 @@ public class ProfileService extends UserDataService {
         String newKey = UserValidator.usernameKey(username);
         onDb(() -> {
             User current = new UserRepository(db()).getOne(uid);
+            // Same name, perhaps in other letter case: the claim stays, so a plain update is
+            // enough.
             if (current != null && UserValidator.usernameKey(current.getUsername()).equals(newKey)) {
                 watchWrite(userDoc(uid).update(changes), "Updating profile of " + uid);
                 succeed(callback, null);
@@ -133,6 +136,7 @@ public class ProfileService extends UserDataService {
                 });
     }
 
+    /** The usernames/{key} claim document; key is a lowercased name. */
     private DocumentReference usernameDoc(String key) {
         return firestore().collection("usernames").document(key);
     }

@@ -27,6 +27,7 @@ import java.util.function.Supplier;
  */
 public class WorkoutLogService extends UserDataService {
 
+    /** Uses the app's database, FirebaseAuth and Firestore. */
     public WorkoutLogService(Context context) {
         super(context);
     }
@@ -116,7 +117,10 @@ public class WorkoutLogService extends UserDataService {
         });
     }
 
-    /** Must run inside onDb. */
+    /**
+     * Marks the schedule occurrence this session was done for as completed, if there is one:
+     * the same workout, planned within MISSED_AFTER_SECONDS of the start. Must run inside onDb.
+     */
     private void completeMatchingSchedule(String uid, WorkoutSession session) {
         long started = session.getStartedAt();
         long window = OccurrenceStatus.MISSED_AFTER_SECONDS;
@@ -130,6 +134,7 @@ public class WorkoutLogService extends UserDataService {
                 "Completing schedule " + scheduleId + " at " + match.getStartSeconds());
     }
 
+    /** Deletes the log from the history (FR-5.7); the statistics change with it. Works offline. */
     public void delete(String logId, ServiceCallback<Void> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {

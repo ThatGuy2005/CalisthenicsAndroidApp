@@ -22,6 +22,7 @@ import java.util.function.Supplier;
  */
 public class WorkoutService extends DbService {
 
+    /** Uses the app's database. */
     public WorkoutService(Context context) {
         this(context, appDatabase(context));
     }

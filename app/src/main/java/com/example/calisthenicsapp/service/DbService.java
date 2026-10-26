@@ -27,6 +27,7 @@ abstract class DbService {
     private final Context appContext;
     private final Supplier<SQLiteDatabase> database;
 
+    /** database is only asked for on the SQLite thread, see {@link #db()}. */
     protected DbService(Context context, Supplier<SQLiteDatabase> database) {
         this.appContext = context.getApplicationContext();
         this.database = database;
@@ -38,6 +39,7 @@ abstract class DbService {
         return () -> SQLManager.getInstance(appContext).getWritableDatabase();
     }
 
+    /** The application context, never an Activity. */
     protected Context context() {
         return appContext;
     }
@@ -47,14 +49,17 @@ abstract class DbService {
         return database.get();
     }
 
+    /** Runs task on the shared SQLite thread, after the tasks queued before it. */
     protected void onDb(Runnable task) {
         DB_EXECUTOR.execute(task);
     }
 
+    /** Delivers result to callback.onSuccess on the main thread. */
     protected static <T> void succeed(ServiceCallback<T> callback, T result) {
         MAIN.post(() -> callback.onSuccess(result));
     }
 
+    /** Delivers message to callback.onError on the main thread. */
     protected static <T> void fail(ServiceCallback<T> callback, String message) {
         MAIN.post(() -> callback.onError(message));
     }

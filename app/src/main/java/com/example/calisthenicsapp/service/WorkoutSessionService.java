@@ -27,8 +27,10 @@ import java.util.function.Supplier;
  * {@link #DEFAULT_WEIGHT_KG}.
  */
 public class WorkoutSessionService extends UserDataService {
+    /** The body weight assumed when the profile has none, for the calorie estimate. */
     public static final double DEFAULT_WEIGHT_KG = 70;
 
+    /** Uses the app's database, FirebaseAuth and Firestore. */
     public WorkoutSessionService(Context context) {
         super(context);
     }
@@ -39,6 +41,7 @@ public class WorkoutSessionService extends UserDataService {
         super(context, database, sessionManager, firestore);
     }
 
+    /** Starts the premade workout with this name (FR-5.1). */
     public void startPremade(String workoutName, ServiceCallback<WorkoutSession> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
@@ -54,6 +57,7 @@ public class WorkoutSessionService extends UserDataService {
         });
     }
 
+    /** Starts one of the user's custom workouts (FR-5.1). */
     public void startCustom(String customWorkoutId, ServiceCallback<WorkoutSession> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
@@ -72,6 +76,7 @@ public class WorkoutSessionService extends UserDataService {
         });
     }
 
+    /** Makes the session with the user's calorie rate. Must run inside onDb. */
     private void start(String uid, String workoutName, String customWorkoutId,
                        List<WorkoutSession.SessionExercise> exercises,
                        ServiceCallback<WorkoutSession> callback) {

@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 public class DataExportService extends UserDataService {
     private static final String TAG = "DataExportService";
 
+    /** Uses the app's database, FirebaseAuth and Firestore. */
     public DataExportService(Context context) {
         super(context);
     }
