@@ -38,6 +38,7 @@ final class ScheduleWeek {
         return (Calendar) selectedDay.clone();
     }
 
+    /** Selects today, by the clock. */
     void selectToday() {
         select(clock.getAsLong());
     }
@@ -53,10 +54,12 @@ final class ScheduleWeek {
         selectedDay.add(Calendar.DAY_OF_MONTH, weeks * DAYS_PER_WEEK);
     }
 
+    /** Whether day is the selected day. */
     boolean isSelected(Calendar day) {
         return sameDay(day, selectedDay);
     }
 
+    /** Whether the selected day is today. */
     boolean isTodaySelected() {
         return isSelected(dayOf(clock.getAsLong()));
     }
@@ -91,6 +94,7 @@ final class ScheduleWeek {
         occurrences.addAll(weekOccurrences);
     }
 
+    /** Whether a workout is planned on day; for the dot under its tile. */
     boolean hasOccurrenceOn(Calendar day) {
         for (ScheduleOccurrence occurrence : occurrences) {
             if (startsOn(occurrence, day)) return true;
@@ -98,6 +102,7 @@ final class ScheduleWeek {
         return false;
     }
 
+    /** The selected day's workouts, in the order loaded (soonest first). */
     List<ScheduleOccurrence> occurrencesOnSelectedDay() {
         List<ScheduleOccurrence> onDay = new ArrayList<>();
         for (ScheduleOccurrence occurrence : occurrences) {
@@ -106,6 +111,7 @@ final class ScheduleWeek {
         return onDay;
     }
 
+    /** Midnight of the first day of the selected week, by the locale's first weekday. */
     private Calendar weekStart() {
         Calendar start = (Calendar) selectedDay.clone();
         int difference = (start.get(Calendar.DAY_OF_WEEK) - start.getFirstDayOfWeek() + DAYS_PER_WEEK)
@@ -114,6 +120,7 @@ final class ScheduleWeek {
         return start;
     }
 
+    /** Whether the occurrence starts on day. */
     private boolean startsOn(ScheduleOccurrence occurrence, Calendar day) {
         return sameDay(dayOf(occurrence.getStartSeconds() * 1000L), day);
     }
@@ -125,11 +132,13 @@ final class ScheduleWeek {
         return startOfDay(day);
     }
 
+    /** Whether two calendars fall on the same date. */
     private static boolean sameDay(Calendar first, Calendar second) {
         return first.get(Calendar.YEAR) == second.get(Calendar.YEAR)
                 && first.get(Calendar.DAY_OF_YEAR) == second.get(Calendar.DAY_OF_YEAR);
     }
 
+    /** Sets the calendar to midnight of its day; returns it. */
     private static Calendar startOfDay(Calendar calendar) {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);

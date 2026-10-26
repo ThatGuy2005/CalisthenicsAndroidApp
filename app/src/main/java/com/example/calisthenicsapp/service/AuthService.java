@@ -27,13 +27,13 @@ import java.util.function.Supplier;
 /**
  * Wraps FirebaseAuth (email/password) and the users/{uid} Firestore profile document.
  * Every method is asynchronous and reports back through an {@link AuthCallback} on the main
- * thread; nothing here blocks the calling thread. Sign-up claims the username in usernames/{lowercased name} and
- * writes the profile in one transaction; if that fails (name taken, no connection) the new
- * Auth account is deleted again. On a successful sign-up, the Firestore profile write is followed
- * by a local SQLite insert (on a background thread) so the per-user tables that foreign-key to
- * Users(Uid) have something to reference immediately. Stage 4's sync listeners take over
- * keeping that local row current after this point, including mirroring it on sign-in on a
- * device that has never seen this user before.
+ * thread; nothing here blocks the calling thread. Sign-up claims the username in
+ * usernames/{lowercased name} and writes the profile in one transaction; if that fails (name
+ * taken, no connection) the new Auth account is deleted again. On a successful sign-up, the
+ * Firestore profile write is followed by a local SQLite insert (on a background thread) so the
+ * per-user tables that foreign-key to Users(Uid) have something to reference immediately.
+ * SyncManager's listeners keep that local row current from then on, and mirror it on sign-in on
+ * a device that has never seen this user before.
  */
 public class AuthService {
 
@@ -41,8 +41,11 @@ public class AuthService {
     private static final String USERNAME_TAKEN = "That username is taken.";
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
+    /** Result of an AuthService call, delivered on the main thread. */
     public interface AuthCallback<T> {
+        /** The call worked; result is null for calls with no result. */
         void onSuccess(T result);
+        /** The call failed; message can be shown to the user as it is. */
         void onError(String message);
     }
 
@@ -56,6 +59,7 @@ public class AuthService {
         return firestore.get();
     }
 
+    /** Uses the app's database, FirebaseAuth and Firestore. */
     public AuthService(Context context) {
         this(FirebaseAuth.getInstance(), DbService.appDatabase(context),
                 FirebaseFirestore::getInstance);
@@ -72,6 +76,7 @@ public class AuthService {
         this.firestore = firestore;
     }
 
+    /** The signed-in user, or null. */
     public FirebaseUser getCurrentUser() {
         return firebaseAuth.getCurrentUser();
     }
@@ -121,6 +126,10 @@ public class AuthService {
         return null;
     }
 
+    /**
+     * Step 2 of sign-up, once the Auth account exists: claims the username and writes the profile,
+     * or deletes the account again if that fails.
+     */
     private void saveProfile(FirebaseUser firebaseUser, String username, Double height,
                               Double weight, String gender, Integer birthYear,
                               AuthCallback<FirebaseUser> callback) {
@@ -182,6 +191,11 @@ public class AuthService {
         });
     }
 
+    /**
+     * Signs in with email and password (FR-1.4). SyncManager notices the sign-in and starts
+     * mirroring the user's data. A wrong email or password gives the same message, see {@link
+     * #describeError} (FR-1.5).
+     */
     public void signIn(String email, String password, AuthCallback<FirebaseUser> callback) {
         firebaseAuth.signInWithEmailAndPassword(UserValidator.normalizeEmail(email), password)
                 .addOnCompleteListener(task -> {
@@ -211,10 +225,15 @@ public class AuthService {
         });
     }
 
+    /** Signs out (FR-1.6); SyncManager then deletes the user's local data. */
     public void signOut() {
         firebaseAuth.signOut();
     }
 
+    /**
+     * Has Firebase email a password reset link to the address (FR-1.9). Firebase may report success
+     * for an unknown address too, so this does not reveal which emails have an account.
+     */
     public void sendPasswordReset(String email, AuthCallback<Void> callback) {
         firebaseAuth.sendPasswordResetEmail(UserValidator.normalizeEmail(email))
                 .addOnCompleteListener(task -> {

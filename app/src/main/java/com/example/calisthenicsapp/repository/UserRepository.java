@@ -9,7 +9,13 @@ import com.example.calisthenicsapp.model.User;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The signed-in user's profile (the Users table), keyed by uid. SyncManager writes it as it mirrors
+ * Firestore, and sign-up adds the new profile right away. The user's custom workouts, logs and
+ * schedules refer to this row, so deleting it (on sign-out) deletes them all.
+ */
 public class UserRepository implements Repository<User>{
+    /** Works on an open database; it does not close it. */
     public UserRepository(SQLiteDatabase db) {
         this.db = db;
     }
@@ -62,6 +68,7 @@ public class UserRepository implements Repository<User>{
         return users;
     };
 
+    /** The profile with this uid, or null. */
     public User getOne(String uid) {
         try (Cursor cursor = db.query("Users", null, "Uid = ?",
                 new String[]{uid}, null, null, null)) {
@@ -74,6 +81,7 @@ public class UserRepository implements Repository<User>{
         }
     }
 
+    /** The profile in the cursor's current row. */
     private User fromCursor(Cursor c) {
         return new User(
                 c.getString(c.getColumnIndexOrThrow("Uid")),

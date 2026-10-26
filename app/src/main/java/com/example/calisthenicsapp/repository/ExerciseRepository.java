@@ -10,9 +10,11 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/** The exercise library (the Exercise table from seed.sql), keyed by name. Read only. */
 public class ExerciseRepository implements ReadRepository<Exercise> {
     private final SQLiteDatabase db;
 
+    /** Works on an open database; it does not close it. */
     public ExerciseRepository(SQLiteDatabase db) { this.db = db; }
 
     @Override
@@ -24,6 +26,7 @@ public class ExerciseRepository implements ReadRepository<Exercise> {
         return list;
     }
 
+    /** The exercise with exactly this name, or null. */
     public Exercise getOne(String name) {
         try (Cursor c = db.query("Exercise", null, "Name = ?",
                 new String[]{name}, null, null, null)) {
@@ -56,6 +59,7 @@ public class ExerciseRepository implements ReadRepository<Exercise> {
             conditions.add("Equipment = ?");
             args.add(equipment.getLabel());
         }
+        // No filters: a null where clause returns the whole library.
         String where = conditions.isEmpty() ? null : TextUtils.join(" AND ", conditions);
 
         List<Exercise> list = new ArrayList<>();
@@ -76,6 +80,10 @@ public class ExerciseRepository implements ReadRepository<Exercise> {
         return list;
     }
 
+    /**
+     * The exercise in the cursor's current row. SQLite has no boolean type, so the Is* columns are
+     * 0 or 1.
+     */
     private Exercise fromCursor(Cursor c) {
         return new Exercise(
                 c.getString(c.getColumnIndexOrThrow("Name")),

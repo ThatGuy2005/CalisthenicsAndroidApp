@@ -21,7 +21,7 @@ public final class Durations {
         return context.getString(R.string.duration_minutes, Math.max(1, (seconds + 59) / 60));
     }
 
-    /** Time spent training: "0 min", "<1 min", "42 min", "1 h" or "1 h 5 min". */
+    /** Time spent training: "0 min", "&lt;1 min", "42 min", "1 h" or "1 h 5 min". */
     public static String spent(Context context, long seconds) {
         if (seconds > 0 && seconds < 60) return context.getString(R.string.duration_under_minute);
         long minutes = Math.max(0, seconds) / 60;

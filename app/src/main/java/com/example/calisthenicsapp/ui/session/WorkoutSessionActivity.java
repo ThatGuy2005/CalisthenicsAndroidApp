@@ -36,6 +36,7 @@ import java.util.Locale;
 
 /** Guided workout timer and progress screen (FR-5.1, FR-5.2). */
 public class WorkoutSessionActivity extends AppCompatActivity {
+    /** The WorkoutSession to run, from WorkoutSessionService.startPremade or startCustom. */
     public static final String EXTRA_SESSION = "com.example.calisthenicsapp.WORKOUT_SESSION";
     private static final String STATE_SESSION = "active_workout_session";
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -50,10 +51,16 @@ public class WorkoutSessionActivity extends AppCompatActivity {
     private ToneGenerator tone;
     private TelephonyManager telephony;
     private PhoneStateListener phoneStateListener;
+    /** This screen paused the workout for a phone call, so it resumes it when the call ends. */
     private boolean pausedByCall;
+    /** The phone permission question is showing; the workout waits paused until it is answered. */
     private boolean askingPhonePermission;
     private static final int REQUEST_PHONE_STATE = 7102;
 
+    /**
+     * Drives the session four times a second while the screen is shown: ends timed sets and rests
+     * on time, plays the cue at each change, and opens the summary at the end.
+     */
     private final Runnable ticker = new Runnable() {
         @Override public void run() {
             if (session == null || !session.isActive()) return;
@@ -67,9 +74,12 @@ public class WorkoutSessionActivity extends AppCompatActivity {
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // The screen stays on during the workout.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_workout_session);
         bindViews();
+        // A session saved before a rotation or process death wins over the one the screen was
+        // started with (FR-5.2).
         if (savedInstanceState != null) {
             session = (WorkoutSession) savedInstanceState.getSerializable(STATE_SESSION);
         }
@@ -88,6 +98,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         render();
     }
 
+    /** Finds the views the screen updates. */
     private void bindViews() {
         workoutName = findViewById(R.id.sessionWorkoutName);
         progress = findViewById(R.id.sessionProgress);
@@ -106,6 +117,10 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         placeholder = findViewById(R.id.sessionAnimationPlaceholder);
     }
 
+    /**
+     * Shows the session's current state: exercise, set, progress, timer or target, what comes next,
+     * time and calories so far, and the animation.
+     */
     private void render() {
         if (session == null || session.isOver()) return;
         WorkoutSession.SessionExercise current = session.getCurrentExercise();
@@ -162,6 +177,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         registerPhoneListener();
     }
 
+    /** Pauses the workout while a call rings or is answered, and resumes it after. */
     private void registerPhoneListener() {
         if (telephony == null || checkSelfPermission(android.Manifest.permission.READ_PHONE_STATE)
                 != PackageManager.PERMISSION_GRANTED) return;
@@ -183,6 +199,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         telephony.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
+    /** The phone permission answer: listen for calls if granted, then resume the workout. */
     @Override public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode != REQUEST_PHONE_STATE) return;
@@ -197,6 +214,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         render();
     }
 
+    /** "12 reps" or "30 sec", with " / side" for a per-side exercise. */
     private String targetText(WorkoutSession.SessionExercise exercise) {
         String value;
         if (exercise.isTimed()) value = exercise.getTargetSeconds() == null ? getString(R.string.target_timed)
@@ -207,6 +225,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         return exercise.isPerSide() ? getString(R.string.target_per_side_short, value) : value;
     }
 
+    /** The big button: "Skip rest" during a rest, "Set done" or "Finish set" during a set. */
     private void mainAction() {
         if (session.getPhase() == WorkoutSession.Phase.REST) {
             session.skipRest();
@@ -218,15 +237,18 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         afterAction();
     }
 
+    /** Pauses or resumes. */
     private void togglePause() {
         if (session.isPaused()) session.resume(); else session.pause();
         render();
     }
 
+    /** Opens the summary if the workout is over, or redraws. */
     private void afterAction() {
         if (session.isOver()) openSummary(); else render();
     }
 
+    /** Asks before skipping the rest of the current exercise. */
     private void confirmSkipExercise() {
         new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(R.string.session_skip_title)
@@ -237,6 +259,10 @@ public class WorkoutSessionActivity extends AppCompatActivity {
                 }).show();
     }
 
+    /**
+     * Asks before ending the workout. With a completed set it goes to the summary, which saves it
+     * as Partial; with none there is nothing to save.
+     */
     private void confirmCancel() {
         new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(R.string.session_end_title)
@@ -250,6 +276,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
                 }).show();
     }
 
+    /** Stops the ticker and replaces this screen with the summary. */
     private void openSummary() {
         handler.removeCallbacks(ticker);
         Intent intent = new Intent(this, WorkoutSummaryActivity.class);
@@ -258,6 +285,10 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * Shows the exercise's animation, loading it only when the exercise changed; the same formats
+     * as ExerciseDetailActivity.
+     */
     private void showAnimation(String fileName, String exercise) {
         if (fileName == null) {
             displayedAnimation = null;
@@ -305,15 +336,19 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         } catch (IOException | RuntimeException ignored) { }
     }
 
+    /** A short tone and a vibration when a set or rest begins or ends (FR-5.2). */
     private void cue() {
         if (tone != null) tone.startTone(ToneGenerator.TONE_PROP_ACK, 120);
         findViewById(R.id.sessionRoot).performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
     }
 
+    /** mm:ss. */
     private String formatTime(int seconds) {
         return String.format(Locale.getDefault(), "%02d:%02d", seconds / 60, seconds % 60);
     }
 
+    // The ticker only runs while the screen is in front; the session's clock keeps counting either
+    // way, so it catches up on return.
     @Override protected void onResume() {
         super.onResume();
         if (session != null && session.isActive()) handler.post(ticker);
@@ -324,6 +359,7 @@ public class WorkoutSessionActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    // Keeps the session through rotation and process death (FR-5.2).
     @Override protected void onSaveInstanceState(Bundle outState) {
         if (session != null) outState.putSerializable(STATE_SESSION, session);
         super.onSaveInstanceState(outState);

@@ -33,6 +33,10 @@ final class RepeatOptions {
         }
     }
 
+    /**
+     * The spinner position of a rule, so a dialog opens on the current one; the inverse of
+     * recurrenceAt. A rule with an interval above 1 shows as its plain frequency.
+     */
     static int positionOf(Recurrence recurrence) {
         if (recurrence == null) return 0;
         if (recurrence.getFrequency() == Recurrence.Frequency.DAILY) return 1;

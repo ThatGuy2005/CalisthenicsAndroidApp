@@ -1,5 +1,10 @@
 package com.example.calisthenicsapp.model;
 
+/**
+ * A premade workout (FR-4.1), a row of the Workout table from seed.sql, identified by its unique
+ * name. Its exercises are {@link ExerciseOrderEntry} rows. {@link CustomWorkout} extends it for the
+ * user's own workouts.
+ */
 public class Workout {
     /**
      * level: the difficulty rating of a premade workout (FR-4.1); null for a custom workout.
@@ -18,6 +23,9 @@ public class Workout {
         this.description = description;
         this.estimatedSeconds = estimatedSeconds;
     }
+    /**
+     * The name; unique among the premade workouts, and the key their exercises and schedules use.
+     */
     public String getName() {
         return this.name;
     }

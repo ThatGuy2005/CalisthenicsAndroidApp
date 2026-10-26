@@ -33,9 +33,16 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Workouts tab (FR-4.1): the premade workouts as picture cards, filtered by category, and a
+ * button to the user's own workouts. Tapping a card opens WorkoutDetailActivity.
+ */
 public class WorkoutListActivity extends AppCompatActivity {
+    /** See HomeActivity.EXTRA_PREVIEW_MODE. */
     public static final String EXTRA_PREVIEW_MODE = HomeActivity.EXTRA_PREVIEW_MODE;
+    /** The premade workout WorkoutDetailActivity shows, by its unique name. */
     public static final String EXTRA_WORKOUT_NAME = "com.example.calisthenicsapp.WORKOUT_NAME";
+    /** Every premade workout; the filter picks from these without asking the database again. */
     private final List<Workout> allWorkouts = new ArrayList<>();
     private LinearLayout list;
     private TextView count;
@@ -66,6 +73,7 @@ public class WorkoutListActivity extends AppCompatActivity {
         });
     }
 
+    /** "All types" followed by WorkoutCategory.values(). */
     private void setupFilter() {
         List<String> options = new ArrayList<>();
         options.add(getString(R.string.workout_list_all_types));
@@ -81,6 +89,7 @@ public class WorkoutListActivity extends AppCompatActivity {
         });
     }
 
+    /** Shows the workouts of the chosen category. */
     private void render() {
         if (list == null) return;
         list.removeAllViews();
@@ -98,6 +107,10 @@ public class WorkoutListActivity extends AppCompatActivity {
         if (shown == 0 && !allWorkouts.isEmpty()) count.setText(R.string.workout_list_empty_category);
     }
 
+    /**
+     * One workout card: its picture under a dark gradient, the category, the name, the level and
+     * the estimated length.
+     */
     private MaterialCardView createCard(Workout workout) {
         MaterialCardView card = new MaterialCardView(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, dp(this, 218));
@@ -190,6 +203,10 @@ public class WorkoutListActivity extends AppCompatActivity {
         return card;
     }
 
+    /**
+     * The card picture of each premade workout, by name; a new workout in seed.sql needs a line
+     * here, or it gets the Beginner Full Body picture.
+     */
     private int workoutImage(Workout workout) {
         String name = workout.getName();
         if ("Advanced Calisthenics".equals(name)) return R.drawable.workout_01;

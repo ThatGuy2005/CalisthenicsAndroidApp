@@ -20,6 +20,10 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
+/**
+ * Settings, "Profile" (FR-1.7): view and edit the username, height, weight, gender and birth year.
+ * The email is shown read only; it changes in Account security.
+ */
 public class ProfileActivity extends AppCompatActivity {
     private EditText username, weight, birthYear;
     private HeightInput height;
@@ -61,6 +65,7 @@ public class ProfileActivity extends AppCompatActivity {
         gender.setAdapter(adapter);
     }
 
+    /** Fills the form from the profile in SQLite; the buttons stay locked until it is there. */
     private void loadProfile() {
         setSaving(true, R.string.profile_loading);
         profiles.getMyProfile(new ServiceCallback<User>() {
@@ -80,6 +85,7 @@ public class ProfileActivity extends AppCompatActivity {
                 if (user.getBirthYear() != null) birthYear.setText(String.valueOf(user.getBirthYear()));
                 String value = user.getGender();
                 if (value != null) {
+                    // From 1: choice 0 is the "not given" placeholder.
                     for (int i = 1; i < gender.getCount(); i++) {
                         if (value.equalsIgnoreCase(gender.getItemAtPosition(i).toString())) {
                             gender.setSelection(i); break;
@@ -93,6 +99,10 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Checks the form like sign-up does, then saves every field. A new username needs a connection;
+     * the other changes also save offline.
+     */
     private void saveProfile() {
         String usernameValue = username.getText().toString().trim();
         if (!UserValidator.isValidUsername(usernameValue)) {
@@ -133,12 +143,17 @@ public class ProfileActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * The field as a number, with a comma accepted as the decimal point; null if it is empty or not
+     * a number.
+     */
     private Double parseNumber(EditText field) {
         String text = field.getText().toString().trim();
         if (text.isEmpty()) return null;
         try { return Double.parseDouble(text.replace(',', '.')); }
         catch (NumberFormatException ignored) { return null; }
     }
+    /** A number for a form field: "70" rather than "70.0"; empty for null. */
     private String number(Double value) {
         if (value == null) return "";
         if (value == Math.rint(value)) return String.valueOf(value.intValue());
@@ -148,11 +163,13 @@ public class ProfileActivity extends AppCompatActivity {
     private String birthYearError() {
         return getString(R.string.signup_error_birth_year, UserValidator.BIRTH_YEAR_MIN);
     }
+    /** Locks the form while loading or saving, with label on the button. */
     private void setSaving(boolean saving, int label) {
         save.setEnabled(!saving); save.setText(label);
         username.setEnabled(!saving); height.setEnabled(!saving); weight.setEnabled(!saving);
         birthYear.setEnabled(!saving); gender.setEnabled(!saving);
     }
+    /** A short message at the bottom. */
     private void show(String message) {
         Snackbar.make(findViewById(R.id.profileRoot), message, Snackbar.LENGTH_LONG).show();
     }

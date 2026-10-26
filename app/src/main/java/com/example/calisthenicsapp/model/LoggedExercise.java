@@ -7,6 +7,7 @@ package com.example.calisthenicsapp.model;
  * ones, the other is null. For a per-side exercise they count for each side.
  */
 public class LoggedExercise {
+    /** For an exercise that is not done per side. */
     public LoggedExercise(String exerciseName, double met, boolean timed, int sets,
                           int completedSets, Integer reps, Integer seconds, int activeSeconds,
                           double kcal) {
@@ -30,12 +31,15 @@ public class LoggedExercise {
         this.perSide = perSide;
     }
 
+    /** The exercise's name at the time of the workout. */
     public String getExerciseName() {
         return this.exerciseName;
     }
+    /** The MET the calories were worked out with (see {@link Exercise#getMet()}). */
     public double getMet() {
         return this.met;
     }
+    /** True when the sets were held for a time, not counted. */
     public boolean isTimed() {
         return this.timed;
     }
@@ -43,12 +47,18 @@ public class LoggedExercise {
     public int getSets() {
         return this.sets;
     }
+    /**
+     * Sets actually done: getSets() for a finished exercise, fewer if it was skipped or the workout
+     * was ended early.
+     */
     public int getCompletedSets() {
         return this.completedSets;
     }
+    /** Target reps per set; null for a timed exercise. */
     public Integer getReps() {
         return this.reps;
     }
+    /** Target seconds per set; null for a rep-based exercise. */
     public Integer getSeconds() {
         return this.seconds;
     }
@@ -60,6 +70,7 @@ public class LoggedExercise {
     public int getActiveSeconds() {
         return this.activeSeconds;
     }
+    /** Estimated calories burned by the completed sets (FR-5.4). */
     public double getKcal() {
         return this.kcal;
     }

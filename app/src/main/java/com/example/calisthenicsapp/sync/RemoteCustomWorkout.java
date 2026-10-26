@@ -8,11 +8,16 @@ import java.util.Map;
 
 /** Mirrors a users/{uid}/customWorkouts/{id} Firestore document. */
 public class RemoteCustomWorkout {
+    /** The document id. */
     public final String id;
+    /** The name the user gave it. */
     public final String name;
+    /** The user's description. */
     public final String description;        // null if none, also in workouts saved before it existed
+    /** The exercises in order; empty if the document has none. */
     public final List<RemoteExerciseEntry> exercises;
 
+    /** Made by {@link #fromSnapshot}. */
     RemoteCustomWorkout(String id, String name, String description,
                                 List<RemoteExerciseEntry> exercises) {
         this.id = id;
@@ -21,6 +26,7 @@ public class RemoteCustomWorkout {
         this.exercises = exercises;
     }
 
+    /** Reads the document. Malformed entries in the exercises array are skipped. */
     @SuppressWarnings("unchecked")
     public static RemoteCustomWorkout fromSnapshot(DocumentSnapshot doc) {
         List<RemoteExerciseEntry> exercises = new ArrayList<>();

@@ -9,9 +9,14 @@ import com.example.calisthenicsapp.model.CustomExerciseOrderEntry;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The exercises of custom workouts (the CustomExerciseOrder table), keyed by (CustomWorkoutId,
+ * Position). Only SyncManager writes here, as it mirrors Firestore.
+ */
 public class CustomExerciseOrderRepository implements Repository<CustomExerciseOrderEntry> {
     private final SQLiteDatabase db;
 
+    /** Works on an open database; it does not close it. */
     public CustomExerciseOrderRepository(SQLiteDatabase db) { this.db = db; }
 
     @Override
@@ -42,10 +47,15 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
         return query(null, null);
     }
 
+    /** One custom workout's exercises, in workout order. */
     public List<CustomExerciseOrderEntry> getByCustomWorkout(String customWorkoutId) {
         return query("CustomWorkoutId = ?", new String[]{customWorkoutId});
     }
 
+    /**
+     * Replaces all of a custom workout's exercises with entries, in one transaction: if any insert
+     * fails, the old list stays and it returns false.
+     */
     public boolean replaceForCustomWorkout(String customWorkoutId,
                                            List<CustomExerciseOrderEntry> entries) {
         db.beginTransaction();
@@ -56,6 +66,7 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
                 if (!SqlHelpers.insertDB(db, "CustomExerciseOrder", toContentValues(e)))
                     return false;
             }
+            // Without this, endTransaction rolls everything back.
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -63,6 +74,7 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
         }
     }
 
+    /** The rows matching where (all rows for null), by workout and then position. */
     private List<CustomExerciseOrderEntry> query(String where, String[] args) {
         List<CustomExerciseOrderEntry> list = new ArrayList<>();
         try (Cursor c = db.query("CustomExerciseOrder", null, where, args,
@@ -82,6 +94,7 @@ public class CustomExerciseOrderRepository implements Repository<CustomExerciseO
         return list;
     }
 
+    /** The entry as a row, for insert and update. */
     private ContentValues toContentValues(CustomExerciseOrderEntry e) {
         ContentValues cv = new ContentValues();
         cv.put("CustomWorkoutId", e.getCustomWorkoutId());

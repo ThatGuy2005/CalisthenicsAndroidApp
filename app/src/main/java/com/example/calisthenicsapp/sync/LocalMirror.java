@@ -54,6 +54,7 @@ final class LocalMirror {
      */
     private final Map<String, ScheduledWorkout> pendingSchedules = new HashMap<>();
 
+    /** For the user uid; calendar moves and deletes the schedules' device calendar events. */
     LocalMirror(String uid, SQLiteDatabase sqlite, ScheduleCalendar calendar) {
         this.uid = uid;
         this.users = new UserRepository(sqlite);
@@ -77,6 +78,10 @@ final class LocalMirror {
         }
     }
 
+    /**
+     * A customWorkouts snapshot: each workout with its exercise list. Schedules waiting for one of
+     * these workouts are mirrored too.
+     */
     boolean applyCustomWorkouts(List<RemoteCustomWorkout> changed, List<String> removed,
                                 Set<String> serverIds) {
         for (String id : removed) {
@@ -85,6 +90,7 @@ final class LocalMirror {
         }
         for (RemoteCustomWorkout remote : changed) putCustomWorkout(remote);
         boolean dirty = !changed.isEmpty() || !removed.isEmpty();
+        // A full list from the server: anything it lacks was deleted.
         if (serverIds != null) {
             for (CustomWorkout workout : customWorkouts.getByUid(uid)) {
                 if (!serverIds.contains(workout.getId())) {
@@ -96,6 +102,7 @@ final class LocalMirror {
         return dirty;
     }
 
+    /** A workoutLogs snapshot. */
     boolean applyWorkoutLogs(List<RemoteWorkoutLog> changed, List<String> removed,
                              Set<String> serverIds) {
         for (String id : removed) {
@@ -112,6 +119,7 @@ final class LocalMirror {
             }
         }
         boolean dirty = !changed.isEmpty() || !removed.isEmpty();
+        // A full list from the server: anything it lacks was deleted.
         if (serverIds != null) {
             for (WorkoutLog log : workoutLogs.getByUid(uid)) {
                 if (!serverIds.contains(log.getId())) {
@@ -123,10 +131,16 @@ final class LocalMirror {
         return dirty;
     }
 
+    /**
+     * A schedules snapshot. A schedule of a custom workout that is not in SQLite yet waits in
+     * pendingSchedules until applyCustomWorkouts brings it.
+     */
     boolean applySchedules(List<RemoteSchedule> changed, List<String> removed,
                            Set<String> serverIds) {
         for (String id : removed) removeSchedule(id);
         for (RemoteSchedule remote : changed) {
+            // The calendar event id is per device and is not in Firestore; update keeps the stored
+            // one.
             ScheduledWorkout schedule = new ScheduledWorkout(remote.id, uid, remote.workoutName,
                     remote.customWorkoutId, remote.scheduledAt, remote.recurrenceRule,
                     remote.completed, null);
@@ -138,6 +152,8 @@ final class LocalMirror {
             upsertSchedule(schedule);
         }
         boolean dirty = !changed.isEmpty() || !removed.isEmpty();
+        // A full list from the server: anything it lacks was deleted. A waiting schedule that is
+        // gone stops waiting.
         if (serverIds != null) {
             for (ScheduledWorkout schedule : schedules.getByUid(uid)) {
                 if (!serverIds.contains(schedule.getId())) {
@@ -157,6 +173,7 @@ final class LocalMirror {
         if (cached != null) users.delete(cached);
     }
 
+    /** Inserts or updates one custom workout and replaces its exercise list. */
     private void putCustomWorkout(RemoteCustomWorkout remote) {
         CustomWorkout workout = new CustomWorkout(remote.id, remote.name, uid, remote.description,
                 null);
@@ -173,6 +190,7 @@ final class LocalMirror {
         }
         exerciseOrders.replaceForCustomWorkout(remote.id, entries);
 
+        // Only if the insert worked: the schedules' foreign key needs the row.
         if (customWorkouts.getOne(remote.id) != null) flushPendingSchedules(remote.id);
     }
 
@@ -196,6 +214,10 @@ final class LocalMirror {
         calendar.remove(scheduleId);
     }
 
+    /**
+     * Inserts or updates one schedule; if its time or repeat rule changed, its calendar event on
+     * this device moves with it.
+     */
     private void upsertSchedule(ScheduledWorkout schedule) {
         ScheduledWorkout existing = schedules.getOne(schedule.getId());
         if (existing == null) {

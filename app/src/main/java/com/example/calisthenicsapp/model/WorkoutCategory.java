@@ -7,10 +7,15 @@ import java.util.Locale;
  * cardio. values() gives the filter options in order. SQLite stores the label ("Full body").
  */
 public enum WorkoutCategory {
+    /** Trains the whole body. */
     FULL_BODY("Full body"),
+    /** Chest, back, shoulders and arms. */
     UPPER_BODY("Upper body"),
+    /** Legs and glutes. */
     LOWER_BODY("Lower body"),
+    /** Abs and lower back. */
     CORE("Core"),
+    /** Raises the heart rate; for endurance. */
     CARDIO("Cardio");
 
     private final String label;

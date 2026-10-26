@@ -7,13 +7,20 @@ import java.util.List;
 
 /** Mirrors a users/{uid}/schedules/{id} Firestore document. */
 public class RemoteSchedule {
+    /** The document id. */
     public final String id;
+    /** The premade workout's name, or null. */
     public final String workoutName;
+    /** The custom workout's id, or null. */
     public final String customWorkoutId;
+    /** The first occurrence, in epoch seconds; 0 if missing. */
     public final long scheduledAt;
+    /** The RRULE text. */
     public final String recurrenceRule;   // null = once
+    /** In epoch seconds; empty if none. */
     public final List<Long> completed;    // completed occurrence start times
 
+    /** Made by {@link #fromSnapshot}. */
     RemoteSchedule(String id, String workoutName, String customWorkoutId, long scheduledAt,
                            String recurrenceRule, List<Long> completed) {
         this.id = id;
@@ -24,6 +31,7 @@ public class RemoteSchedule {
         this.completed = completed;
     }
 
+    /** Reads the document; values that are not numbers in the completed array are skipped. */
     public static RemoteSchedule fromSnapshot(DocumentSnapshot doc) {
         Long scheduledAt = doc.getLong("scheduledAt");
         List<Long> completed = new ArrayList<>();

@@ -20,6 +20,7 @@ import java.util.function.Supplier;
  */
 public class ExerciseService extends DbService {
 
+    /** Uses the app's database. */
     public ExerciseService(Context context) {
         this(context, appDatabase(context));
     }

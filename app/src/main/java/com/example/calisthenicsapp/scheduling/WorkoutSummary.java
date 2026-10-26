@@ -25,6 +25,7 @@ public final class WorkoutSummary {
     /** Reminder before the workout, in the calendar event and the .ics file. */
     public static final int REMINDER_MINUTES = 30;
 
+    /** The shortest a calendar event is made, even for a very short workout. */
     static final int MIN_EVENT_SECONDS = 15 * 60;
     private static final int ROUND_TO_SECONDS = 5 * 60;
 
@@ -34,6 +35,7 @@ public final class WorkoutSummary {
     private final Recurrence recurrence;    // null = once
     private final List<SessionExercise> exercises;
 
+    /** A one-off workout. */
     public WorkoutSummary(String scheduleId, String workoutName, long startSeconds,
                           List<SessionExercise> exercises) {
         this(scheduleId, workoutName, startSeconds, null, exercises);
@@ -70,11 +72,15 @@ public final class WorkoutSummary {
                 WorkoutExercises.ofPremade(db, workoutName));
     }
 
+    /** The schedule's Firestore id, also used in the .ics UID and file name. */
     public String getScheduleId() { return scheduleId; }
+    /** The workout's name, premade or custom. */
     public String getWorkoutName() { return workoutName; }
+    /** The (first) occurrence's start, in epoch seconds. */
     public long getStartSeconds() { return startSeconds; }
     /** Null if the workout happens once. */
     public Recurrence getRecurrence() { return recurrence; }
+    /** The exercises in order, with every target filled in; read only. */
     public List<SessionExercise> getExercises() { return exercises; }
 
     /** Every set plus the rests between them; see {@link WorkoutExercises#estimateSeconds}. */
@@ -93,6 +99,7 @@ public final class WorkoutSummary {
         return startSeconds + getEventSeconds();
     }
 
+    /** The event title, e.g. "Workout: Beginner Full Body". */
     public String getTitle() {
         return "Workout: " + workoutName;
     }
@@ -127,10 +134,12 @@ public final class WorkoutSummary {
                 + "\n\nExercises:\n" + getExerciseList();
     }
 
+    /** The email subject: the workout and when it starts, in the zone and locale given. */
     public String getEmailSubject(TimeZone zone, Locale locale) {
         return "Scheduled workout: " + workoutName + ", " + formatStart(zone, locale);
     }
 
+    /** The email text: the workout, when, how long, how it repeats and the exercise list. */
     public String getEmailBody(TimeZone zone, Locale locale) {
         return "Workout: " + workoutName + "\n"
                 + "When: " + formatStart(zone, locale) + " (about " + estimatedMinutes() + " min)"
@@ -146,14 +155,17 @@ public final class WorkoutSummary {
                 getTitle(), getDescription(), REMINDER_MINUTES, nowSeconds);
     }
 
+    /** "\nRepeats: every week" and so on, or nothing for a one-off workout. */
     private String repeatsLine() {
         return recurrence == null ? "" : "\nRepeats: " + recurrence.describe().toLowerCase(Locale.ROOT);
     }
 
+    /** The estimate in whole minutes, rounded up. */
     private int estimatedMinutes() {
         return Math.max(1, (getEstimatedSeconds() + 59) / 60);
     }
 
+    /** The start as the locale writes a full date and a short time. */
     private String formatStart(TimeZone zone, Locale locale) {
         DateFormat format = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT, locale);
         format.setTimeZone(zone);

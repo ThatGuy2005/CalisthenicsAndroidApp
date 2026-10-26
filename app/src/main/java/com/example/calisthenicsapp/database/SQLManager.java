@@ -21,17 +21,22 @@ import java.util.regex.Pattern;
  * Creates and opens the app's SQLite database.
  *
  * On first run it executes two files from app/src/main/assets/:
- *   schema.sql - tables, indexes, trigger (your AndroidAppProjectSQLiteDatabase.sql, renamed)
- *   seed.sql   - the premade exercises and workouts
+ * <ul>
+ *   <li>schema.sql: the tables, indexes and trigger</li>
+ *   <li>seed.sql: the premade exercises and workouts</li>
+ * </ul>
  * Both run inside one transaction, so a mistake in either file makes creation fail loudly
  * instead of leaving a half-built database. Later versions upgrade an existing database step
  * by step (see onUpgrade), also inside one transaction.
  *
  * Usage (always on a background thread, the first call creates and seeds the database):
- *   SQLiteDatabase db = SQLManager.getInstance(context).getWritableDatabase();
- *   UserRepository users = new UserRepository(db);
+ * <pre>{@code
+ * SQLiteDatabase db = SQLManager.getInstance(context).getWritableDatabase();
+ * UserRepository users = new UserRepository(db);
+ * }</pre>
  */
 public class SQLManager extends SQLiteOpenHelper {
+    /** The file name in the app's databases folder. */
     public static final String DATABASE_NAME = "CalisthenicsApp.db";
 
     /** Increase this when schema.sql or seed.sql changes, and add the step to onUpgrade. */
@@ -90,6 +95,10 @@ public class SQLManager extends SQLiteOpenHelper {
         db.setForeignKeyConstraintsEnabled(true);
     }
 
+    /**
+     * A new install: builds the tables from schema.sql and fills in the premade content from
+     * seed.sql. SQLiteOpenHelper runs this inside a transaction.
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         runScript(db, SCHEMA_ASSET);
@@ -101,7 +110,7 @@ public class SQLManager extends SQLiteOpenHelper {
      * are a cache of Firestore, but CalendarEvent exists only on this device.
      *
      * To change the schema: edit schema.sql (used by new installs), raise DATABASE_VERSION to N,
-     * and add an "if (oldVersion < N)" step below that turns version N-1 into N. Every upgrade
+     * and add an {@code if (oldVersion < N)} step below that turns version N-1 into N. Every upgrade
      * also brings the premade content up to date with seed.sql (refreshSeed), so a seed-only
      * change just needs the version raised.
      */
@@ -168,8 +177,10 @@ public class SQLManager extends SQLiteOpenHelper {
     private void refreshSeed(SQLiteDatabase db) {
         for (String table : SEED_TABLES) {
             db.execSQL("DROP TABLE IF EXISTS temp.Seed" + table);
+            // An empty copy with the same columns: WHERE 0 copies no rows.
             db.execSQL("CREATE TEMP TABLE Seed" + table + " AS SELECT * FROM main." + table + " WHERE 0");
         }
+        // Run seed.sql against the temp copies instead of the real tables.
         for (String statement : SqlScriptSplitter.split(readAsset(SEED_ASSET))) {
             if (statement.regionMatches(true, 0, "PRAGMA", 0, 6)) continue;
             Matcher insert = SEED_INSERT.matcher(statement);
@@ -181,6 +192,8 @@ public class SQLManager extends SQLiteOpenHelper {
         }
         mergeByKey(db, "Exercise", "Name");
         mergeByKey(db, "Workout", "Name");
+        // A premade workout's exercise list is replaced whole, so removed or reordered exercises do
+        // not linger. Nothing points at ExerciseOrder rows, so this is safe.
         db.execSQL("DELETE FROM ExerciseOrder WHERE WorkoutName IN (SELECT Name FROM temp.SeedWorkout)");
         db.execSQL("INSERT INTO ExerciseOrder SELECT * FROM temp.SeedExerciseOrder");
         for (String table : SEED_TABLES) {
@@ -194,6 +207,7 @@ public class SQLManager extends SQLiteOpenHelper {
         for (String column : columnsOf(db, table)) {
             if (column.equals(key)) continue;
             if (set.length() > 0) set.append(", ");
+            // column = (SELECT s.column FROM temp.SeedTable s WHERE s.key = Table.key)
             set.append(column).append(" = (SELECT s.").append(column)
                     .append(" FROM temp.Seed").append(table).append(" s WHERE s.").append(key)
                     .append(" = ").append(table).append('.').append(key).append(')');
@@ -202,9 +216,11 @@ public class SQLManager extends SQLiteOpenHelper {
             db.execSQL("UPDATE " + table + " SET " + set
                     + " WHERE " + key + " IN (SELECT " + key + " FROM temp.Seed" + table + ")");
         }
+        // Rows that already exist were updated above; only the new ones are inserted.
         db.execSQL("INSERT OR IGNORE INTO " + table + " SELECT * FROM temp.Seed" + table);
     }
 
+    /** The column names of a table in the main database, in table order. */
     private static List<String> columnsOf(SQLiteDatabase db, String table) {
         List<String> columns = new ArrayList<>();
         try (Cursor c = db.rawQuery("PRAGMA main.table_info(" + table + ")", null)) {
@@ -214,6 +230,7 @@ public class SQLManager extends SQLiteOpenHelper {
         return columns;
     }
 
+    /** Runs every statement of an SQL file from the assets, in order. */
     private void runScript(SQLiteDatabase db, String assetName) {
         for (String statement : SqlScriptSplitter.split(readAsset(assetName))) {
             if (statement.regionMatches(true, 0, "PRAGMA", 0, 6)) continue;   // see onConfigure
@@ -221,6 +238,7 @@ public class SQLManager extends SQLiteOpenHelper {
         }
     }
 
+    /** The whole text of a file in app/src/main/assets, read as UTF-8. */
     private String readAsset(String assetName) {
         try (InputStream in = appContext.getAssets().open(assetName);
              BufferedReader reader = new BufferedReader(

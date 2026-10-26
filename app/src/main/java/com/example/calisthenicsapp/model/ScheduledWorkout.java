@@ -10,12 +10,30 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
+/**
+ * A planned workout (FR-6.1), a document of users/{uid}/schedules mirrored in the Schedule table.
+ * It points at one premade workout by name or one custom workout by id, never both. It happens once
+ * at {@link #getScheduledAt()}, or repeats from then on by its {@link Recurrence}. All times are
+ * epoch seconds.
+ *
+ * Occurrences are not stored, they are worked out from the rule; only the ones the user marked as
+ * done are kept ({@link #getCompletedOccurrences()}).
+ */
 public class ScheduledWorkout {
+    /**
+     * A one-off schedule with nothing completed and no calendar event. Pass a premade workout's
+     * name or a custom workout's id, and null for the other.
+     */
     public ScheduledWorkout(String id, String uid, String workoutName,
                             String customWorkoutId, long scheduledAt) {
         this(id, uid, workoutName, customWorkoutId, scheduledAt, null, null, null);
     }
 
+    /**
+     * recurrenceRule: an RRULE such as "FREQ=WEEKLY", or null for once. completedOccurrences: start
+     * times of the occurrences marked as done; null means none. calendarEventId: the event in this
+     * device's calendar, or null.
+     */
     public ScheduledWorkout(String id, String uid, String workoutName,
                             String customWorkoutId, long scheduledAt, String recurrenceRule,
                             Collection<Long> completedOccurrences, Long calendarEventId) {
@@ -31,18 +49,22 @@ public class ScheduledWorkout {
         this.calendarEventId = calendarEventId;
     }
 
+    /** The Firestore document id; null before it is saved. */
     public String getId() {
         return this.id;
     }
 
+    /** The Firebase Auth uid of the user who planned it. */
     public String getUid() {
         return this.uid;
     }
 
+    /** The premade workout's name, or null for a custom workout. */
     public String getWorkoutName() {
         return this.workoutName;
     }
 
+    /** The custom workout's id, or null for a premade workout. */
     public String getCustomWorkoutId() {
         return this.customWorkoutId;
     }
@@ -52,6 +74,7 @@ public class ScheduledWorkout {
         return this.scheduledAt;
     }
 
+    /** True when it points at a custom workout. */
     public boolean isCustom() {
         return this.customWorkoutId != null;
     }
@@ -70,6 +93,7 @@ public class ScheduledWorkout {
         }
     }
 
+    /** True when it repeats; see {@link #getRecurrence()}. */
     public boolean isRecurring() {
         return getRecurrence() != null;
     }
@@ -99,6 +123,10 @@ public class ScheduledWorkout {
         return this.completedOccurrences;
     }
 
+    /**
+     * Whether the occurrence starting at occurrenceSeconds is pending, completed or missed at
+     * nowSeconds (FR-6.4).
+     */
     public OccurrenceStatus statusOf(long occurrenceSeconds, long nowSeconds) {
         return OccurrenceStatus.of(this.completedOccurrences.contains(occurrenceSeconds),
                 occurrenceSeconds, nowSeconds);

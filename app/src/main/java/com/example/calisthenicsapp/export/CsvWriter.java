@@ -11,10 +11,12 @@ package com.example.calisthenicsapp.export;
 public final class CsvWriter {
     private final StringBuilder out = new StringBuilder();
 
+    /** Starts the file with the header row; with no names, there is no header. */
     public CsvWriter(String... header) {
         if (header.length > 0) row((Object[]) header);
     }
 
+    /** Appends one row; values are written with toString, null as an empty field. Returns this. */
     public CsvWriter row(Object... values) {
         for (int i = 0; i < values.length; i++) {
             if (i > 0) out.append(',');
@@ -29,6 +31,7 @@ public final class CsvWriter {
         return out.toString();
     }
 
+    /** One value as a CSV field: neutralised if it could run as a formula, quoted if needed. */
     static String field(Object value) {
         if (value == null) return "";
         String text = value.toString();

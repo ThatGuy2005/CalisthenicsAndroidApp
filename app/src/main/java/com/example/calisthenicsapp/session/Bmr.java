@@ -14,7 +14,14 @@ import java.util.Locale;
  */
 public final class Bmr {
     /** The gender words recognised; anything else (or nothing) uses the average of the two. */
-    public enum Sex { MALE, FEMALE, UNSPECIFIED }
+    public enum Sex {
+        /** "male", "man" or "m". */
+        MALE,
+        /** "female", "woman" or "f". */
+        FEMALE,
+        /** No gender given, or one the formula has no constant for. */
+        UNSPECIFIED
+    }
 
     private Bmr() {
     }

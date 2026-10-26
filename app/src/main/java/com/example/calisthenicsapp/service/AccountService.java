@@ -37,6 +37,7 @@ public class AccountService extends UserDataService {
     private static final int BATCH_LIMIT = 500;
     private static final String[] SUBCOLLECTIONS = {"customWorkouts", "workoutLogs", "schedules"};
 
+    /** Uses the app's database, FirebaseAuth and Firestore. */
     public AccountService(Context context) {
         super(context);
     }
@@ -47,6 +48,10 @@ public class AccountService extends UserDataService {
         super(context, database, sessionManager, firestore);
     }
 
+    /**
+     * Sets a new password (FR-1.7) after confirming the current one. The new password must pass
+     * {@link UserValidator#isValidPassword}. Needs a connection.
+     */
     public void changePassword(String currentPassword, String newPassword,
                                ServiceCallback<Void> callback) {
         if (!UserValidator.isValidPassword(newPassword)) {
@@ -102,6 +107,7 @@ public class AccountService extends UserDataService {
             Task<DocumentSnapshot> profileRead = profileDoc.get(Source.SERVER);
             List<Task<?>> all = new ArrayList<>(reads);
             all.add(profileRead);
+            // Step 1 done once every read is back; step 2 deletes what they found.
             Tasks.whenAll(all).addOnCompleteListener(readTask -> {
                 if (!readTask.isSuccessful()) {
                     Log.w(TAG, "Reading data to delete failed", readTask.getException());
@@ -212,6 +218,7 @@ public class AccountService extends UserDataService {
                 });
     }
 
+    /** What to do once the password is confirmed, with the re-authenticated user. */
     private interface SignedInStep {
         void run(FirebaseUser user);
     }
@@ -236,6 +243,7 @@ public class AccountService extends UserDataService {
                     Exception e = task.getException();
                     String code = e instanceof FirebaseAuthException
                             ? ((FirebaseAuthException) e).getErrorCode() : "";
+                    // Newer Firebase versions report a wrong password as INVALID_CREDENTIAL.
                     boolean wrongPassword = code.equals("ERROR_WRONG_PASSWORD")
                             || code.equals("ERROR_INVALID_CREDENTIAL");
                     fail(callback, wrongPassword

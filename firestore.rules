@@ -95,28 +95,53 @@ service cloud.firestore {
               || (data.timeZone is string && data.timeZone.size() >= 1 && data.timeZone.size() <= 64));
     }
 
+    // The claim document of a username: usernames/{the username lowercased}.
+    function claimOf(username) {
+      return /databases/$(database)/documents/usernames/$(username.lower());
+    }
+
+    // After this write, uid no longer holds the claim of username: it is deleted, was never
+    // there (accounts made before usernames/ existed), or belongs to someone else.
+    function releasedAfter(username, uid) {
+      return !existsAfter(claimOf(username)) || getAfter(claimOf(username)).data.uid != uid;
+    }
+
     // usernames/{name}: one document per username in use, with the owner's uid. The id is the
     // lowercased username, and document ids are unique, so creating one claims that name.
+    // Together with the users/{uid} rules, a user holds exactly the claim of the username their
+    // profile has: no more (no hoarding names), no less (no unclaimed name on a profile).
     match /usernames/{name} {
       // get only: signed-in users can check one name, but cannot list them all.
       allow get: if signedIn();
-      // Only for yourself, and only for the username your profile has after this write,
-      // so nobody can hold on to names they are not using.
+      // Only for yourself, and only for the username your profile has after this write.
       allow create: if signedIn()
           && request.resource.data.uid == request.auth.uid
           && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username.lower() == name;
-      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+      // Only your own, and only in the write that stops your profile using it: a username
+      // change (ProfileService) or deleting the account (AccountService).
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid
+          && (!existsAfter(/databases/$(database)/documents/users/$(request.auth.uid))
+              || getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username.lower() != name);
       // No update: a name changes owner only by being released (deleted) and claimed again.
     }
 
     // A signed-in user can read and write only their own data under users/{uid}.
     match /users/{uid} {
-      allow read, delete: if signedIn() && request.auth.uid == uid;
-      // The profile's username must be claimed by this user once the write is done.
-      allow create, update: if signedIn() && request.auth.uid == uid
+      allow read: if isOwner(uid);
+      // Deleting the profile releases its username in the same write (AccountService).
+      allow delete: if isOwner(uid)
+          && (!('username' in resource.data) || releasedAfter(resource.data.username, uid));
+      // The profile's username must be claimed by this user once the write is done, and a new
+      // username must release the old one in the same write (ProfileService). A change of
+      // letter case only keeps the same claim.
+      allow create, update: if isOwner(uid)
           && validProfile(request.resource.data)
           && (request.method == 'create' || request.resource.data.createdAt == resource.data.createdAt)
-          && getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username.lower())).data.uid == uid;
+          && getAfter(claimOf(request.resource.data.username)).data.uid == uid
+          && (request.method == 'create'
+              || !('username' in resource.data)
+              || resource.data.username.lower() == request.resource.data.username.lower()
+              || releasedAfter(resource.data.username, uid));
 
       // Only these three subcollections exist; anything else is denied.
       match /customWorkouts/{workoutId} {

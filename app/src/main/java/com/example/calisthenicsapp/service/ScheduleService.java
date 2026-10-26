@@ -64,6 +64,7 @@ public class ScheduleService extends UserDataService {
      */
     private final Map<String, WorkoutSummary> justAdded = new HashMap<>();
 
+    /** Uses the app's database, FirebaseAuth and Firestore. */
     public ScheduleService(Context context) {
         super(context);
     }
@@ -127,6 +128,10 @@ public class ScheduleService extends UserDataService {
         setCompleted(scheduleId, occurrenceSeconds, false, callback);
     }
 
+    /**
+     * Whether the app may read and write the device calendar; if not, ask for {@link
+     * #CALENDAR_PERMISSIONS} first.
+     */
     public boolean hasCalendarPermission() {
         return DeviceCalendar.hasPermission(context());
     }
@@ -347,6 +352,7 @@ public class ScheduleService extends UserDataService {
                     fail(callback, "The workout is not scheduled at that time.");
                     return;
                 }
+                // Not before the occurrence's window opens.
                 if (occurrenceSeconds - OccurrenceStatus.MISSED_AFTER_SECONDS > now()) {
                     fail(callback, "That workout is not due yet.");
                     return;
@@ -406,6 +412,7 @@ public class ScheduleService extends UserDataService {
         return new ScheduleCalendar(context(), db());
     }
 
+    /** users/{uid}/schedules in Firestore. */
     private CollectionReference schedules(String uid) {
         return userDoc(uid).collection("schedules");
     }

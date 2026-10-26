@@ -13,6 +13,10 @@ import com.example.calisthenicsapp.R;
 import com.example.calisthenicsapp.service.AuthService;
 import com.example.calisthenicsapp.validation.UserValidator;
 
+/**
+ * The "Forgot password" screen (FR-1.9): sends Firebase's password reset email to the address typed
+ * in.
+ */
 public class ForgotPasswordActivity extends AppCompatActivity {
     /** The email typed on the login screen, to fill in the field; may be empty. */
     public static final String EXTRA_EMAIL = "email";
@@ -28,6 +32,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         EditText email = findViewById(R.id.forgotEmail);
         String typedEmail = getIntent().getStringExtra(EXTRA_EMAIL);
+        // Only on first open: after a rotation the field keeps what the user typed.
         if (savedInstanceState == null && typedEmail != null) email.setText(typedEmail);
 
         Button sendButton = findViewById(R.id.sendResetButton);
@@ -39,6 +44,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 email.requestFocus();
                 return;
             }
+            // Disabled until the answer comes, so the email is not requested twice.
             sendButton.setEnabled(false);
             sentMessage.setVisibility(View.GONE);
             authService.sendPasswordReset(emailValue, new AuthService.AuthCallback<Void>() {

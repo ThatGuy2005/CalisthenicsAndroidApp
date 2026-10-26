@@ -41,6 +41,7 @@ import java.util.function.Supplier;
  * same as restSeconds (FR-4.2).
  */
 public class CustomWorkoutService extends UserDataService {
+    /** The longest name allowed. */
     private static final int NAME_MAX = 40;
     /** firestore.rules checks the same limit. */
     static final int DESCRIPTION_MAX = 200;
@@ -49,6 +50,7 @@ public class CustomWorkoutService extends UserDataService {
     private static final int DEFAULT_SETS = 3;
     private static final int DEFAULT_REST_SECONDS = 60;
 
+    /** Uses the app's database, FirebaseAuth and Firestore. */
     public CustomWorkoutService(Context context) {
         super(context);
     }
@@ -131,6 +133,10 @@ public class CustomWorkoutService extends UserDataService {
         });
     }
 
+    /**
+     * Renames the workout. The name is trimmed, must not be empty or longer than 40 characters, and
+     * must not be the name of another of the user's workouts (ignoring case).
+     */
     public void rename(String customWorkoutId, String newName, ServiceCallback<Void> callback) {
         String uid = sessionManager.getCurrentUid();
         if (uid == null) {
@@ -275,10 +281,12 @@ public class CustomWorkoutService extends UserDataService {
         return name;
     }
 
+    /** users/{uid}/customWorkouts in Firestore. */
     private CollectionReference workouts(String uid) {
         return userDoc(uid).collection("customWorkouts");
     }
 
+    /** Null if the workout is in SQLite, otherwise the message to show. Must run inside onDb. */
     private String checkExists(String customWorkoutId) {
         if (customWorkoutId == null
                 || new CustomWorkoutRepository(db()).getOne(customWorkoutId) == null) {
@@ -322,6 +330,10 @@ public class CustomWorkoutService extends UserDataService {
         return null;
     }
 
+    /**
+     * The exercises as Firestore's exercises array: positions from 1 in list order, and the
+     * defaults filled in for a null sets or restSeconds.
+     */
     private static List<Map<String, Object>> toRemote(List<CustomExerciseOrderEntry> exercises) {
         List<Map<String, Object>> list = new ArrayList<>();
         int position = 1;

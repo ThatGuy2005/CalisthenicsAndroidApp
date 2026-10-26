@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * end the statement).
  *
  * Known limit: inside a trigger body, a statement ending in "CASE ... END;" would be mistaken
- * for the end of the trigger. Your schema has no such trigger.
+ * for the end of the trigger. schema.sql has no such trigger.
  *
  * Pure Java (no Android classes), so it can be unit-tested on a normal JVM.
  */
@@ -26,6 +26,10 @@ public final class SqlScriptSplitter {
     private static final Pattern ENDS_WITH_END = Pattern.compile(
             ".*\\bEND$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
+    /**
+     * The statements of the script in order, trimmed, without their closing ';' and without
+     * comments. Empty statements are dropped; null gives an empty list.
+     */
     public static List<String> split(String script) {
         List<String> statements = new ArrayList<>();
         if (script == null) return statements;

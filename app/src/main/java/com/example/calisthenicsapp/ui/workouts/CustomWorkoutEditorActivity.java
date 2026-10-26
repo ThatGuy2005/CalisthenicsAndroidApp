@@ -37,8 +37,11 @@ import java.util.Map;
 
 /** Create or edit a custom routine; ordering is the order used when starting the workout. */
 public class CustomWorkoutEditorActivity extends AppCompatActivity {
+    /** The custom workout to edit; without it the screen creates a new one. */
     public static final String EXTRA_WORKOUT_ID = "custom_workout_id";
+    /** Every exercise, for the Select exercises dialog. */
     private final List<Exercise> library = new ArrayList<>();
+    /** The workout's exercises, in workout order. */
     private final List<Exercise> selected = new ArrayList<>();
     // Linked, so maybeReady lists the saved exercises in their saved order.
     private final Map<String, CustomExerciseOrderEntry> savedSettings = new LinkedHashMap<>();
@@ -48,6 +51,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
     private TextView count, save;
     private View root;
     private String workoutId;
+    /** The library and (when editing) the saved exercises load at the same time; see maybeReady. */
     private boolean libraryReady, savedExercisesReady, loading = true;
 
     @Override protected void onCreate(Bundle state) {
@@ -85,6 +89,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         }
     }
 
+    /** Builds the whole screen in code: name, description, the exercise list and Save. */
     private void buildScreen() {
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(true);
         scroll.setBackgroundResource(R.drawable.page_background); root = scroll;
@@ -127,6 +132,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         setContentView(scroll);
     }
 
+    /** Once both loads are back, selects the saved exercises in their saved order. */
     private void maybeReady() {
         if (!libraryReady || !savedExercisesReady) return;
         loading = false;
@@ -140,6 +146,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         renderSelected();
     }
 
+    /** The Select exercises dialog. Cancel puts the selection back as it was. */
     private void chooseExercises() {
         if (loading) { show(getString(R.string.custom_editor_loading_library)); return; }
         LinearLayout list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
@@ -189,6 +196,10 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         return card;
     }
 
+    /**
+     * Redraws the chosen exercises, each with its settings and buttons to edit, move up, move down
+     * and remove it.
+     */
     private void renderSelected() {
         if (selectedList == null) return;
         selectedList.removeAllViews();
@@ -233,11 +244,16 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         }
     }
 
+    /** Moves an exercise up (-1) or down (+1) in the workout. */
     private void move(int index, int offset) {
         int target = index + offset; if (target < 0 || target >= selected.size()) return;
         Exercise item = selected.remove(index); selected.add(target, item); renderSelected();
     }
 
+    /**
+     * The exercise's settings: the ones edited or saved for it, otherwise the defaults (3 sets, 60
+     * s rest and the exercise's own reps or seconds).
+     */
     private CustomExerciseOrderEntry currentSettings(Exercise exercise) {
         CustomExerciseOrderEntry saved = savedSettings.get(exercise.getName());
         int sets = saved == null || saved.getSets() == null ? 3 : saved.getSets();
@@ -251,6 +267,10 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
                 seconds, rest, restAfter);
     }
 
+    /**
+     * The settings dialog of one exercise: sets, reps or seconds, rest between sets and rest before
+     * the next exercise.
+     */
     private void editSettings(Exercise exercise) {
         CustomExerciseOrderEntry current = currentSettings(exercise);
         LinearLayout form = new LinearLayout(this);
@@ -293,6 +313,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
                 .setTextColor(UiColors.MUTED);
     }
 
+    /** A label and its field in the settings dialog. */
     private void addSettingsField(LinearLayout form, String label, EditText input) {
         TextView labelView = text(this, label, 11, UiColors.MUTED, true);
         labelView.setLetterSpacing(.06f);
@@ -303,6 +324,7 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         form.addView(input, dialogFieldParams());
     }
 
+    /** A number field holding value. */
     private EditText numberField(String value) {
         EditText field = field("", InputType.TYPE_CLASS_NUMBER);
         field.setText(value);
@@ -311,10 +333,12 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
     private LinearLayout.LayoutParams dialogFieldParams() {
         LinearLayout.LayoutParams params = matchWrap(); params.bottomMargin = dp(this, 8); return params;
     }
+    /** The field as a number of at least 1; null otherwise. */
     private Integer positiveInt(EditText field) {
         Integer value = nonNegativeInt(field);
         return value == null || value == 0 ? null : value;
     }
+    /** The field as a number of at least 0; null if it is empty or not one. */
     private Integer nonNegativeInt(EditText field) {
         try {
             String value = field.getText().toString().trim();
@@ -324,6 +348,10 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         } catch (NumberFormatException ignored) { return null; }
     }
 
+    /**
+     * Checks the name and that there is an exercise, then creates or updates the workout with the
+     * exercises in their order on screen.
+     */
     private void saveWorkout() {
         String workoutName = name.getText().toString().trim();
         if (workoutName.isEmpty()) { name.setError(getString(R.string.custom_editor_error_name)); name.requestFocus(); return; }
@@ -346,6 +374,10 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Saves an edited workout in three calls, one after the other: name, description, then
+     * exercises. The first failure stops it and shows its message.
+     */
     private void saveEdited(String newName, String newDescription, List<CustomExerciseOrderEntry> entries) {
         workouts.rename(workoutId, newName, new ServiceCallback<Void>() {
             @Override public void onSuccess(Void result) {
@@ -363,7 +395,9 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
         });
     }
 
+    /** After a failed save: Save can be tapped again. */
     private void restoreSave(String message) { save.setEnabled(true); save.setText(saveLabel()); show(message); }
+    /** "Create workout" for a new one, "Save changes" when editing. */
     private int saveLabel() { return workoutId == null ? R.string.custom_editor_create : R.string.custom_editor_save; }
     /** "3 sets  ·  12 reps  ·  60 sec rest": what the workout will ask for this exercise. */
     private String settingsOf(Exercise exercise) {
@@ -376,19 +410,27 @@ public class CustomWorkoutEditorActivity extends AppCompatActivity {
                 getResources().getQuantityString(R.plurals.target_sets, settings.getSets(), settings.getSets()),
                 target, getString(R.string.target_rest, settings.getRestSeconds()));
     }
+    /** Whether the exercise is chosen. */
     private boolean contains(String name) { for (Exercise e : selected) if (e.getName().equals(name)) return true; return false; }
+    /** Unchooses the exercise. */
     private void remove(String name) { for (int i = selected.size() - 1; i >= 0; i--) if (selected.get(i).getName().equals(name)) selected.remove(i); }
+    /** A text field in the screen's style; single-line unless it is the description. */
     private EditText field(String hint, int inputType) {
         EditText e = new EditText(this); e.setSingleLine(inputType != (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES));
         e.setHint(hint); e.setTextSize(14); e.setTextColor(UiColors.GRAPHITE); e.setHintTextColor(UiColors.MUTED);
         e.setInputType(inputType); e.setPadding(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10)); e.setBackground(rounded(UiColors.SURFACE, dp(this, 14)));
         return e;
     }
+    /** A small heading above a section; margin is the space above it in dp. */
     private TextView sectionLabel(String value, int margin) { TextView t = text(this, value, 12, UiColors.MUTED, true); t.setLetterSpacing(.08f); LinearLayout.LayoutParams p = matchWrap(); p.topMargin = dp(this, margin); p.bottomMargin = dp(this, 9); t.setLayoutParams(p); return t; }
+    /** A button; primary ones are filled with the accent color. */
     private Button button(String label, boolean primary) { Button b = new Button(this); b.setText(label); b.setAllCaps(false); b.setTextSize(14); b.setTextColor(primary ? UiColors.INK : UiColors.ORANGE_DARK); b.setBackground(rounded(primary ? UiColors.ORANGE_DARK : UiColors.SURFACE, dp(this, 14))); return b; }
+    /** A small square icon button of an exercise row; greyed out when disabled. */
     private TextView mini(String label, boolean enabled) { TextView t = text(this, label, 16, enabled ? UiColors.ORANGE_DARK : UiColors.MUTED, true); t.setGravity(Gravity.CENTER); t.setBackground(rounded(UiColors.SURFACE_ALT, dp(this, 9))); t.setEnabled(enabled); return t; }
     private LinearLayout.LayoutParams miniParams() { return new LinearLayout.LayoutParams(dp(this, 32), dp(this, 36)); }
+    /** Empty space, height in dp. */
     private View gap(int height) { View v = new View(this); v.setLayoutParams(new LinearLayout.LayoutParams(1, dp(this, height))); return v; }
     private LinearLayout.LayoutParams matchWrap() { return new LinearLayout.LayoutParams(-1, -2); }
+    /** A short message at the bottom. */
     private void show(String message) { Snackbar.make(root, message, Snackbar.LENGTH_LONG).show(); }
 }

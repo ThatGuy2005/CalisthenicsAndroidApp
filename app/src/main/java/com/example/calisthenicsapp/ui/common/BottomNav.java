@@ -23,7 +23,10 @@ public final class BottomNav {
     private BottomNav() {
     }
 
-    /** Sets up the bar on a tab screen. selectedItemId is the screen's own tab, e.g. R.id.nav_home. */
+    /**
+     * Sets up the bar on a tab screen. selectedItemId is the screen's own tab, e.g. R.id.nav_home;
+     * previewMode is passed on to the next screen (see HomeActivity.EXTRA_PREVIEW_MODE).
+     */
     public static void attach(Activity activity, int selectedItemId, boolean previewMode) {
         BottomNavigationView navigation = activity.findViewById(R.id.bottomNavigation);
         navigation.setSelectedItemId(selectedItemId);
@@ -50,6 +53,7 @@ public final class BottomNav {
         return true;
     }
 
+    /** The screen of a bottom bar item, or null for an unknown one. */
     private static Class<? extends Activity> screenOf(int itemId) {
         // Resource ids are not constants in this project, so no switch.
         if (itemId == R.id.nav_home) return HomeActivity.class;

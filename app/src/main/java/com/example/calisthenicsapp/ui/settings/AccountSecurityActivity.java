@@ -12,6 +12,10 @@ import com.example.calisthenicsapp.service.ServiceCallback;
 import com.example.calisthenicsapp.validation.UserValidator;
 import com.google.android.material.snackbar.Snackbar;
 
+/**
+ * Settings, "Account security" (FR-1.7): change the password, or send a confirmation link to a new
+ * email address. Both ask for the current password and need a connection.
+ */
 public class AccountSecurityActivity extends AppCompatActivity {
     private EditText currentPassword, newPassword, confirmPassword;
     private EditText emailCurrentPassword, newEmail;
@@ -34,6 +38,7 @@ public class AccountSecurityActivity extends AppCompatActivity {
         emailButton.setOnClickListener(v -> changeEmail());
     }
 
+    /** Checks the three password fields, then changes the password through AccountService. */
     private void changePassword() {
         String current = currentPassword.getText().toString();
         String next = newPassword.getText().toString();
@@ -59,6 +64,10 @@ public class AccountSecurityActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Checks the fields, then sends the confirmation link; the email only changes once the user
+     * clicks it.
+     */
     private void changeEmail() {
         String current = emailCurrentPassword.getText().toString();
         String email = UserValidator.normalizeEmail(newEmail.getText().toString());
@@ -77,9 +86,11 @@ public class AccountSecurityActivity extends AppCompatActivity {
         });
     }
 
+    /** Disables the button and shows label on it while a change is in progress. */
     private void setBusy(Button button, boolean busy, int label) {
         button.setEnabled(!busy); button.setText(label);
     }
+    /** A short message at the bottom. */
     private void show(String message) {
         Snackbar.make(findViewById(R.id.securityRoot), message, Snackbar.LENGTH_LONG).show();
     }

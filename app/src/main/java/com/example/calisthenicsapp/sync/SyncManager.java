@@ -75,11 +75,13 @@ public class SyncManager {
     private volatile String syncedUid;
     /** The synced user's mirror; only used on dbExecutor. */
     private LocalMirror mirror;
+    /** Whether the three collection listeners are on for syncedUid; main thread only. */
     private boolean childListenersAttached;
     /** The profile as last mirrored; main thread only. Skips snapshots that only changed metadata. */
     private Map<String, Object> lastProfileData;
     /** The server has shown the profile this session; main thread only. */
     private boolean profileConfirmed;
+    /** See setOnAccountGone. */
     private Runnable onAccountGone;
 
     private ListenerRegistration profileRegistration;
@@ -128,6 +130,10 @@ public class SyncManager {
         });
     }
 
+    /**
+     * Starts mirroring this user: listens to the profile first, and once its Users row is in
+     * SQLite, to the three collections (attachChildListeners).
+     */
     private void startSyncing(FirebaseUser user) {
         String uid = user.getUid();
         if (uid.equals(syncedUid)) return;   // already syncing this user (e.g. a token refresh)
@@ -153,6 +159,7 @@ public class SyncManager {
                 }
                 return;
             }
+            // The server has the profile, so a later miss is not a deleted account.
             if (!fromCache) profileConfirmed = true;
             Map<String, Object> data = snapshot.getData();
             if (data != null && data.equals(lastProfileData)) return;   // e.g. pending -> sent
@@ -172,6 +179,7 @@ public class SyncManager {
         });
     }
 
+    /** Listens to customWorkouts, workoutLogs and schedules, each into its LocalMirror method. */
     private void attachChildListeners(String uid, DocumentReference userDoc, LocalMirror mirror) {
         customWorkoutsRegistration = listen(uid, userDoc, "customWorkouts",
                 (changed, removed, serverIds) -> mirror.applyCustomWorkouts(
@@ -220,6 +228,7 @@ public class SyncManager {
                 });
     }
 
+    /** Turns each document into its Remote* object. */
     private static <T> List<T> parse(List<DocumentSnapshot> docs, Function<DocumentSnapshot, T> from) {
         List<T> parsed = new ArrayList<>();
         for (DocumentSnapshot doc : docs) parsed.add(from.apply(doc));
@@ -260,6 +269,10 @@ public class SyncManager {
         if (onAccountGone != null) onAccountGone.run();
     }
 
+    /**
+     * On sign-out: stops the listeners and, on dbExecutor, deletes the user's local rows, then
+     * tells every screen.
+     */
     private void stopSyncing() {
         stopListeners();
         LocalMirror toClear = mirror;
@@ -274,6 +287,7 @@ public class SyncManager {
         });
     }
 
+    /** Removes whichever listeners are registered. */
     private void stopListeners() {
         if (profileRegistration != null) { profileRegistration.remove(); profileRegistration = null; }
         if (customWorkoutsRegistration != null) { customWorkoutsRegistration.remove(); customWorkoutsRegistration = null; }

@@ -20,13 +20,18 @@ import java.util.TimeZone;
 
 /**
  * Scheduled workouts as events in the device's calendar (FR-6.2), through the calendar
- * provider. A repeating schedule is one repeating event (FR-6.1). Needs {@link #PERMISSIONS}; the screen asks for them (FR-6.5). Every method checks
- * them first, so a denied permission never crashes. Call these on a background thread.
+ * provider. A repeating schedule is one repeating event (FR-6.1). Needs {@link #PERMISSIONS};
+ * the screen asks for them (FR-6.5). Every method checks them first, so a denied permission
+ * never crashes. Call these on a background thread.
  *
  * Events go into the primary writable calendar. A device with no calendar account at all
  * (e.g. a fresh emulator) gets a local "Calisthenics" calendar, created once.
  */
 public final class DeviceCalendar {
+    /**
+     * Both are needed: reading to find a calendar and check an event still exists, writing to add,
+     * move and delete events.
+     */
     public static final String[] PERMISSIONS = {
             Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR
     };
@@ -37,6 +42,7 @@ public final class DeviceCalendar {
     private DeviceCalendar() {
     }
 
+    /** Whether both {@link #PERMISSIONS} are granted. */
     public static boolean hasPermission(Context context) {
         for (String permission : PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(context, permission)
@@ -97,6 +103,7 @@ public final class DeviceCalendar {
         return true;
     }
 
+    /** Deletes the event; nothing happens without permission or if it is already gone. */
     public static void deleteEvent(Context context, long eventId) {
         if (!hasPermission(context)) return;
         try {
@@ -129,6 +136,7 @@ public final class DeviceCalendar {
         return values;
     }
 
+    /** content://.../events/{eventId}. */
     private static Uri eventUri(long eventId) {
         return ContentUris.withAppendedId(Events.CONTENT_URI, eventId);
     }

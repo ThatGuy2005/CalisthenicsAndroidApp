@@ -30,15 +30,19 @@ import java.util.function.Supplier;
 abstract class UserDataService extends DbService {
     private static final String TAG = "UserDataService";
 
+    /** The error every call gives when no user is signed in. */
     protected static final String NOT_SIGNED_IN = "You are not signed in.";
 
+    /** Who is signed in. */
     protected final SessionManager sessionManager;
     private final Supplier<FirebaseFirestore> firestore;
 
+    /** Uses the app's database, FirebaseAuth and Firestore. */
     protected UserDataService(Context context) {
         this(context, appDatabase(context), new SessionManager(), FirebaseFirestore::getInstance);
     }
 
+    /** With dependencies of your own, e.g. in a test. */
     protected UserDataService(Context context, Supplier<SQLiteDatabase> database,
                               SessionManager sessionManager, Supplier<FirebaseFirestore> firestore) {
         super(context, database);
@@ -54,10 +58,12 @@ abstract class UserDataService extends DbService {
         return firestore.get();
     }
 
+    /** The users/{uid} profile document, parent of the user's collections. */
     protected DocumentReference userDoc(String uid) {
         return firestore().collection("users").document(uid);
     }
 
+    /** The current time in epoch seconds. */
     protected static long now() {
         return System.currentTimeMillis() / 1000L;    // epoch seconds, like the rest of the schema
     }

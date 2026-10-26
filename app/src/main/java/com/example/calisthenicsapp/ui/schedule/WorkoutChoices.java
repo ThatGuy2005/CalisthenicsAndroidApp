@@ -20,7 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 final class WorkoutChoices {
     /** One entry of the workout spinner; toString is what the spinner shows. */
     static final class Option {
+        /** The workout's name: the premade one's key, or the custom one's name. */
         final String name;
+        /** The custom workout's id. */
         final String customWorkoutId;   // null for a premade workout
         private final String label;
 
@@ -30,6 +32,7 @@ final class WorkoutChoices {
             this.label = label;
         }
 
+        /** True for one of the user's own workouts. */
         boolean isCustom() {
             return customWorkoutId != null;
         }
@@ -43,10 +46,14 @@ final class WorkoutChoices {
     private final WorkoutService workoutService;
     private final CustomWorkoutService customWorkoutService;
     private final List<Option> options = new ArrayList<>();
+    /** A load has finished at least once. */
     private boolean loaded;
+    /** A load is under way. */
     private boolean loading;
+    /** Something changed during the load: load again after it. */
     private boolean reload;
 
+    /** context is for the option labels. */
     WorkoutChoices(Context context, WorkoutService workoutService,
                    CustomWorkoutService customWorkoutService) {
         this.context = context;
@@ -86,6 +93,7 @@ final class WorkoutChoices {
         List<Option> premade = new ArrayList<>();
         List<Option> custom = new ArrayList<>();
         AtomicInteger pending = new AtomicInteger(2);
+        // Runs after each of the two loads; the second one publishes the choices.
         Runnable finished = () -> {
             if (pending.decrementAndGet() > 0) return;
             options.clear();

@@ -36,8 +36,10 @@ import java.util.List;
 
 /** Workout log and period statistics (FR-5.7). */
 public class HistoryActivity extends AppCompatActivity {
+    /** See HomeActivity.EXTRA_PREVIEW_MODE: sample logs instead of the user's. */
     public static final String EXTRA_PREVIEW_MODE = HomeActivity.EXTRA_PREVIEW_MODE;
 
+    /** The period the statistics and the list cover. */
     private StatsPeriod period = StatsPeriod.WEEK;
     private boolean previewMode;
     private WorkoutLogService logService;
@@ -45,6 +47,7 @@ public class HistoryActivity extends AppCompatActivity {
     private TextView workoutsTotal, timeTotal, caloriesTotal, completionLine, logCount, loading;
     private LinearLayout logList;
     private TextView week, month, allTime;
+    /** The logs shown, newest first. */
     private List<WorkoutLog> logs = new ArrayList<>();
 
     private final DataChanges.Listener dataListener = kind -> {
@@ -78,6 +81,7 @@ public class HistoryActivity extends AppCompatActivity {
         else DataChanges.observe(this, dataListener, DataChanges.Kind.WORKOUT_LOGS);
     }
 
+    /** Switches the period and reloads. */
     private void selectPeriod(StatsPeriod selected) {
         if (period == selected) return;
         period = selected;
@@ -85,6 +89,7 @@ public class HistoryActivity extends AppCompatActivity {
         if (previewMode) renderPreview(); else loadData();
     }
 
+    /** Highlights the chosen period. */
     private void renderPeriodPicker() {
         TextView[] options = {week, month, allTime};
         StatsPeriod[] periods = {StatsPeriod.WEEK, StatsPeriod.MONTH, StatsPeriod.ALL_TIME};
@@ -98,6 +103,10 @@ public class HistoryActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Loads the period's statistics and its logs; StatsService and WorkoutLogService count the same
+     * logs.
+     */
     private void loadData() {
         loading.setVisibility(View.VISIBLE);
         loading.setText(R.string.history_loading);
@@ -122,6 +131,7 @@ public class HistoryActivity extends AppCompatActivity {
         });
     }
 
+    /** Fills the totals: workouts, time, calories, and completed against partial. */
     private void showStats(WorkoutStats stats) {
         workoutsTotal.setText(String.valueOf(stats.getWorkouts()));
         timeTotal.setText(Durations.spent(this, stats.getTotalSeconds()));
@@ -130,6 +140,7 @@ public class HistoryActivity extends AppCompatActivity {
                 stats.getCompletedWorkouts(), stats.getPartialWorkouts()));
     }
 
+    /** Redraws the log list, or the "no workouts" line. */
     private void renderLogs() {
         logList.removeAllViews();
         loading.setVisibility(logs.isEmpty() ? View.VISIBLE : View.GONE);
@@ -141,6 +152,7 @@ public class HistoryActivity extends AppCompatActivity {
         for (WorkoutLog log : logs) logList.addView(createLogCard(log));
     }
 
+    /** One log card. Tapping shows its exercises, a long press deletes it. */
     private View createLogCard(WorkoutLog log) {
         MaterialCardView card = new MaterialCardView(this);
         LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-1, -2);
@@ -221,6 +233,7 @@ public class HistoryActivity extends AppCompatActivity {
         return card;
     }
 
+    /** One value of a card's metrics row. */
     private void addMetric(LinearLayout row, String text) {
         TextView item = new TextView(this);
         item.setText(text);
@@ -230,6 +243,7 @@ public class HistoryActivity extends AppCompatActivity {
         row.addView(item);
     }
 
+    /** The dot between two metrics. */
     private void addSeparator(LinearLayout row) {
         TextView dot = new TextView(this);
         dot.setText("·");
@@ -239,6 +253,7 @@ public class HistoryActivity extends AppCompatActivity {
         row.addView(dot);
     }
 
+    /** A dialog with the log's summary and every exercise as it was done (FR-5.5). */
     private void showLogDetails(WorkoutLog log) {
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
@@ -277,6 +292,7 @@ public class HistoryActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.common_done, null).show();
     }
 
+    /** "2 of 3 sets, 12 reps": the sets done out of the planned ones, and the target. */
     private String exerciseDescription(LoggedExercise exercise) {
         String target;
         if (exercise.isTimed()) target = exercise.getSeconds() == null ? getString(R.string.target_timed)
@@ -288,6 +304,7 @@ public class HistoryActivity extends AppCompatActivity {
                 exercise.getCompletedSets(), exercise.getSets(), target);
     }
 
+    /** Asks first, then deletes the log; the statistics change with it. */
     private void confirmDelete(WorkoutLog log) {
         new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(R.string.history_delete_title)
                 .setMessage(getString(R.string.history_delete_message, log.getWorkoutName()))
@@ -298,6 +315,10 @@ public class HistoryActivity extends AppCompatActivity {
                 })).show();
     }
 
+    /**
+     * Made-up logs for the preview mode: one this week, another one only in the month and all-time
+     * views.
+     */
     private void renderPreview() {
         long now = System.currentTimeMillis() / 1000L;
         List<LoggedExercise> firstExercises = new ArrayList<>();
@@ -320,6 +341,7 @@ public class HistoryActivity extends AppCompatActivity {
         renderLogs();
     }
 
+    /** A short message at the bottom. */
     private void showMessage(String message) {
         Snackbar.make(findViewById(R.id.historyRoot), message, Snackbar.LENGTH_LONG).show();
     }

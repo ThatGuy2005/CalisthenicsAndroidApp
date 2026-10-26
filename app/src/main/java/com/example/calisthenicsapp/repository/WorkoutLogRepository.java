@@ -16,10 +16,16 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The users' workout history (the WorkoutLog table), keyed by the Firestore id, newest first. The
+ * exercises done are kept as a JSON snapshot in the Snapshot column. Only SyncManager writes here,
+ * as it mirrors Firestore.
+ */
 public class WorkoutLogRepository implements Repository<WorkoutLog> {
     private static final String TAG = "WorkoutLogRepository";
     private final SQLiteDatabase db;
 
+    /** Works on an open database; it does not close it. */
     public WorkoutLogRepository(SQLiteDatabase db) { this.db = db; }
 
     @Override
@@ -59,6 +65,7 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         return query(null, null);
     }
 
+    /** All of a user's logs, newest first. */
     public List<WorkoutLog> getByUid(String uid) {
         return query("Uid = ?", new String[]{uid});   // newest first
     }
@@ -68,6 +75,7 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         return query("Uid = ? AND StartedAt >= ?", new String[]{uid, String.valueOf(fromSeconds)});
     }
 
+    /** The log with this id, or null. */
     public WorkoutLog getOne(String id) {
         List<WorkoutLog> r = query("Id = ?", new String[]{id});
         return r.isEmpty() ? null : r.get(0);
@@ -75,6 +83,8 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
 
     /** Totals over the user's logs that started at or after fromSeconds (epoch seconds). */
     public WorkoutStats getStats(String uid, long fromSeconds) {
+        // A comparison is 0 or 1 in SQLite, so SUM counts the matching rows; COALESCE turns the
+        // NULL of an empty SUM into 0.
         try (Cursor c = db.rawQuery(
                 "SELECT COUNT(*), "
                         + "COALESCE(SUM(Status = 'Completed'), 0), "
@@ -89,6 +99,7 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         }
     }
 
+    /** The logs matching where (all for null), newest first. */
     private List<WorkoutLog> query(String where, String[] args) {
         List<WorkoutLog> list = new ArrayList<>();
         try (Cursor c = db.query("WorkoutLog", null, where, args,
@@ -138,6 +149,7 @@ public class WorkoutLogRepository implements Repository<WorkoutLog> {
         }
     }
 
+    /** Reads back a snapshot written by toJson; an unreadable one gives an empty list. */
     private static List<LoggedExercise> fromJson(String json) {
         List<LoggedExercise> list = new ArrayList<>();
         if (json == null) return list;
