@@ -2,7 +2,7 @@
 import { spawnSync } from 'node:child_process';
 
 const PORT = 8080;   // must match firebase.json
-const TESTS = ['profile.test.mjs', 'subcollections.test.mjs'];
+const TESTS = ['profile.test.mjs', 'usernames.test.mjs', 'subcollections.test.mjs'];
 
 // On Windows, firebase-tools stops the emulator's wrapper but leaves its Java process running,
 // which keeps the port busy and makes the next run fail. Stop exactly that process: a java.exe
