@@ -3,6 +3,11 @@ package com.example.calisthenicsapp.validation;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 
+/**
+ * The rules for what a user can type in (FR-1.1, FR-1.2): username, password, email and the body
+ * data. The services check with these before writing, so a bad value never reaches Firestore;
+ * firestore.rules checks the same limits on the server. Pure Java, so it is unit-tested on the JVM.
+ */
 public final class UserValidator {
     private UserValidator() {}
 
@@ -12,9 +17,12 @@ public final class UserValidator {
     private static final int PASSWORD_MAX = 64;
     private static final int EMAIL_MAX = 254;
     // firestore.rules checks the same limits; change both together.
+    /** The allowed height range, in cm. */
     public static final double HEIGHT_MIN = 50, HEIGHT_MAX = 300;   // cm
+    /** The allowed weight range, in kg. */
     public static final double WEIGHT_MIN = 20, WEIGHT_MAX = 500;   // kg
     private static final int GENDER_MAX = 30;
+    /** The earliest birth year accepted; the latest is the current year. */
     public static final int BIRTH_YEAR_MIN = 1900;   // up to the current year
 
     // Alphanumeric only (FR-1.1): ASCII letters and digits. firestore.rules checks the same.
@@ -24,6 +32,10 @@ public final class UserValidator {
     private static final Pattern EMAIL = Pattern.compile(
             "^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$");
 
+    /**
+     * 3 to 20 characters, ASCII letters and digits only (FR-1.1). Whether it is still free is
+     * checked against Firestore, see {@link #usernameKey}.
+     */
     public static boolean isValidUsername(String username) {
         if (username == null) return false;
         int len = username.length();
@@ -31,6 +43,7 @@ public final class UserValidator {
         return USERNAME.matcher(username).matches();
     }
 
+    /** 8 to 64 characters, with at least one letter and one digit (FR-1.1). */
     public static boolean isValidPassword(String password) {
         if (password == null) return false;
         int len = password.length();
@@ -45,6 +58,10 @@ public final class UserValidator {
         return hasLetter && hasDigit;
     }
 
+    /**
+     * At most 254 characters, shaped like local@domain.tld; normalize it first with {@link
+     * #normalizeEmail}. Whether the address exists is up to Firebase Auth.
+     */
     public static boolean isValidEmail(String email) {
         if (email == null) return false;
         if (email.length() > EMAIL_MAX) return false;

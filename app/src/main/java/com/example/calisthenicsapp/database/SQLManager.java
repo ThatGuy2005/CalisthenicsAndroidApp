@@ -101,7 +101,7 @@ public class SQLManager extends SQLiteOpenHelper {
      * are a cache of Firestore, but CalendarEvent exists only on this device.
      *
      * To change the schema: edit schema.sql (used by new installs), raise DATABASE_VERSION to N,
-     * and add an "if (oldVersion < N)" step below that turns version N-1 into N. Every upgrade
+     * and add an {@code if (oldVersion < N)} step below that turns version N-1 into N. Every upgrade
      * also brings the premade content up to date with seed.sql (refreshSeed), so a seed-only
      * change just needs the version raised.
      */

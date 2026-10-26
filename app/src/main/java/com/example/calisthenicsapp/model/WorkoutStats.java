@@ -2,6 +2,7 @@ package com.example.calisthenicsapp.model;
 
 /** Summary of the workout logs in a {@link StatsPeriod} (FR-5.7). */
 public class WorkoutStats {
+    /** Made by StatsService from the logs of one period. */
     public WorkoutStats(int workouts, int completedWorkouts, int partialWorkouts,
                         long totalSeconds, double totalKcal) {
         this.workouts = workouts;
@@ -15,9 +16,11 @@ public class WorkoutStats {
     public int getWorkouts() {
         return this.workouts;
     }
+    /** Logs with {@link WorkoutLog#STATUS_COMPLETED}. */
     public int getCompletedWorkouts() {
         return this.completedWorkouts;
     }
+    /** Logs with {@link WorkoutLog#STATUS_PARTIAL}. */
     public int getPartialWorkouts() {
         return this.partialWorkouts;
     }
@@ -25,6 +28,7 @@ public class WorkoutStats {
     public long getTotalSeconds() {
         return this.totalSeconds;
     }
+    /** Estimated calories of all the logs added up. */
     public double getTotalKcal() {
         return this.totalKcal;
     }

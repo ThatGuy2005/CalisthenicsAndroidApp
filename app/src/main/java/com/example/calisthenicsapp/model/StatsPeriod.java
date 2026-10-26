@@ -10,7 +10,12 @@ import java.util.TimeZone;
  * starts on the locale's first day of the week (Monday in most of Europe, Sunday in the US).
  */
 public enum StatsPeriod {
-    WEEK, MONTH, ALL_TIME;
+    /** This calendar week, from its first day at midnight. */
+    WEEK,
+    /** This calendar month, from the 1st at midnight. */
+    MONTH,
+    /** Every log there is. */
+    ALL_TIME;
 
     /** Start of the period containing nowMillis, in epoch seconds. 0 for ALL_TIME. */
     public long startSeconds(long nowMillis, TimeZone zone, Locale locale) {

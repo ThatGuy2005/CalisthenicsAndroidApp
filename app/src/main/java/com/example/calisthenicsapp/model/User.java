@@ -1,6 +1,12 @@
 package com.example.calisthenicsapp.model;
 
+/**
+ * The signed-in user's profile (FR-1.2), the users/{uid} document mirrored in the User table.
+ * Height is in cm and weight in kg whatever units the user picked (see {@link Units}); 0 means not
+ * given. Times are epoch seconds.
+ */
 public class User {
+    /** Without a birth year. */
     public User(String uid, String username, String email, double height,
                 double weight, String gender, long createdAt, long updatedAt) {
         this(uid, username, email, height, weight, gender, null, createdAt, updatedAt);
@@ -20,20 +26,31 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
+    /** The Firebase Auth uid, which is also the Firestore document id. */
     public String getUid() {
         return this.uid;
     }
+    /**
+     * Unique, ignoring case (see {@link
+     * com.example.calisthenicsapp.validation.UserValidator#usernameKey}).
+     */
     public String getUsername() {
         return this.username;
     }
+    /** In cm; 0 if not given. */
     public Double getHeight() {
         return this.height;
     }
 
+    /** In kg; 0 if not given. */
     public Double getWeight() {
         return this.weight;
     }
 
+    /**
+     * As the user wrote or picked it; null if not given. The BMR reads it with {@link
+     * com.example.calisthenicsapp.session.Bmr#sexOf}.
+     */
     public String getGender() {
         return this.gender;
     }
@@ -43,14 +60,17 @@ public class User {
         return this.birthYear;
     }
 
+    /** The sign-in email, lowercased. */
     public String getEmail() {
         return this.email;
     }
 
+    /** When the account was created. */
     public long getCreatedAt() {
         return this.createdAt;
     }
 
+    /** When the profile was last changed. */
     public long getUpdatedAt() {
         return this.updatedAt;
     }

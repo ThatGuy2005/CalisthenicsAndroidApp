@@ -8,10 +8,15 @@ import java.util.Locale;
  * these.
  */
 public enum Equipment {
+    /** Only the floor. */
     NONE("None"),
+    /** A wall to lean on or push against, as in a wall sit. */
     WALL("Wall"),
+    /** Something sturdy at about knee height, as for dips. */
     BENCH("Bench or chair"),
+    /** A bar to hang from. */
     PULL_UP_BAR("Pull-up bar"),
+    /** Two bars at hip height, as for bar dips. */
     PARALLEL_BARS("Parallel bars");
 
     private final String label;

@@ -6,7 +6,9 @@ package com.example.calisthenicsapp.model;
  * device; save it with name() and read it back with {@link #fromName}.
  */
 public enum UnitSystem {
+    /** Kilograms and centimetres; the default. */
     METRIC("Metric (kg, cm)"),
+    /** Pounds, and feet and inches. */
     IMPERIAL("Imperial (lb, ft)");
 
     private final String label;

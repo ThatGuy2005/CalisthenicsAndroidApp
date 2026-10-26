@@ -16,6 +16,7 @@ Open the project in Android Studio, or use Gradle:
 | `./gradlew assembleDebug` | Builds the debug APK. |
 | `./gradlew testDebugUnitTest` | Runs the unit tests: plain JVM tests plus Robolectric tests for the database. |
 | `./gradlew lintDebug` | Android lint. It should report 0 errors. |
+| `./gradlew javadoc` | The API documentation of the Java code, in `app/build/docs/javadoc` (open `index.html`). |
 
 `app/google-services.json` connects the app to the Firebase project `thecalisthenicsapp`. Its
 Firestore database is `(default)` in `eur3` (Europe). The security rules are in

@@ -7,8 +7,11 @@ import java.util.Locale;
  * SQLite stores the label ("Beginner"), and its CHECK constraint allows only these three.
  */
 public enum Difficulty {
+    /** For someone new to training. */
     BEGINNER("Beginner"),
+    /** Needs some strength and practice. */
     INTERMEDIATE("Intermediate"),
+    /** For experienced athletes. */
     ADVANCED("Advanced");
 
     private final String label;

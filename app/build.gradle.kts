@@ -67,6 +67,31 @@ android {
     }
 }
 
+// Javadoc: ./gradlew javadoc writes the API documentation of our Java code to
+// app/build/docs/javadoc (open index.html). It is built against the debug variant's classpath,
+// so the Android, AndroidX and Firebase types in our signatures resolve.
+androidComponents {
+    onVariants(selector().withName("debug")) { variant ->
+        tasks.register<Javadoc>("javadoc") {
+            description = "Generates the Javadoc of the app's Java sources."
+            group = "documentation"
+            source = fileTree("src/main/java") { include("**/*.java") }
+            classpath = files(androidComponents.sdkComponents.bootClasspath) +
+                    variant.compileClasspath
+            setDestinationDir(layout.buildDirectory.dir("docs/javadoc").get().asFile)
+            title = "CalisthenicsApp ${android.defaultConfig.versionName}"
+            (options as StandardJavadocDocletOptions).apply {
+                encoding = "UTF-8"
+                docEncoding = "UTF-8"
+                charSet = "UTF-8"
+                // Package-private classes and members too: most of the back end is.
+                memberLevel = JavadocMemberLevel.PACKAGE
+                addStringOption("Xdoclint:all,-missing", "-quiet")
+            }
+        }
+    }
+}
+
 dependencies {
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)

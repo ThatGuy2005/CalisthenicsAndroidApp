@@ -22,6 +22,7 @@ public final class Units {
     public static final double KG_PER_LB = 0.45359237;
     /** Exact, by definition. */
     public static final double CM_PER_INCH = 2.54;
+    /** Exact, by definition. */
     public static final int INCHES_PER_FOOT = 12;
 
     private Units() {
@@ -32,15 +33,18 @@ public final class Units {
         private final int feet;
         private final int inches;
 
+        /** inches should be 0 to 11. */
         public FeetInches(int feet, int inches) {
             this.feet = feet;
             this.inches = inches;
         }
 
+        /** Whole feet. */
         public int getFeet() {
             return feet;
         }
 
+        /** The inches on top of the feet, 0 to 11. */
         public int getInches() {
             return inches;
         }
