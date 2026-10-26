@@ -34,12 +34,17 @@ import java.util.Map;
 
 /** Read-only overview of a custom workout, used from both its library and the schedule. */
 public class CustomWorkoutDetailActivity extends AppCompatActivity {
+    /** The custom workout to show, by its id. */
     public static final String EXTRA_WORKOUT_ID = "custom_workout_id";
     private String workoutId;
     private TextView name, meta, description, count, start;
     private LinearLayout exercisesView;
     private List<CustomExerciseOrderEntry> entries = new ArrayList<>();
     private final Map<String, Exercise> exerciseByName = new HashMap<>();
+    /**
+     * The workout, its exercises and the library load at the same time; the screen is drawn once
+     * all three are in.
+     */
     private boolean workoutLoaded, entriesLoaded, libraryLoaded;
     private CustomWorkout workout;
 
@@ -80,6 +85,7 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
         });
     }
 
+    /** Draws the screen once the last of the three loads is back. */
     private void renderWhenReady() {
         if (!workoutLoaded || !entriesLoaded || !libraryLoaded) return;
         if (workout == null) { show(getString(R.string.custom_detail_gone)); finish(); return; }
@@ -95,6 +101,10 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
         start.setEnabled(!entries.isEmpty());
     }
 
+    /**
+     * One exercise card. Empty settings show the same defaults the workout runs with: 3 sets, 60 s
+     * rest, and the exercise's own reps or seconds.
+     */
     private void addExercise(int index, CustomExerciseOrderEntry entry) {
         Exercise exercise = exerciseByName.get(entry.getExerciseName());
         boolean timed = exercise != null && exercise.isTimed();
@@ -135,6 +145,7 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
         exercisesView.addView(card);
     }
 
+    /** Starts a session of this workout (FR-5.1). */
     private void startWorkout() {
         start.setEnabled(false); start.setText(R.string.custom_detail_preparing);
         new WorkoutSessionService(this).startCustom(workoutId, new ServiceCallback<WorkoutSession>() {
@@ -149,5 +160,6 @@ public class CustomWorkoutDetailActivity extends AppCompatActivity {
         });
     }
 
+    /** A short message at the bottom. */
     private void show(String message) { Snackbar.make(findViewById(R.id.customWorkoutDetailRoot), message, Snackbar.LENGTH_LONG).show(); }
 }

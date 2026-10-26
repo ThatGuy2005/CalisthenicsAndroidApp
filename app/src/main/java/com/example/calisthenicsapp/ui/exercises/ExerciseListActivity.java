@@ -35,9 +35,15 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Exercises tab (FR-3.1, FR-3.4): the whole library as cards, with a name search and muscle
+ * group and difficulty filters. Tapping a card opens ExerciseDetailActivity.
+ */
 public class ExerciseListActivity extends AppCompatActivity {
+    /** See HomeActivity.EXTRA_PREVIEW_MODE; the library is shown either way. */
     public static final String EXTRA_PREVIEW_MODE = HomeActivity.EXTRA_PREVIEW_MODE;
 
+    /** Runs the search a moment after the last change, not on every key press. */
     private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private final Runnable pendingSearch = this::loadExercises;
     private ExerciseService exerciseService;
@@ -46,6 +52,7 @@ public class ExerciseListActivity extends AppCompatActivity {
     private Spinner difficultyFilter;
     private LinearLayout exerciseList;
     private TextView exerciseCount;
+    /** The muscle group filter has its options, so a search can read both filters. */
     private boolean filtersReady;
     private boolean previewMode;
 
@@ -68,6 +75,7 @@ public class ExerciseListActivity extends AppCompatActivity {
         loadMuscleGroups();
     }
 
+    /** "All levels" followed by Difficulty.values(), easiest first. */
     private void setupDifficultyFilter() {
         List<String> levels = new ArrayList<>();
         levels.add(getString(R.string.exercise_list_all_levels));
@@ -79,6 +87,7 @@ public class ExerciseListActivity extends AppCompatActivity {
         difficultyFilter.setOnItemSelectedListener(new SimpleSelectionListener(() -> scheduleSearch()));
     }
 
+    /** Searches again whenever the search text changes. */
     private void setupSearch() {
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -89,6 +98,7 @@ public class ExerciseListActivity extends AppCompatActivity {
         });
     }
 
+    /** Fills the muscle group filter from the library, then shows the first results. */
     private void loadMuscleGroups() {
         exerciseService.getMuscleGroups(new ServiceCallback<List<String>>() {
             @Override
@@ -115,12 +125,14 @@ public class ExerciseListActivity extends AppCompatActivity {
         });
     }
 
+    /** Searches 180 ms from now, dropping a search that was still waiting. */
     private void scheduleSearch() {
         if (!filtersReady) return;
         searchHandler.removeCallbacks(pendingSearch);
         searchHandler.postDelayed(pendingSearch, 180);
     }
 
+    /** Searches with the current text and filters. */
     private void loadExercises() {
         if (!filtersReady) return;
         // The first option of each filter is "All ...", which means no filter.
@@ -146,6 +158,7 @@ public class ExerciseListActivity extends AppCompatActivity {
                 });
     }
 
+    /** Replaces the list with a card per exercise, or a "no match" line. */
     private void renderExercises(List<Exercise> exercises) {
         exerciseList.removeAllViews();
         exerciseCount.setText(getResources().getQuantityString(R.plurals.exercise_list_count,
@@ -162,6 +175,10 @@ public class ExerciseListActivity extends AppCompatActivity {
         for (Exercise exercise : exercises) exerciseList.addView(createExerciseCard(exercise));
     }
 
+    /**
+     * One exercise card: a stripe in the difficulty's color, a muscle group badge, the name, the
+     * difficulty and the suggested target.
+     */
     private MaterialCardView createExerciseCard(Exercise exercise) {
         MaterialCardView card = new MaterialCardView(this);
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
@@ -261,10 +278,12 @@ public class ExerciseListActivity extends AppCompatActivity {
         return card;
     }
 
+    /** The badge text color; the same for every group in the current design. */
     private int muscleAccent(String group) {
         return UiColors.ORANGE_DARK;
     }
 
+    /** The color of the card's side stripe. */
     private int difficultyAccent(Difficulty difficulty) {
         if (difficulty == null) return UiColors.ORANGE_DARK;
         switch (difficulty) {
@@ -279,10 +298,15 @@ public class ExerciseListActivity extends AppCompatActivity {
         }
     }
 
+    /** The badge background; the same for every group in the current design. */
     private int muscleTint(String group) {
         return UiColors.ORANGE_TINT;
     }
 
+    /**
+     * Two letters for the badge: the initials of a two-word group, otherwise its first two letters
+     * ("Chest" gives CH).
+     */
     private String muscleMark(String group) {
         if (group == null || group.trim().isEmpty()) return getString(R.string.exercise_list_mark_none);
         String[] words = group.trim().split("\\s+");
@@ -291,12 +315,14 @@ public class ExerciseListActivity extends AppCompatActivity {
                 : group.substring(0, 2).toUpperCase(java.util.Locale.ROOT);
     }
 
+    /** Drops a search that is still waiting. */
     @Override
     protected void onDestroy() {
         searchHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
 
+    /** A spinner listener that only needs to know that the selection changed. */
     private static class SimpleSelectionListener implements android.widget.AdapterView.OnItemSelectedListener {
         private final Runnable onSelected;
 

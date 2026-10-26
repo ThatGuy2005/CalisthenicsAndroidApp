@@ -40,6 +40,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
     private TextView status;
     private View root;
     private CustomWorkoutService customService;
+    /** The premade workouts, for "Copy a premade workout"; loaded in the background. */
     private List<Workout> premade = new ArrayList<>();
 
     @Override protected void onCreate(Bundle state) {
@@ -52,8 +53,10 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         });
     }
 
+    // Reloads the list when coming back, e.g. from the editor.
     @Override protected void onResume() { super.onResume(); load(); }
 
+    /** Builds the screen in code: the title, Create, Copy and the list. */
     private void buildScreen() {
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
@@ -95,6 +98,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         setContentView(scroll);
     }
 
+    /** Fills the list with the user's custom workouts. */
     private void load() {
         if (list == null) return;
         status.setText(R.string.custom_workouts_loading);
@@ -115,6 +119,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         });
     }
 
+    /** One workout card with Start, Edit and a menu for the other actions. */
     private View workoutCard(CustomWorkout workout) {
         MaterialCardView card = new MaterialCardView(this);
         card.setRadius(dp(this, 20)); card.setCardBackgroundColor(UiColors.SURFACE);
@@ -146,6 +151,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         return card;
     }
 
+    /** The card's menu: view, edit, rename or delete. */
     private void showActions(CustomWorkout workout) {
         String[] actions = getResources().getStringArray(R.array.custom_workouts_actions);
         new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(workout.getName()).setItems(actions, (dialog, which) -> {
@@ -156,6 +162,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         }).show();
     }
 
+    /** Copies a premade workout, loading the list first if it is not there yet. */
     private void choosePremade() {
         if (premade.isEmpty()) {
             new WorkoutService(this).getAllWorkouts(new ServiceCallback<List<Workout>>() {
@@ -165,6 +172,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         } else showPremadeDialog();
     }
 
+    /** Lets the user pick a premade workout and copies it (FR-4.3). */
     private void showPremadeDialog() {
         String[] names = new String[premade.size()];
         for (int i = 0; i < premade.size(); i++) names[i] = premade.get(i).getName();
@@ -177,6 +185,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         }).show();
     }
 
+    /** Asks for a new name and saves it. */
     private void rename(CustomWorkout workout) {
         android.widget.EditText input = new android.widget.EditText(this);
         input.setSingleLine(true); input.setText(workout.getName());
@@ -189,6 +198,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
                         })).show();
     }
 
+    /** Asks first; deleting a workout also deletes its schedules. */
     private void confirmDelete(CustomWorkout workout) {
         new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog).setTitle(R.string.custom_workouts_delete_title)
                 .setMessage(getString(R.string.custom_workouts_delete_message, workout.getName()))
@@ -199,6 +209,7 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
                         })).show();
     }
 
+    /** Starts a session of the workout (FR-5.1). */
     private void startWorkout(CustomWorkout workout) {
         new WorkoutSessionService(this).startCustom(workout.getId(), new ServiceCallback<WorkoutSession>() {
             @Override public void onSuccess(WorkoutSession session) {
@@ -209,30 +220,37 @@ public class CustomWorkoutsActivity extends AppCompatActivity {
         });
     }
 
+    /** Opens the editor for the workout, or for a new one with null. */
     private void openEditor(CustomWorkout workout) {
         Intent i = new Intent(this, CustomWorkoutEditorActivity.class);
         if (workout != null) i.putExtra(CustomWorkoutEditorActivity.EXTRA_WORKOUT_ID, workout.getId());
         startActivity(i);
     }
 
+    /** Opens the workout's read-only overview. */
     private void openDetails(CustomWorkout workout) {
         Intent i = new Intent(this, CustomWorkoutDetailActivity.class);
         i.putExtra(CustomWorkoutDetailActivity.EXTRA_WORKOUT_ID, workout.getId());
         startActivity(i);
     }
 
+    /** A short message at the bottom. */
     private void show(String message) { Snackbar.make(root, message, Snackbar.LENGTH_LONG).show(); }
+    /** A button; primary ones are filled with the accent color. */
     private Button button(String label, boolean primary) {
         Button b = new Button(this); b.setText(label); b.setAllCaps(false); b.setTextSize(14);
         b.setTextColor(primary ? UiColors.INK : UiColors.ORANGE_DARK);
         b.setBackground(rounded(primary ? UiColors.ORANGE_DARK : UiColors.SURFACE, dp(this, 14)));
         return b;
     }
+    /** A smaller button for a card's action row. */
     private Button smallButton(String label, boolean primary) {
         Button b = button(label, primary); b.setTextSize(12); b.setMinHeight(dp(this, 40)); b.setMinimumHeight(dp(this, 40));
         b.setPadding(dp(this, 4), 0, dp(this, 4), 0); return b;
     }
+    /** Empty space, height in dp. */
     private View space(int height) { View v = new View(this); v.setLayoutParams(new LinearLayout.LayoutParams(1, dp(this, height))); return v; }
     private LinearLayout.LayoutParams matchWrap() { return new LinearLayout.LayoutParams(-1, -2); }
+    /** Layout for a button that shares the row's width evenly. */
     private LinearLayout.LayoutParams weightButton() { return new LinearLayout.LayoutParams(0, dp(this, 40), 1f); }
 }

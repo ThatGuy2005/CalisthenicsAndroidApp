@@ -30,7 +30,13 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * One exercise of the library (FR-3.3): its name, muscle group, difficulty, equipment, suggested
+ * target, the demonstration animation and the step-by-step instructions with their tip. Opened from
+ * the exercise list, a workout or a custom workout.
+ */
 public class ExerciseDetailActivity extends AppCompatActivity {
+    /** The exercise to show, by its unique name. Required: without it the screen closes. */
     public static final String EXTRA_EXERCISE_NAME = "com.example.calisthenicsapp.EXERCISE_NAME";
 
     private TextView nameView;
@@ -93,6 +99,7 @@ public class ExerciseDetailActivity extends AppCompatActivity {
                 });
     }
 
+    /** Fills the screen with the exercise. */
     private void showExercise(Exercise exercise) {
         nameView.setText(exercise.getName());
         summaryView.setText(getString(exercise.isMultiMuscle()
@@ -115,6 +122,11 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         if (exercise.getAnimationFile() != null) showAnimation(exercise.getAnimationFile());
     }
 
+    /**
+     * Splits the instructions as seed.sql writes them, "1) ... 2) ... Tip: ...", into numbered step
+     * rows and the tip card. Text before the first number, or without numbers at all, becomes a
+     * bullet step.
+     */
     private void populateInstructions(String instructions) {
         instructionsContainer.removeAllViews();
         tipCard.setVisibility(View.GONE);
@@ -147,6 +159,7 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         }
     }
 
+    /** One step row: the number (or a bullet) in a circle, and the text. */
     private void addInstructionStep(String number, String text) {
         if (text.isEmpty()) return;
 
@@ -180,6 +193,11 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         row.addView(instructionView, textParams);
     }
 
+    /**
+     * Plays the exercise's animation from the assets: .lottie through dotLottie, animated .webp
+     * through ImageDecoder, or below Android 9 (no ImageDecoder) through the awebp library. If it
+     * cannot be loaded, the placeholder stays.
+     */
     private void showAnimation(String fileName) {
         String lowerName = fileName.toLowerCase(java.util.Locale.ROOT);
         if (lowerName.endsWith(".lottie")) {
@@ -223,6 +241,7 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         }
     }
 
+    /** Frees the Lottie player. */
     @Override
     protected void onDestroy() {
         if (lottieAnimationView != null) lottieAnimationView.destroy();

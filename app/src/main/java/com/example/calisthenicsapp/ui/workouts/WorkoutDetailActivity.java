@@ -34,6 +34,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * A premade workout (FR-4.1, FR-4.2): its category, level, estimated length and description, every
+ * exercise with its sets, target and rest, and Start (FR-5.1). Opened from the Workouts tab with
+ * WorkoutListActivity.EXTRA_WORKOUT_NAME.
+ */
 public class WorkoutDetailActivity extends AppCompatActivity {
     private TextView name, meta, description, count;
     private View startButton;
@@ -58,6 +63,7 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         load(workoutName);
     }
 
+    /** Starts a session of the workout and opens the session screen. */
     private void startWorkout(String workoutName) {
         if (workoutName == null) { showError(getString(R.string.workout_detail_not_found)); return; }
         startButton.setEnabled(false);
@@ -78,6 +84,7 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         });
     }
 
+    /** Shows the workout, then loads its exercises. */
     private void load(String workoutName) {
         if (workoutName == null) { showError(getString(R.string.workout_detail_not_found)); return; }
         workouts.getWorkout(workoutName, new ServiceCallback<Workout>() {
@@ -98,6 +105,10 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the exercise list. Each card's target depends on the exercise (timed or not, its
+     * defaults), so every exercise is looked up, and the list is drawn once the last answer is in.
+     */
     private void loadEntries(String workoutName) {
         workouts.getExercises(workoutName, new ServiceCallback<List<ExerciseOrderEntry>>() {
             @Override public void onSuccess(List<ExerciseOrderEntry> entries) {
@@ -126,6 +137,10 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * "12 reps" or "30 sec" ("12 reps / side" for a per-side exercise), from the workout's own
+     * target or else the exercise's default. exercise may be null if it could not be read.
+     */
     private String targetText(ExerciseOrderEntry entry, Exercise exercise) {
         Integer seconds = entry.getSeconds();
         Integer reps = entry.getReps();
@@ -141,6 +156,7 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         return target;
     }
 
+    /** Draws one card per exercise; details holds each card's target text. */
     private void renderEntries(List<ExerciseOrderEntry> entries, List<String> details) {
         exerciseList.removeAllViews();
         for (int i = 0; i < entries.size(); i++) {
@@ -245,6 +261,7 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         }
     }
 
+    /** A short message at the bottom. */
     private void showError(String message) {
         Snackbar.make(findViewById(R.id.workoutDetailRoot), message, Snackbar.LENGTH_LONG).show();
     }
