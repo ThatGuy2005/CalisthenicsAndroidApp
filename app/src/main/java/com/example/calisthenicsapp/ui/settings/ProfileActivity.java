@@ -25,8 +25,9 @@ import java.util.Locale;
  * The email is shown read only; it changes in Account security.
  */
 public class ProfileActivity extends AppCompatActivity {
-    private EditText username, weight, birthYear;
+    private EditText username, weight;
     private HeightInput height;
+    private BirthYearInput birthYear;
     private UnitSystem units;
     private Spinner gender;
     private Button save;
@@ -42,7 +43,7 @@ public class ProfileActivity extends AppCompatActivity {
                 findViewById(R.id.profileHeightImperial), findViewById(R.id.profileHeightFeet),
                 findViewById(R.id.profileHeightInches), units);
         weight = findViewById(R.id.profileWeight);
-        birthYear = findViewById(R.id.profileBirthYear);
+        birthYear = new BirthYearInput(findViewById(R.id.profileBirthYear));
         gender = findViewById(R.id.profileGender);
         save = findViewById(R.id.profileSave);
         if (units == UnitSystem.IMPERIAL) {
@@ -82,7 +83,7 @@ public class ProfileActivity extends AppCompatActivity {
                         user.getEmail() == null ? getString(R.string.profile_email_not_set) : user.getEmail());
                 height.show(user.getHeight());
                 weight.setText(number(Units.weightFromKg(user.getWeight(), units)));
-                if (user.getBirthYear() != null) birthYear.setText(String.valueOf(user.getBirthYear()));
+                birthYear.show(user.getBirthYear());
                 String value = user.getGender();
                 if (value != null) {
                     // From 1: choice 0 is the "not given" placeholder.
@@ -122,15 +123,8 @@ public class ProfileActivity extends AppCompatActivity {
         String genderValue = gender.getSelectedItemPosition() == 0
                 ? null : gender.getSelectedItem().toString();
         if (!UserValidator.isValidGender(genderValue)) { show(getString(R.string.profile_error_gender)); return; }
-        Integer yearValue = null;
-        String yearText = birthYear.getText().toString().trim();
-        if (!yearText.isEmpty()) {
-            try { yearValue = Integer.valueOf(yearText); }
-            catch (NumberFormatException ignored) { birthYear.setError(birthYearError()); birthYear.requestFocus(); return; }
-        }
-        if (!UserValidator.isValidBirthYear(yearValue)) {
-            birthYear.setError(birthYearError()); birthYear.requestFocus(); return;
-        }
+        // The dropdown only lists valid years.
+        Integer yearValue = birthYear.getYear();
 
         setSaving(true, R.string.profile_saving);
         profiles.updateProfile(usernameValue, heightValue, weightValue, genderValue, yearValue,
@@ -158,10 +152,6 @@ public class ProfileActivity extends AppCompatActivity {
         if (value == null) return "";
         if (value == Math.rint(value)) return String.valueOf(value.intValue());
         return String.valueOf(value);
-    }
-    /** The sign-up message, for a year that is no number or out of range alike. */
-    private String birthYearError() {
-        return getString(R.string.signup_error_birth_year, UserValidator.BIRTH_YEAR_MIN);
     }
     /** Locks the form while loading or saving, with label on the button. */
     private void setSaving(boolean saving, int label) {

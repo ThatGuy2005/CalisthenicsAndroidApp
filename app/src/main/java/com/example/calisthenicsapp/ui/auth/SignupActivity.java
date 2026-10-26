@@ -16,6 +16,7 @@ import com.example.calisthenicsapp.R;
 import com.example.calisthenicsapp.model.UnitSystem;
 import com.example.calisthenicsapp.model.Units;
 import com.example.calisthenicsapp.service.AuthService;
+import com.example.calisthenicsapp.ui.settings.BirthYearInput;
 import com.example.calisthenicsapp.ui.settings.HeightInput;
 import com.example.calisthenicsapp.ui.settings.UnitPreference;
 import com.example.calisthenicsapp.validation.UserValidator;
@@ -35,6 +36,8 @@ public class SignupActivity extends AppCompatActivity {
     private UnitSystem units;
     /** The height field, in cm or in feet and inches. */
     private HeightInput height;
+    /** The birth year dropdown. */
+    private BirthYearInput birthYear;
 
     /**
      * Blocks back while the account is being created. Firebase signs the new account in before
@@ -58,6 +61,7 @@ public class SignupActivity extends AppCompatActivity {
         height = new HeightInput(findViewById(R.id.signupHeight),
                 findViewById(R.id.signupHeightImperial), findViewById(R.id.signupHeightFeet),
                 findViewById(R.id.signupHeightInches), units);
+        birthYear = new BirthYearInput(findViewById(R.id.signupBirthYear));
         if (units == UnitSystem.IMPERIAL) {
             ((EditText) findViewById(R.id.signupWeight)).setHint(R.string.signup_hint_weight_imperial);
             ((TextView) findViewById(R.id.signupProfileNote)).setText(R.string.signup_optional_note_imperial);
@@ -88,7 +92,6 @@ public class SignupActivity extends AppCompatActivity {
         EditText email = findViewById(R.id.signupEmail);
         EditText password = findViewById(R.id.signupPassword);
         EditText weight = findViewById(R.id.signupWeight);
-        EditText birthYear = findViewById(R.id.signupBirthYear);
         Spinner gender = findViewById(R.id.signupGender);
 
         String usernameValue = username.getText().toString().trim();
@@ -120,14 +123,8 @@ public class SignupActivity extends AppCompatActivity {
                 weight.requestFocus();
                 return;
             }
-            Integer birthYearValue = parseOptionalYear(birthYear);
-            if (!birthYear.getText().toString().trim().isEmpty()
-                    && (birthYearValue == null || !UserValidator.isValidBirthYear(birthYearValue))) {
-                birthYear.setError(getString(R.string.signup_error_birth_year,
-                        UserValidator.BIRTH_YEAR_MIN));
-                birthYear.requestFocus();
-                return;
-            }
+            // The dropdown only lists valid years.
+            Integer birthYearValue = birthYear.getYear();
 
             // The first choice is the "not given" placeholder.
             String genderValue = gender.getSelectedItemPosition() == 0
@@ -161,17 +158,6 @@ public class SignupActivity extends AppCompatActivity {
         if (value.isEmpty()) return null;
         try {
             return Double.parseDouble(value.replace(',', '.'));
-        } catch (NumberFormatException exception) {
-            return null;
-        }
-    }
-
-    /** The field as a whole number; null if it is empty or not one. */
-    private Integer parseOptionalYear(EditText field) {
-        String value = field.getText().toString().trim();
-        if (value.isEmpty()) return null;
-        try {
-            return Integer.parseInt(value);
         } catch (NumberFormatException exception) {
             return null;
         }

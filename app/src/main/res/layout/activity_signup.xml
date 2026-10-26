@@ -119,13 +119,24 @@
             android:hint="@string/signup_hint_weight"
             android:inputType="numberDecimal" />
 
-        <EditText
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
+            android:text="@string/signup_birth_year_label"
+            android:textColor="@color/performance_muted"
+            android:textSize="14sp" />
+
+        <Spinner
             android:id="@+id/signupBirthYear"
-            android:autofillHints="birthDateYear"
-            style="@style/SignupField"
-            android:hint="@string/signup_hint_birth_year"
-            android:inputType="number"
-            android:maxLength="4" />
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/input_background"
+            android:popupBackground="@color/performance_surface"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp" />
 
         <TextView
             android:layout_width="wrap_content"

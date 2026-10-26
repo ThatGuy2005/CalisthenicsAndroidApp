@@ -157,10 +157,9 @@ public class WorkoutSessionActivity extends AppCompatActivity {
                     : getString(R.string.session_next_up, following.getName()));
         }
         pauseAction.setText(session.isPaused() ? R.string.session_resume : R.string.session_pause);
-        if (askingPhonePermission) {
-            pauseAction.setEnabled(false);
-            mainAction.setEnabled(false);
-        }
+        // Off only while the phone permission question is showing.
+        pauseAction.setEnabled(!askingPhonePermission);
+        mainAction.setEnabled(!askingPhonePermission);
         showAnimation(current.getAnimationFile(), current.getName());
     }
 

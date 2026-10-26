@@ -60,7 +60,9 @@
     <string name="signup_hint_height">Height (cm) — optional</string>
     <string name="signup_hint_weight">Weight (kg) — optional</string>
     <string name="signup_hint_weight_imperial">Weight (lb) — optional</string>
-    <string name="signup_hint_birth_year">Birth year — optional</string>
+    <string name="signup_birth_year_label">Birth year (optional)</string>
+    <!-- The first item of the birth year dropdown (BirthYearInput): no year given. -->
+    <string name="birth_year_none">Select birth year</string>
     <string name="signup_optional_note">Optional profile details · weight improves calorie estimates (70 kg assumed if omitted)</string>
     <string name="signup_optional_note_imperial">Optional profile details · weight improves calorie estimates (154 lb assumed if omitted)</string>
     <string name="signup_gender_label">Gender (optional)</string>
@@ -75,7 +77,6 @@
     <string name="signup_error_email">Enter a valid email address</string>
     <string name="signup_error_password">Use 8–64 characters with at least one letter and one digit</string>
     <!-- %1$d is the earliest year, not a count, so no plural. -->
-    <string name="signup_error_birth_year" tools:ignore="PluralsCandidate">Enter a year between %1$d and this year</string>
     <string name="signup_success">Account created.</string>
     <string name="signup_in_progress">Creating your account, please wait.</string>
 
@@ -101,7 +102,6 @@
     <string name="profile_hint_weight_imperial">Weight in lb</string>
     <string name="profile_gender_label">Gender · optional</string>
     <string name="profile_birth_year_label">Birth year · optional</string>
-    <string name="profile_hint_birth_year">e.g. 1995</string>
     <string name="profile_calories_note">Height, weight and birth year help estimate calories during workouts.</string>
     <string name="profile_save">Save profile</string>
     <string name="profile_loading">Loading profile…</string>
