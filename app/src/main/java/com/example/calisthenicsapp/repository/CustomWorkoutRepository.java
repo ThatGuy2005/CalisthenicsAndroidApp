@@ -10,9 +10,16 @@ import com.example.calisthenicsapp.model.CustomWorkout;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The users' custom workouts (the CustomWorkout table), keyed by their Firestore id. Their
+ * exercises are in {@link CustomExerciseOrderRepository}. Only SyncManager writes here, as it
+ * mirrors Firestore. The estimated length is not stored: the rows come back without one, and
+ * CustomWorkoutService adds it.
+ */
 public class CustomWorkoutRepository implements Repository<CustomWorkout> {
     private final SQLiteDatabase db;
 
+    /** Works on an open database; it does not close it. */
     public CustomWorkoutRepository(SQLiteDatabase db) { this.db = db; }
 
     @Override
@@ -49,15 +56,18 @@ public class CustomWorkoutRepository implements Repository<CustomWorkout> {
         return query(null, null);
     }
 
+    /** One user's custom workouts, by name. */
     public List<CustomWorkout> getByUid(String uid) {
         return query("Uid = ?", new String[]{uid});
     }
 
+    /** The custom workout with this id, or null. */
     public CustomWorkout getOne(String id) {
         List<CustomWorkout> r = query("Id = ?", new String[]{id});
         return r.isEmpty() ? null : r.get(0);
     }
 
+    /** The rows matching where (all rows for null), by name. */
     private List<CustomWorkout> query(String where, String[] args) {
         List<CustomWorkout> list = new ArrayList<>();
         try (Cursor c = db.query("CustomWorkout", null, where, args,

@@ -10,9 +10,15 @@ import com.example.calisthenicsapp.model.WorkoutCategory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The premade workouts (the Workout table from seed.sql), keyed by name. Read only; their exercises
+ * are in {@link ExerciseOrderRepository}. The estimated length is not stored: WorkoutService adds
+ * it.
+ */
 public class WorkoutRepository implements ReadRepository<Workout> {
     private final SQLiteDatabase db;
 
+    /** Works on an open database; it does not close it. */
     public WorkoutRepository(SQLiteDatabase db) { this.db = db; }
 
     @Override
@@ -25,6 +31,7 @@ public class WorkoutRepository implements ReadRepository<Workout> {
         return list;
     }
 
+    /** The premade workout with exactly this name, or null. */
     public Workout getOne(String name) {
         try (Cursor c = db.query("Workout", null, "Name = ?",
                 new String[]{name}, null, null, null)) {

@@ -8,9 +8,11 @@ import com.example.calisthenicsapp.model.ExerciseOrderEntry;
 import java.util.ArrayList;
 import java.util.List;
 
+/** The exercises of the premade workouts (the ExerciseOrder table from seed.sql). Read only. */
 public class ExerciseOrderRepository implements ReadRepository<ExerciseOrderEntry> {
     private final SQLiteDatabase db;
 
+    /** Works on an open database; it does not close it. */
     public ExerciseOrderRepository(SQLiteDatabase db) { this.db = db; }
 
     @Override
@@ -18,10 +20,12 @@ public class ExerciseOrderRepository implements ReadRepository<ExerciseOrderEntr
         return query(null, null);
     }
 
+    /** One premade workout's exercises, in workout order. */
     public List<ExerciseOrderEntry> getByWorkout(String workoutName) {
         return query("WorkoutName = ?", new String[]{workoutName});
     }
 
+    /** The rows matching where (all rows for null), by workout and then position. */
     private List<ExerciseOrderEntry> query(String where, String[] args) {
         List<ExerciseOrderEntry> list = new ArrayList<>();
         try (Cursor c = db.query("ExerciseOrder", null, where, args,

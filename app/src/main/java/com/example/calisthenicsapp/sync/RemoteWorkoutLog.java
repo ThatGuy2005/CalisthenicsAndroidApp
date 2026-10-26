@@ -9,14 +9,22 @@ import java.util.Map;
 
 /** Mirrors a users/{uid}/workoutLogs/{id} Firestore document. */
 public class RemoteWorkoutLog {
+    /** The document id. */
     public final String id;
+    /** The workout's name at the time. */
     public final String workoutName;
+    /** Epoch seconds; 0 if missing. */
     public final long startedAt;
+    /** Rests included, pauses excluded; 0 if missing. */
     public final int durationSeconds;
+    /** Estimated calories; 0 if missing. */
     public final double kcal;
+    /** Completed or Partial (see WorkoutLog). */
     public final String status;                    // null for logs saved before statuses existed
+    /** The snapshot of what was done. */
     public final List<LoggedExercise> exercises;   // empty for logs saved before snapshots existed
 
+    /** Made by {@link #fromSnapshot}. */
     RemoteWorkoutLog(String id, String workoutName, long startedAt,
                               int durationSeconds, double kcal, String status,
                               List<LoggedExercise> exercises) {
@@ -29,6 +37,7 @@ public class RemoteWorkoutLog {
         this.exercises = exercises;
     }
 
+    /** Reads the document; missing numbers count as 0. */
     public static RemoteWorkoutLog fromSnapshot(DocumentSnapshot doc) {
         Long startedAt = doc.getLong("startedAt");
         Long durationSeconds = doc.getLong("durationSeconds");
@@ -41,8 +50,10 @@ public class RemoteWorkoutLog {
                 exercisesFrom(doc.get("exercises")));
     }
 
-    /** Firestore hands an array of maps back as a List of Maps, with numbers as Long or Double. */
-    /** The exercises array of a log document; package-private for the tests. */
+    /**
+     * The exercises array of a log document; package-private for the tests. Firestore hands an
+     * array of maps back as a List of Maps, with numbers as Long or Double.
+     */
     static List<LoggedExercise> exercisesFrom(Object raw) {
         List<LoggedExercise> list = new ArrayList<>();
         if (!(raw instanceof List)) return list;
@@ -65,6 +76,7 @@ public class RemoteWorkoutLog {
         return list;
     }
 
+    /** value if it is a number, otherwise fallback. */
     private static Number number(Object value, Number fallback) {
         return value instanceof Number ? (Number) value : fallback;
     }

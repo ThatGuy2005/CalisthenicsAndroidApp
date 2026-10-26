@@ -4,11 +4,17 @@ import java.util.Map;
 
 /** One element of a customWorkouts/{id}.exercises array. */
 public class RemoteExerciseEntry {
+    /** The exercise, by its unique name. */
     public final String exerciseName;
+    /** Its place in the workout, from 1; 1 if missing. */
     public final int position;
+    /** Number of sets; null if missing. */
     public final Integer sets;
+    /** Reps per set; null for a timed exercise. */
     public final Integer reps;
+    /** Seconds per set; null for a rep-based exercise. */
     public final Integer seconds;
+    /** The rest between sets, in seconds. */
     public final Integer restSeconds;
     /** Null in workouts saved before it existed: the same as restSeconds. */
     public final Integer restAfterSeconds;
@@ -24,6 +30,7 @@ public class RemoteExerciseEntry {
         this.restAfterSeconds = restAfterSeconds;
     }
 
+    /** Reads one array element, as Firestore hands it over: a map of field names to values. */
     public static RemoteExerciseEntry fromMap(Map<String, Object> map) {
         return new RemoteExerciseEntry(
                 (String) map.get("exerciseName"),
@@ -40,6 +47,7 @@ public class RemoteExerciseEntry {
         return value instanceof Number ? ((Number) value).intValue() : fallback;
     }
 
+    /** Like asInt, but null when the field is missing or not a number. */
     private static Integer asNullableInt(Object value) {
         return value instanceof Number ? ((Number) value).intValue() : null;
     }

@@ -7,5 +7,6 @@ import java.util.List;
  * loads them (DR-7) and the app never changes them (FR-4.3).
  */
 public interface ReadRepository<T> {
+    /** Every row of the table, in the repository's usual order. */
     List<T> getAll();
 }

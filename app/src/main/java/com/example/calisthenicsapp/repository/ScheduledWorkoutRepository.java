@@ -13,9 +13,16 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The users' planned workouts (the ScheduledWorkout table), keyed by their Firestore id, and the
+ * device calendar events added for them (the CalendarEvent table, which exists only on this device
+ * and is never synced). Only SyncManager writes the schedules, as it mirrors Firestore;
+ * ScheduleCalendar writes the calendar events.
+ */
 public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> {
     private final SQLiteDatabase db;
 
+    /** Works on an open database; it does not close it. */
     public ScheduledWorkoutRepository(SQLiteDatabase db) { this.db = db; }
 
     @Override
@@ -50,6 +57,7 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         return query(null, null);
     }
 
+    /** The schedule with this id, or null. */
     public ScheduledWorkout getOne(String id) {
         List<ScheduledWorkout> r = query("Id = ?", new String[]{id});
         return r.isEmpty() ? null : r.get(0);
@@ -89,6 +97,7 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         db.insertWithOnConflict("CalendarEvent", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
+    /** The calendar event added on this device for the schedule, or null. */
     public Long getCalendarEventId(String scheduleId) {
         try (Cursor c = db.query("CalendarEvent", new String[]{"EventId"}, "ScheduleId = ?",
                 new String[]{scheduleId}, null, null, null)) {
@@ -96,10 +105,15 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         }
     }
 
+    /** Forgets the schedule's calendar event, e.g. after it was deleted from the calendar. */
     public void clearCalendarEventId(String scheduleId) {
         db.delete("CalendarEvent", "ScheduleId = ?", new String[]{scheduleId});
     }
 
+    /**
+     * The schedules matching where (all for null), soonest first, each with its calendar event id
+     * from the LEFT JOIN (null when this device has none).
+     */
     private List<ScheduledWorkout> query(String where, String[] args) {
         List<ScheduledWorkout> list = new ArrayList<>();
         String sql = "SELECT s.*, e.EventId AS CalendarEventId FROM ScheduledWorkout s"
@@ -130,6 +144,10 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         return list;
     }
 
+    /**
+     * The schedule as a row. The completed occurrences are stored as a JSON array of epoch seconds,
+     * or NULL when there are none; the calendar event is not part of the row.
+     */
     private ContentValues toContentValues(ScheduledWorkout s) {
         ContentValues cv = new ContentValues();
         if (s.getId() != null) cv.put("Id", s.getId());
@@ -146,6 +164,7 @@ public class ScheduledWorkoutRepository implements Repository<ScheduledWorkout> 
         return cv;
     }
 
+    /** Reads back the Completed column written by toContentValues. */
     private static List<Long> completedFromJson(String json) {
         List<Long> completed = new ArrayList<>();
         if (json == null) return completed;
