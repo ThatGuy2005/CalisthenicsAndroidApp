@@ -23,6 +23,7 @@ import java.util.Locale;
 
 /** Final workout totals and automatic log save (FR-5.3 to FR-5.6). */
 public class WorkoutSummaryActivity extends AppCompatActivity {
+    /** The finished or cancelled WorkoutSession. */
     public static final String EXTRA_SESSION = "com.example.calisthenicsapp.COMPLETED_SESSION";
     private static final String STATE_SESSION = "summary_workout_session";
     private WorkoutSession session;
@@ -52,6 +53,7 @@ public class WorkoutSummaryActivity extends AppCompatActivity {
         saveIfNeeded();
     }
 
+    /** Shows the title (completed or partial), time, calories, sets and a card per exercise. */
     private void bindSummary() {
         boolean complete = WorkoutSession.STATUS_COMPLETED.equals(session.getStatus());
         ((TextView) findViewById(R.id.summaryTitle)).setText(complete ? R.string.summary_title_complete : R.string.summary_title_partial);
@@ -96,6 +98,10 @@ public class WorkoutSummaryActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Saves the session as a workout log, once: a saved session keeps its log id, so returning to
+     * this screen does not log it again. On failure, tapping the status line tries again.
+     */
     private void saveIfNeeded() {
         if (!session.isLoggable()) {
             saved.setText(R.string.summary_nothing_to_save);
@@ -117,10 +123,12 @@ public class WorkoutSummaryActivity extends AppCompatActivity {
         });
     }
 
+    /** m:ss, minutes not capped at 59. */
     private String formatTime(int seconds) {
         return String.format(Locale.getDefault(), "%d:%02d", seconds / 60, seconds % 60);
     }
 
+    // Keeps the session, with its log id, so a restored screen does not save it twice.
     @Override protected void onSaveInstanceState(Bundle outState) {
         if (session != null) outState.putSerializable(STATE_SESSION, session);
         super.onSaveInstanceState(outState);

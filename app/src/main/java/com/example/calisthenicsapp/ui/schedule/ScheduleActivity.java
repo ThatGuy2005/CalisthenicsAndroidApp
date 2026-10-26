@@ -48,9 +48,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * The Schedule tab (FR-6): a week strip with a dot on the days that have a workout, the selected
+ * day's planned workouts with their status (FR-6.4), and the "Plan a workout" button. Each card can
+ * be completed, opened, rescheduled, given another repeat, added to the calendar (FR-6.2), emailed
+ * (FR-6.3) or deleted.
+ */
 public class ScheduleActivity extends AppCompatActivity {
+    /** See HomeActivity.EXTRA_PREVIEW_MODE: an empty week, and planning needs an account. */
     public static final String EXTRA_PREVIEW_MODE = HomeActivity.EXTRA_PREVIEW_MODE;
 
+    /** The selected day, its week and the week's occurrences. */
     private final ScheduleWeek week = new ScheduleWeek();
     private LinearLayout weekDays;
     private LinearLayout agenda;
@@ -58,14 +66,21 @@ public class ScheduleActivity extends AppCompatActivity {
     private TextView selectedDateTitle;
     private TextView daySubtitle;
     private ScheduleService scheduleService;
+    /** The workouts the plan form offers, and the custom workouts' names for the cards. */
     private WorkoutChoices workoutChoices;
     private boolean previewMode;
+    /** A schedule to add to the calendar once the permission answer comes. */
     private String pendingCalendarScheduleId;
+    /**
+     * A new schedule waiting for the calendar permission answer: pendingChoice and the fields after
+     * it hold the plan form's answers until then.
+     */
     private WorkoutChoices.Option pendingChoice;
     private long pendingScheduledAt;
     private Recurrence pendingRecurrence;
     private boolean pendingEmail;
 
+    /** Reloads the week when schedules change, and the form's choices when custom workouts do. */
     private final DataChanges.Listener dataListener = kind -> {
         if (kind == DataChanges.Kind.SCHEDULES) loadWeek();
         if (kind == DataChanges.Kind.CUSTOM_WORKOUTS) workoutChoices.load();
@@ -111,12 +126,14 @@ public class ScheduleActivity extends AppCompatActivity {
         }
     }
 
+    /** Shows the previous (-1) or next (+1) week. */
     private void changeWeek(int offset) {
         week.moveWeeks(offset);
         renderWeek();
         loadWeek();
     }
 
+    /** Draws the month title, the selected date and the seven day tiles. */
     private void renderWeek() {
         Calendar selectedDay = week.getSelectedDay();
         monthTitle.setText(new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(selectedDay.getTime()));
@@ -160,6 +177,7 @@ public class ScheduleActivity extends AppCompatActivity {
             dot.setBackground(rounded(selected ? 0xFFC35CFF : 0xFFD08BFF, dp(this, 4)));
             LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(dp(this, 4), dp(this, 4));
             dotParams.topMargin = dp(this, 4);
+            // INVISIBLE rather than GONE, so every tile keeps the same height.
             dot.setVisibility(week.hasOccurrenceOn(day) ? View.VISIBLE : View.INVISIBLE);
             tile.addView(dot, dotParams);
 
@@ -176,6 +194,7 @@ public class ScheduleActivity extends AppCompatActivity {
         }
     }
 
+    /** Loads the week's occurrences, then redraws. */
     private void loadWeek() {
         scheduleService.getOccurrences(week.fromSeconds(), week.toSeconds(),
                 new ServiceCallback<List<ScheduleOccurrence>>() {
@@ -192,6 +211,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 });
     }
 
+    /** The selected day's workouts, or the empty card that opens the plan form. */
     private void renderAgendaForSelectedDay() {
         List<ScheduleOccurrence> selected = week.occurrencesOnSelectedDay();
         if (selected.isEmpty()) {
@@ -213,6 +233,7 @@ public class ScheduleActivity extends AppCompatActivity {
         for (ScheduleOccurrence occurrence : selected) addOccurrenceCard(occurrence);
     }
 
+    /** A card with a plus, a title and a line of text; tapping it opens the plan form. */
     private void showEmptyState(String title, String subtitle) {
         agenda.removeAllViews();
         MaterialCardView card = new MaterialCardView(this);
@@ -254,10 +275,15 @@ public class ScheduleActivity extends AppCompatActivity {
         card.setOnClickListener(v -> showAddWorkoutDialog());
     }
 
+    /** What the preview mode shows instead of data. */
     private void renderPreviewAgenda() {
         showEmptyState(getString(R.string.schedule_preview_title), getString(R.string.schedule_preview_message));
     }
 
+    /**
+     * One planned workout: the time, its status, the workout, how it repeats, "Mark as complete"
+     * when allowed, and the menu.
+     */
     private void addOccurrenceCard(ScheduleOccurrence occurrence) {
         ScheduledWorkout schedule = occurrence.getSchedule();
         MaterialCardView card = new MaterialCardView(this);
@@ -329,6 +355,8 @@ public class ScheduleActivity extends AppCompatActivity {
         repeatParams.topMargin = dp(this, 3);
         body.addView(repeatView, repeatParams);
 
+        // ScheduleService allows completing from OccurrenceStatus.MISSED_AFTER_SECONDS (12 h)
+        // before the start, so the button shows from then on.
         if (occurrence.getStatus() == OccurrenceStatus.MISSED
                 || (occurrence.getStatus() == OccurrenceStatus.PENDING
                 && occurrence.getStartSeconds() <= System.currentTimeMillis() / 1000L + 12 * 3600L)) {
@@ -365,6 +393,7 @@ public class ScheduleActivity extends AppCompatActivity {
         agenda.addView(card);
     }
 
+    /** The card's menu. The item ids are the positions in schedule_occurrence_actions. */
     private void showOccurrenceMenu(View anchor, ScheduleOccurrence occurrence) {
         String[] options = getResources().getStringArray(R.array.schedule_occurrence_actions);
         android.widget.PopupMenu menu = new android.widget.PopupMenu(
@@ -387,6 +416,7 @@ public class ScheduleActivity extends AppCompatActivity {
         menu.show();
     }
 
+    /** Opens the planned workout's detail screen, premade or custom. */
     private void openWorkout(ScheduledWorkout schedule) {
         if (schedule.isCustom()) {
             Intent intent = new Intent(this, CustomWorkoutDetailActivity.class);
@@ -400,6 +430,7 @@ public class ScheduleActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /** Lets the user change how the schedule repeats (FR-6.1). */
     private void editRecurrence(ScheduledWorkout schedule) {
         Spinner repeat = RepeatOptions.newSpinner(this);
         repeat.setSelection(RepeatOptions.positionOf(schedule.getRecurrence()));
@@ -420,6 +451,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 }).show();
     }
 
+    /** Marks the occurrence as done; the sync then redraws the card. */
     private void markCompleted(ScheduleOccurrence occurrence) {
         scheduleService.markCompleted(occurrence.getSchedule().getId(), occurrence.getStartSeconds(),
                 new ServiceCallback<Void>() {
@@ -428,6 +460,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 });
     }
 
+    /** Asks first; a repeating schedule is deleted with every occurrence. */
     private void confirmDelete(ScheduledWorkout schedule) {
         new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_CalisthenicsApp_Dialog)
                 .setTitle(R.string.schedule_delete_title)
@@ -443,6 +476,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 .show();
     }
 
+    /** Moves the schedule to a new date and time; a repeating one moves as a whole series. */
     private void reschedule(ScheduleOccurrence occurrence) {
         Calendar initial = Calendar.getInstance();
         initial.setTimeInMillis(occurrence.getStartSeconds() * 1000L);
@@ -468,6 +502,7 @@ public class ScheduleActivity extends AppCompatActivity {
         }, initial.get(Calendar.YEAR), initial.get(Calendar.MONTH), initial.get(Calendar.DAY_OF_MONTH)).show();
     }
 
+    /** Adds the schedule to the device calendar, asking for the permission first if needed. */
     private void addToCalendar(String scheduleId) {
         if (scheduleService.hasCalendarPermission()) {
             scheduleService.addToCalendar(scheduleId, new ServiceCallback<Long>() {
@@ -480,6 +515,7 @@ public class ScheduleActivity extends AppCompatActivity {
         }
     }
 
+    /** Opens the user's email app with the workout email and its .ics invite (FR-6.3). */
     private void emailInvite(String scheduleId) {
         scheduleService.buildEmail(scheduleId, true, new ServiceCallback<Intent>() {
             @Override public void onSuccess(Intent intent) {
@@ -490,6 +526,10 @@ public class ScheduleActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Carries on with whatever asked for the calendar permission: an existing schedule, or a new
+     * one that is then saved with or without its calendar event.
+     */
     private void onCalendarPermissionResult(Map<String, Boolean> result) {
         boolean granted = true;
         for (String permission : ScheduleService.CALENDAR_PERMISSIONS) {
@@ -510,6 +550,7 @@ public class ScheduleActivity extends AppCompatActivity {
         }
     }
 
+    /** Opens the plan form, once the workout choices are loaded. */
     private void showAddWorkoutDialog() {
         if (previewMode) {
             showMessage(getString(R.string.schedule_preview_sign_in));
@@ -527,6 +568,8 @@ public class ScheduleActivity extends AppCompatActivity {
 
         PlanWorkoutDialog.show(this, workoutChoices.get(), week.getSelectedDay(), this::showMessage,
                 (choice, at, recurrence, addToCalendar, email) -> {
+                    // Ask first; onCalendarPermissionResult saves the schedule with the answers
+                    // kept here.
                     if (addToCalendar && !scheduleService.hasCalendarPermission()) {
                         pendingChoice = choice;
                         pendingScheduledAt = at;
@@ -539,6 +582,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 });
     }
 
+    /** Saves the new schedule, shows its day, and opens the email when that box was ticked. */
     private void createSchedule(WorkoutChoices.Option choice, long at, Recurrence recurrence,
                                 boolean addToCalendar, boolean email) {
         if (at <= System.currentTimeMillis() / 1000L) {
@@ -560,12 +604,14 @@ public class ScheduleActivity extends AppCompatActivity {
         else scheduleService.schedulePremade(choice.name, at, recurrence, addToCalendar, callback);
     }
 
+    /** The status tag text: completed, missed or planned. */
     private String statusLabel(OccurrenceStatus status) {
         if (status == OccurrenceStatus.COMPLETED) return getString(R.string.schedule_status_completed);
         if (status == OccurrenceStatus.MISSED) return getString(R.string.schedule_status_missed);
         return getString(R.string.schedule_status_planned);
     }
 
+    /** A short message at the bottom. */
     private void showMessage(String message) {
         Snackbar.make(findViewById(R.id.scheduleRoot), message, Snackbar.LENGTH_LONG).show();
     }

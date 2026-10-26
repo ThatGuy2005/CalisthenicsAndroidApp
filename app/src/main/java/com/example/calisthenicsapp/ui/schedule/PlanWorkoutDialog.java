@@ -33,6 +33,7 @@ import java.util.function.Consumer;
  * saving the schedule and opening the email are the screen's job.
  */
 final class PlanWorkoutDialog {
+    /** Gets the answers of the form when the user taps Save. */
     interface OnPlanned {
         /** at is in epoch seconds; recurrence is null for once. */
         void onPlanned(WorkoutChoices.Option choice, long at, Recurrence recurrence,
@@ -42,6 +43,10 @@ final class PlanWorkoutDialog {
     private PlanWorkoutDialog() {
     }
 
+    /**
+     * Shows the form for planning a workout on day. showMessage shows a problem with the answers,
+     * such as no workout chosen.
+     */
     static void show(Context context, List<WorkoutChoices.Option> options, Calendar day,
                      Consumer<String> showMessage, OnPlanned onPlanned) {
         LinearLayout form = new LinearLayout(context);
@@ -97,6 +102,8 @@ final class PlanWorkoutDialog {
                 .setNegativeButton(R.string.common_cancel, null)
                 .setPositiveButton(R.string.schedule_form_save, null)
                 .create();
+        // Save is wired here rather than in setPositiveButton, so the dialog stays open when no
+        // workout is chosen.
         dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     WorkoutChoices.Option choice = (WorkoutChoices.Option) workoutSpinner.getSelectedItem();
@@ -112,6 +119,7 @@ final class PlanWorkoutDialog {
         dialog.show();
     }
 
+    /** A date picker, then a time picker; the result goes into chosen and onto the button. */
     private static void pickDateTime(Context context, Calendar chosen, TextView button) {
         new DatePickerDialog(context, R.style.ThemeOverlay_CalisthenicsApp_Picker, (picker, year, month, day) -> {
             chosen.set(Calendar.YEAR, year);
@@ -127,6 +135,7 @@ final class PlanWorkoutDialog {
         }, chosen.get(Calendar.YEAR), chosen.get(Calendar.MONTH), chosen.get(Calendar.DAY_OF_MONTH)).show();
     }
 
+    /** A small heading above a field. */
     private static void addFormLabel(LinearLayout form, int text) {
         Context context = form.getContext();
         TextView label = new TextView(context);
@@ -141,6 +150,7 @@ final class PlanWorkoutDialog {
         form.addView(label, params);
     }
 
+    /** The date and time as the device's locale writes them. */
     private static String formatDateTime(Calendar calendar) {
         return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault())
                 .format(calendar.getTime());
