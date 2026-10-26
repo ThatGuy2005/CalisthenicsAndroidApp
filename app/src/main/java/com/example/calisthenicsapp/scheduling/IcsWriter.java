@@ -77,6 +77,7 @@ public final class IcsWriter {
             int size = ch.getBytes(StandardCharsets.UTF_8).length;
             if (octets + size > MAX_LINE_OCTETS) {
                 out.append(CRLF).append(' ');
+                // The leading space counts too.
                 octets = 1;
             }
             out.append(ch);
@@ -86,12 +87,14 @@ public final class IcsWriter {
         return out.toString();
     }
 
+    /** An iCalendar UTC date-time, e.g. 20261031T170000Z. */
     static String utc(long epochSeconds) {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", Locale.ROOT);
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
         return format.format(new Date(epochSeconds * 1000L));
     }
 
+    /** Appends one content line, folded, with its CRLF. */
     private static void line(StringBuilder ics, String contentLine) {
         ics.append(fold(contentLine)).append(CRLF);
     }

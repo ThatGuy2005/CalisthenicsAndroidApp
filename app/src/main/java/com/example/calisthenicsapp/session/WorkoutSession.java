@@ -33,28 +33,53 @@ import java.util.function.LongSupplier;
 public class WorkoutSession implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    /** Every set of every exercise was done; see {@link #getStatus()}. */
     public static final String STATUS_COMPLETED = "Completed";
+    /** The workout was cancelled or sets were skipped; see {@link #getStatus()}. */
     public static final String STATUS_PARTIAL = "Partial";
 
-    public enum Phase { WORK, REST, FINISHED, CANCELLED }
+    /** Where the workout is: in a set, in a rest, or over. */
+    public enum Phase {
+        /** Doing a set of the current exercise. */
+        WORK,
+        /** Resting before the next set or the next exercise. */
+        REST,
+        /** The last exercise is done or was skipped. */
+        FINISHED,
+        /** The user stopped the workout. */
+        CANCELLED
+    }
 
     /** One exercise of the workout: what to do, and how much of it has been done. */
     public static final class SessionExercise implements Serializable {
         private static final long serialVersionUID = 1L;
 
+        /** The exercise's unique name. */
         private final String name;
+        /** How to do it, for the screen. */
         private final String instructions;
+        /** The demonstration in the assets, or null. */
         private final String animationFile;
+        /** A set is held for a time rather than counted. */
         private final boolean timed;
-        private final Integer targetReps;      // per set; null for timed exercises
-        private final Integer targetSeconds;   // per set; null for rep-based exercises
+        /** Per set; null for timed exercises. */
+        private final Integer targetReps;
+        /** Per set; null for rep-based exercises. */
+        private final Integer targetSeconds;
+        /** How many sets to do. */
         private final int sets;
-        private final int restSeconds;         // between its sets
-        private final Integer restAfterSeconds;    // before the next exercise; null = restSeconds
-        private final boolean perSide;         // reps or seconds per side; false in older saves
+        /** Between its sets. */
+        private final int restSeconds;
+        /** Before the next exercise; null = restSeconds. */
+        private final Integer restAfterSeconds;
+        /** Reps or seconds per side; false in older saves. */
+        private final boolean perSide;
+        /** The exercise's MET, for the calories. */
         private final double met;
 
+        /** Sets done so far. */
         private int completedSets;
+        /** Time spent in the completed sets, rests excluded. */
         private long activeMillis;
 
         /** The same rest between the sets and before the next exercise. */
@@ -65,6 +90,7 @@ public class WorkoutSession implements Serializable {
                     restSeconds, restSeconds, met);
         }
 
+        /** Not done per side. */
         public SessionExercise(String name, String instructions, String animationFile,
                                boolean timed, Integer targetReps, Integer targetSeconds,
                                int sets, int restSeconds, int restAfterSeconds, double met) {
@@ -90,10 +116,15 @@ public class WorkoutSession implements Serializable {
             this.met = met;
         }
 
+        /** The exercise's unique name. */
         public String getName() { return name; }
+        /** How to do it, step by step (FR-3.3). */
         public String getInstructions() { return instructions; }
+        /** The demonstration animation's path in the assets, or null. */
         public String getAnimationFile() { return animationFile; }
+        /** True when a set is held for a time (a countdown), false when it is counted in reps. */
         public boolean isTimed() { return timed; }
+        /** Reps per set, per side when {@link #isPerSide()}; null for a timed exercise. */
         public Integer getTargetReps() { return targetReps; }
         /** Per side when {@link #isPerSide()}. */
         public Integer getTargetSeconds() { return targetSeconds; }
@@ -107,6 +138,7 @@ public class WorkoutSession implements Serializable {
             if (!timed || targetSeconds == null) return null;
             return perSide ? 2 * targetSeconds : targetSeconds;
         }
+        /** How many sets to do. */
         public int getSets() { return sets; }
         /** The rest between the sets of this exercise. */
         public int getRestSeconds() { return restSeconds; }
@@ -117,8 +149,11 @@ public class WorkoutSession implements Serializable {
         public int getRestAfterSeconds() {
             return restAfterSeconds == null ? restSeconds : restAfterSeconds;
         }
+        /** The exercise's MET, for the calories. */
         public double getMet() { return met; }
+        /** Sets done so far. */
         public int getCompletedSets() { return completedSets; }
+        /** Time spent in the completed sets so far, rests and pauses excluded. */
         public int getActiveSeconds() { return (int) (activeMillis / 1000L); }
 
         /**
@@ -131,23 +166,38 @@ public class WorkoutSession implements Serializable {
         }
     }
 
+    /** The workout's name, for the screen and the log. */
     private final String workoutName;
+    /** The exercises in workout order. */
     private final List<SessionExercise> exercises;
+    /** The body weight the session started with, defaulted if the profile has none. */
     private final double weightKg;
-    private Double kcalPerMetHour;             // null in sessions saved before BMR: weightKg
-    private final long startedAt;              // epoch seconds, for the log
+    /** Null in sessions saved before BMR: weightKg. */
+    private Double kcalPerMetHour;
+    /** Epoch seconds, for the log. */
+    private final long startedAt;
 
+    /** Where the workout is. */
     private Phase phase = Phase.WORK;
+    /** 0-based index of the current exercise (during a rest, the next one). */
     private int exerciseIndex = 0;
-    private int setNumber = 1;                 // 1-based, within the current exercise
-    private int restTargetSeconds;             // length of the current REST step
+    /** 1-based, within the current exercise. */
+    private int setNumber = 1;
+    /** Length of the current REST step. */
+    private int restTargetSeconds;
+    /** The clock is stopped. */
     private boolean paused;
 
-    private long runningSince;                 // clock time the current stretch started
-    private long stepMillis;                   // current step, up to runningSince
-    private long totalMillis;                  // whole workout, up to runningSince
-    private String logId;                      // set once saved, so it is never logged twice
-    private String customWorkoutId;            // the custom workout it was started from, or null
+    /** Clock time the current stretch started. */
+    private long runningSince;
+    /** Current step, up to runningSince. */
+    private long stepMillis;
+    /** Whole workout, up to runningSince. */
+    private long totalMillis;
+    /** Set once saved, so it is never logged twice. */
+    private String logId;
+    /** The custom workout it was started from, or null. */
+    private String customWorkoutId;
 
     private transient LongSupplier clock;
 
@@ -192,6 +242,7 @@ public class WorkoutSession implements Serializable {
      */
     public boolean completeSet() {
         if (phase != Phase.WORK) return false;
+        // A timed set that ran over (e.g. the app was in the background) counts only its target.
         long active = stepElapsedMillis();
         SessionExercise current = getCurrentExercise();
         if (current.getWorkSeconds() != null) {
@@ -225,6 +276,10 @@ public class WorkoutSession implements Serializable {
         return true;
     }
 
+    /**
+     * Stops the clock: neither the step nor the workout time counts while paused. Does nothing if
+     * already paused or over.
+     */
     public void pause() {
         if (!isRunning()) return;
         long elapsed = now() - runningSince;
@@ -233,6 +288,7 @@ public class WorkoutSession implements Serializable {
         paused = true;
     }
 
+    /** Starts the clock again after {@link #pause()}. */
     public void resume() {
         if (!paused || !isActive()) return;
         runningSince = now();
@@ -267,7 +323,9 @@ public class WorkoutSession implements Serializable {
 
     // ---------- State for the screen ----------
 
+    /** Where the workout is. */
     public Phase getPhase() { return phase; }
+    /** True between {@link #pause()} and the next resume or step action. */
     public boolean isPaused() { return paused; }
 
     /** WORK or REST: the workout is still going (possibly paused). */
@@ -280,9 +338,11 @@ public class WorkoutSession implements Serializable {
         return !isActive();
     }
 
+    /** The workout's name. */
     public String getWorkoutName() { return workoutName; }
     /** The custom workout it was started from, or null for a premade workout. */
     public String getCustomWorkoutId() { return customWorkoutId; }
+    /** When the session was started, in epoch seconds. */
     public long getStartedAt() { return startedAt; }
     /** kcal per MET per hour: the user's BMR / 24 when known, otherwise the weight in kg. */
     public double getKcalPerMetHour() {
@@ -306,6 +366,7 @@ public class WorkoutSession implements Serializable {
     /** 1-based position of the current exercise, for "Exercise 2 of 6". */
     public int getCurrentExerciseNumber() { return exerciseIndex + 1; }
 
+    /** All the exercises in order; read only. */
     public List<SessionExercise> getExercises() {
         return Collections.unmodifiableList(exercises);
     }
@@ -332,12 +393,14 @@ public class WorkoutSession implements Serializable {
         return (int) (totalElapsedMillis() / 1000L);
     }
 
+    /** Sets done so far, over all exercises. */
     public int getCompletedSets() {
         int sum = 0;
         for (SessionExercise e : exercises) sum += e.completedSets;
         return sum;
     }
 
+    /** Estimated calories so far: each exercise's {@link SessionExercise#getKcal}, added up. */
     public double getTotalKcal() {
         double sum = 0;
         for (SessionExercise e : exercises) sum += e.getKcal(getKcalPerMetHour());
@@ -369,6 +432,10 @@ public class WorkoutSession implements Serializable {
 
     // ---------- Internals ----------
 
+    /**
+     * Counts the set as done with activeMillis of work, then moves to the next set's rest, the rest
+     * before the next exercise, or the end.
+     */
     private void finishWorkStep(long activeMillis) {
         SessionExercise current = getCurrentExercise();
         current.completedSets++;
@@ -398,6 +465,7 @@ public class WorkoutSession implements Serializable {
         phase = next;
     }
 
+    /** Stops the workout as FINISHED or CANCELLED, keeping the time so far. */
     private void end(Phase finalPhase) {
         if (isRunning()) totalMillis += now() - runningSince;
         stepMillis = 0;
@@ -405,18 +473,22 @@ public class WorkoutSession implements Serializable {
         phase = finalPhase;
     }
 
+    /** Going and not paused: the clock counts. */
     private boolean isRunning() {
         return isActive() && !paused;
     }
 
+    /** Time in the current step, pauses excluded. */
     private long stepElapsedMillis() {
         return stepMillis + (isRunning() ? now() - runningSince : 0L);
     }
 
+    /** Time in the whole workout, pauses excluded. */
     private long totalElapsedMillis() {
         return totalMillis + (isRunning() ? now() - runningSince : 0L);
     }
 
+    /** The clock's time in milliseconds. */
     private long now() {
         return clock.getAsLong();
     }

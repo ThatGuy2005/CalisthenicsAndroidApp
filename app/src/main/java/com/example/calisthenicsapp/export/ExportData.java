@@ -58,26 +58,32 @@ public final class ExportData {
                 new ScheduledWorkoutRepository(db).getByUid(uid));
     }
 
+    /** The user's uid; always set, even without a profile. */
     public String getUid() {
         return uid;
     }
 
+    /** The profile, or null if it is not synced yet. */
     public User getUser() {
         return user;
     }
 
+    /** The custom workouts, by name. */
     public List<CustomWorkout> getCustomWorkouts() {
         return customWorkouts;
     }
 
+    /** Custom workout id to its exercises, in order. */
     public Map<String, List<CustomExerciseOrderEntry>> getExercisesByWorkout() {
         return exercisesByWorkout;
     }
 
+    /** The workout logs, newest first. */
     public List<WorkoutLog> getLogs() {
         return logs;
     }
 
+    /** The schedules, soonest first. */
     public List<ScheduledWorkout> getSchedules() {
         return schedules;
     }

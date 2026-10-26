@@ -17,15 +17,18 @@ public final class ScheduleOccurrence {
     private final long startSeconds;
     private final OccurrenceStatus status;
 
+    /** startSeconds is when this occurrence starts, in epoch seconds. */
     public ScheduleOccurrence(ScheduledWorkout schedule, long startSeconds, OccurrenceStatus status) {
         this.schedule = schedule;
         this.startSeconds = startSeconds;
         this.status = status;
     }
 
+    /** The schedule this is an occurrence of. */
     public ScheduledWorkout getSchedule() { return schedule; }
     /** Pass this to ScheduleService.markCompleted to complete this occurrence. */
     public long getStartSeconds() { return startSeconds; }
+    /** Pending, completed or missed, as of when it was listed. */
     public OccurrenceStatus getStatus() { return status; }
 
     /** The occurrences of the schedules in [fromSeconds, toSeconds), soonest first. */

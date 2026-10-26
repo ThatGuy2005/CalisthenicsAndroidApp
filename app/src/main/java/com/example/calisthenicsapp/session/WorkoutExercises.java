@@ -40,10 +40,12 @@ public final class WorkoutExercises {
             total += e.getSets() * work + (e.getSets() - 1) * e.getRestSeconds()
                     + e.getRestAfterSeconds();
         }
+        // The loop added a rest after every exercise; the last one has none.
         if (!exercises.isEmpty()) total -= exercises.get(exercises.size() - 1).getRestAfterSeconds();
         return Math.max(total, 0);
     }
 
+    /** The exercises of the premade workout with this name, in order; empty if there is none. */
     public static List<WorkoutSession.SessionExercise> ofPremade(SQLiteDatabase db, String workoutName) {
         ExerciseRepository exerciseRepository = new ExerciseRepository(db);
         List<WorkoutSession.SessionExercise> exercises = new ArrayList<>();
@@ -55,6 +57,7 @@ public final class WorkoutExercises {
         return exercises;
     }
 
+    /** The exercises of the custom workout with this id, in order; empty if there is none. */
     public static List<WorkoutSession.SessionExercise> ofCustom(SQLiteDatabase db, String customWorkoutId) {
         ExerciseRepository exerciseRepository = new ExerciseRepository(db);
         List<WorkoutSession.SessionExercise> exercises = new ArrayList<>();
@@ -90,12 +93,14 @@ public final class WorkoutExercises {
                 exercise.isPerSide(), exercise.getMet());
     }
 
+    /** first, or second if first is null, or fallback if both are. */
     private static int firstNonNull(Integer first, Integer second, int fallback) {
         if (first != null) return first;
         if (second != null) return second;
         return fallback;
     }
 
+    /** 0 for null. */
     private static int valueOf(Integer value) {
         return value == null ? 0 : value;
     }

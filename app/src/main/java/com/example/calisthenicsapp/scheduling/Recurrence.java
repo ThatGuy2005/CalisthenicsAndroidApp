@@ -16,13 +16,26 @@ import java.util.TimeZone;
  * like calendar apps do.
  */
 public final class Recurrence {
-    public enum Frequency { DAILY, WEEKLY, MONTHLY }
+    /** The unit the interval counts in. */
+    public enum Frequency {
+        /** Every interval days. */
+        DAILY,
+        /** Every interval weeks, on the same weekday. */
+        WEEKLY,
+        /** Every interval months, on the same day of the month. */
+        MONTHLY
+    }
 
+    /** The largest interval allowed: every 99 days, weeks or months. */
     public static final int MAX_INTERVAL = 99;
 
     private final Frequency frequency;
     private final int interval;
 
+    /**
+     * Every interval days, weeks or months. Throws IllegalArgumentException for a null frequency or
+     * an interval outside 1 to {@link #MAX_INTERVAL}.
+     */
     public Recurrence(Frequency frequency, int interval) {
         if (frequency == null) throw new IllegalArgumentException("A repeat needs a frequency.");
         if (interval < 1 || interval > MAX_INTERVAL) {
@@ -32,8 +45,11 @@ public final class Recurrence {
         this.interval = interval;
     }
 
+    /** Every day. */
     public static Recurrence daily() { return new Recurrence(Frequency.DAILY, 1); }
+    /** Every week, on the first occurrence's weekday. */
     public static Recurrence weekly() { return new Recurrence(Frequency.WEEKLY, 1); }
+    /** Every month, on the first occurrence's day of the month. */
     public static Recurrence monthly() { return new Recurrence(Frequency.MONTHLY, 1); }
 
     /**
@@ -69,7 +85,9 @@ public final class Recurrence {
         return new Recurrence(frequency, interval);
     }
 
+    /** Days, weeks or months. */
     public Frequency getFrequency() { return frequency; }
+    /** How many days, weeks or months apart; 1 to {@link #MAX_INTERVAL}. */
     public int getInterval() { return interval; }
 
     /** For people: "Every week", "Every 2 days". */
@@ -148,6 +166,7 @@ public final class Recurrence {
         return (int) Math.max(0, Math.min(Integer.MAX_VALUE / 1000, periods - 1));
     }
 
+    /** A calendar set to that time in the zone, for the wall-clock arithmetic. */
     private static Calendar startCalendar(long epochSeconds, TimeZone zone) {
         Calendar c = Calendar.getInstance(zone, Locale.ROOT);
         c.setTimeInMillis(epochSeconds * 1000L);

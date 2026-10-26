@@ -19,12 +19,14 @@ public class ScheduleCalendar {
     private final SQLiteDatabase db;
     private final ScheduledWorkoutRepository schedules;
 
+    /** db is where the event ids are kept; context is only used for the calendar provider. */
     public ScheduleCalendar(Context context, SQLiteDatabase db) {
         this.context = context.getApplicationContext();
         this.db = db;
         this.schedules = new ScheduledWorkoutRepository(db);
     }
 
+    /** Whether the calendar permissions are granted, see {@link DeviceCalendar#PERMISSIONS}. */
     public boolean hasPermission() {
         return DeviceCalendar.hasPermission(context);
     }

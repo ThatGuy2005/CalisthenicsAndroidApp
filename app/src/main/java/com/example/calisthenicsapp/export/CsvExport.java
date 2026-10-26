@@ -30,10 +30,15 @@ import java.util.zip.ZipOutputStream;
  * Pure Java, so it is unit-tested on the JVM.
  */
 public final class CsvExport {
+    /** The profile: one row, or none if it is not synced yet. */
     public static final String PROFILE = "profile.csv";
+    /** One row per exercise of each custom workout. */
     public static final String CUSTOM_WORKOUTS = "custom_workouts.csv";
+    /** One row per workout log. */
     public static final String WORKOUT_LOGS = "workout_logs.csv";
+    /** One row per exercise of each log, linked by log_id. */
     public static final String WORKOUT_LOG_EXERCISES = "workout_log_exercises.csv";
+    /** One row per schedule; completed occurrences are joined with ';'. */
     public static final String SCHEDULES = "schedules.csv";
 
     private CsvExport() {
@@ -127,6 +132,7 @@ public final class CsvExport {
         zip.finish();
     }
 
+    /** ISO 8601 in UTC, e.g. 2026-10-15T16:00:00Z. */
     static String iso(long epochSeconds) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT);
         format.setTimeZone(TimeZone.getTimeZone("UTC"));

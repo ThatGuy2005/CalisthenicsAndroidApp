@@ -6,6 +6,11 @@ import android.content.Intent;
 import com.example.calisthenicsapp.sync.SyncManager;
 import com.example.calisthenicsapp.ui.auth.MainActivity;
 
+/**
+ * The app process's entry point (named in AndroidManifest.xml). It starts the one {@link
+ * SyncManager} that mirrors the signed-in user's Firestore data into SQLite for as long as the
+ * process lives.
+ */
 public class CalisthenicsApplication extends Application {
     @Override
     public void onCreate() {

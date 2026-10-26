@@ -22,6 +22,10 @@ public final class JsonExport {
     private JsonExport() {
     }
 
+    /**
+     * The export as one object with exportedAt, profile, customWorkouts, workoutLogs and schedules.
+     * Missing values are JSON null. Fails only on NaN or infinite numbers.
+     */
     public static JSONObject build(ExportData data, long exportedAt) throws JSONException {
         JSONObject root = new JSONObject();
         root.put("exportedAt", exportedAt);
@@ -95,6 +99,7 @@ public final class JsonExport {
         return root;
     }
 
+    /** JSONObject.put drops a key whose value is null; JSONObject.NULL keeps it as null. */
     private static Object orNull(Object value) {
         return value == null ? JSONObject.NULL : value;
     }
