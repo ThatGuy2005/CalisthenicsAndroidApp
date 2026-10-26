@@ -12,8 +12,8 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * The optional birth year of sign-up as a dropdown: "Select birth year" (not given), then every
- * year UserValidator accepts, this year first.
+ * The optional birth year of sign-up and the profile as a dropdown: "Select birth year" (not
+ * given), then every year UserValidator accepts, this year first.
  */
 public final class BirthYearInput {
     private final Spinner spinner;
@@ -37,9 +37,20 @@ public final class BirthYearInput {
         spinner.setAdapter(adapter);
     }
 
+    /** Selects a stored year; null or a year outside the list selects the placeholder. */
+    public void show(Integer year) {
+        boolean listed = year != null && year <= newestYear && year >= UserValidator.BIRTH_YEAR_MIN;
+        spinner.setSelection(listed ? newestYear - year + 1 : 0);
+    }
+
     /** The chosen year, or null when the placeholder is selected. */
     public Integer getYear() {
         int position = spinner.getSelectedItemPosition();
         return position <= 0 ? null : newestYear - position + 1;
+    }
+
+    /** Locks the dropdown, e.g. while the profile loads or saves. */
+    public void setEnabled(boolean enabled) {
+        spinner.setEnabled(enabled);
     }
 }

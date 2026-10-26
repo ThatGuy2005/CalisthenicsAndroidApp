@@ -185,13 +185,15 @@
             android:text="@string/profile_birth_year_label"
             android:textColor="@color/performance_muted"
             android:textSize="13sp" />
-        <EditText
+        <Spinner
             android:id="@+id/profileBirthYear"
-            style="@style/SignupField"
-            android:autofillHints="birthDateYear"
-            android:hint="@string/profile_hint_birth_year"
-            android:inputType="number"
-            android:maxLength="4" />
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/input_background"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:popupBackground="@color/performance_surface" />
 
         <TextView
             android:layout_width="match_parent"
